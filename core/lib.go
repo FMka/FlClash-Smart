@@ -13,6 +13,7 @@ import (
 	"sync"
 	"sync/atomic"
 	"syscall"
+	"time"
 
 	"github.com/metacubex/mihomo/component/dialer"
 	"github.com/metacubex/mihomo/component/process"
@@ -244,14 +245,6 @@ func init() {
 	}))
 }
 
-// gobind runs an export on the caller's thread and turns no panic into a Java
-// exception, so a panic that leaves one ends the whole application.
-func recoverExport(name string) {
-	if r := recover(); r != nil {
-		logError("panic in %s: %v\n%s", name, r, stackTrace())
-	}
-}
-
 func InvokeMethod(data string, reply func([]byte)) {
 	defer recoverExport("invokeMethod")
 	call := &MethodCall{}
@@ -400,7 +393,6 @@ func ResetNetwork() {
 }
 
 var networkChangeRevision atomic.Uint64
-var networkResetMu sync.Mutex
 
 func NetworkChanged(key string) {
 	defer recoverExport("networkChanged")
@@ -408,6 +400,8 @@ func NetworkChanged(key string) {
 	smartReconnect.mu.Lock()
 	smartReconnect.cancelLocked()
 	smartReconnect.network = key
+	smartReconnect.transportFailure = time.Time{}
+	smartReconnect.resetAttempt = time.Time{}
 	smartReconnect.mu.Unlock()
 	safeGo("networkChanged", func() {
 		networkResetMu.Lock()

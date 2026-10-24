@@ -19,11 +19,21 @@ UpdateParams updateParams(Ref ref) {
 }
 
 @riverpod
-({PatchClashConfig patchConfig, bool appendSystemDns, bool bypassPrivateRoute})
+({
+  PatchClashConfig patchConfig,
+  bool appendSystemDns,
+  bool bypassPrivateRoute,
+  SelectValue<Map<String, dynamic>> smartSettings,
+})
 setupPatch(Ref ref) {
   return (
     patchConfig: ref.watch(
       patchClashConfigProvider.select((state) => state.setupOnly),
+    ),
+    smartSettings: ref.watch(
+      appSettingProvider.select(
+        (state) => SelectValue(smartReconnectSettings(state)),
+      ),
     ),
     appendSystemDns: ref.watch(
       networkSettingProvider.select((state) => state.appendSystemDns),

@@ -19,38 +19,61 @@ import (
 	"time"
 
 	"github.com/metacubex/http"
+	"github.com/metacubex/mihomo/adapter/outboundgroup"
 	"github.com/metacubex/mihomo/common/utils"
 	"github.com/metacubex/mihomo/component/ca"
 	"github.com/metacubex/mihomo/config"
 	"github.com/metacubex/mihomo/constant"
 	"github.com/metacubex/mihomo/log"
+	"github.com/metacubex/mihomo/tunnel"
 	"github.com/metacubex/mihomo/tunnel/statistic"
 	"go.yaml.in/yaml/v3"
 )
 
 type smartGroupSpec struct {
-	Name     string
-	Options  smart.Options
-	SpeedURL string
+	Name               string
+	Options            smart.Options
+	SpeedURL           string
+	Settings           smartSettings
+	Sources            []string
+	Providers          []string
+	Identities         map[string]string
+	ProviderIdentities map[string]string
 }
 
-func prepareSmartGroups(raw *config.RawConfig, specs *[]smartGroupSpec) error {
-	defaultAssigned := false
+func prepareSmartGroups(raw *config.RawConfig, specs *[]smartGroupSpec, configured ...smartSettings) error {
+	settings := defaultSmartSettings()
+	if len(configured) > 0 {
+		settings = configured[0]
+	}
+	if !settings.Enabled {
+		return nil
+	}
+	primary := primarySmartGroup(raw)
 	for _, group := range raw.ProxyGroup {
 		value, exists := group["smart-reconnect"]
 		kind, _ := group["type"].(string)
-		if !exists && kind == "url-test" && !defaultAssigned {
+		if !exists && group["name"] == primary {
 			value, exists = true, true
 		}
 		if !exists || value == false {
 			continue
 		}
-		spec := smartGroupSpec{Options: smart.DefaultOptions(), SpeedURL: "https://speed.cloudflare.com/__down"}
+		spec := smartGroupSpec{Options: smart.DefaultOptions(), SpeedURL: "https://speed.cloudflare.com/__down", Settings: settings, Sources: smartStrings(group["proxies"]), Providers: smartStrings(group["use"]), Identities: map[string]string{}}
+		spec.ProviderIdentities = map[string]string{}
+		for name, provider := range raw.ProxyProvider {
+			encoded, _ := yaml.Marshal(provider)
+			spec.ProviderIdentities[name] = smartHash(string(encoded))
+		}
+		for _, node := range raw.Proxy {
+			name, _ := node["name"].(string)
+			encoded, _ := yaml.Marshal(node)
+			spec.Identities[name] = smartHash(string(encoded))
+		}
 		spec.Name, _ = group["name"].(string)
 		if kind != "select" && kind != "url-test" {
 			return fmt.Errorf("smart-reconnect requires a select or url-test group")
 		}
-		defaultAssigned = true
 		if value != true {
 			data, err := yaml.Marshal(value)
 			if err != nil {
@@ -92,21 +115,7 @@ func prepareSmartGroups(raw *config.RawConfig, specs *[]smartGroupSpec) error {
 		group["type"] = "select"
 		group["empty-fallback"] = "REJECT"
 		group["default-selected"] = "REJECT"
-		members := []string{"REJECT"}
-		if list, ok := group["proxies"].([]any); ok {
-			for _, member := range list {
-				if name, ok := member.(string); ok && name != "DIRECT" && name != "REJECT" {
-					members = append(members, name)
-				}
-			}
-		} else if list, ok := group["proxies"].([]string); ok {
-			for _, name := range list {
-				if name != "DIRECT" && name != "REJECT" {
-					members = append(members, name)
-				}
-			}
-		}
-		group["proxies"] = members
+		flattenSmartGroup(raw, group)
 		if specs != nil {
 			*specs = append(*specs, spec)
 		}
@@ -115,24 +124,35 @@ func prepareSmartGroups(raw *config.RawConfig, specs *[]smartGroupSpec) error {
 }
 
 type smartRuntime struct {
-	mu          sync.Mutex
-	saveMu      sync.Mutex
-	specs       []smartGroupSpec
-	workers     map[string]context.CancelFunc
-	paused      map[string]bool
-	history     *smart.History
-	network     string
-	configuring bool
+	mu               sync.Mutex
+	saveMu           sync.Mutex
+	specs            []smartGroupSpec
+	workers          map[string]context.CancelFunc
+	paused           map[string]bool
+	history          *smart.History
+	network          string
+	configuring      bool
+	settings         smartSettings
+	engines          map[string]*smart.Engine
+	generation       uint64
+	phases           map[string]string
+	states           map[string]smartGroupStatus
+	transportOK      time.Time
+	transportFailure time.Time
+	resetAttempt     time.Time
+	lastRestart      time.Time
 }
 
 var smartReconnect = &smartRuntime{history: &smart.History{}}
 var smartSpeedSlots = make(slots, 1)
 
 func (r *smartRuntime) cancelLocked() {
+	r.generation++
 	for _, cancel := range r.workers {
 		cancel()
 	}
 	r.workers = map[string]context.CancelFunc{}
+	r.engines = map[string]*smart.Engine{}
 }
 
 func (r *smartRuntime) beginConfig() {
@@ -142,11 +162,17 @@ func (r *smartRuntime) beginConfig() {
 	r.cancelLocked()
 }
 
-func (r *smartRuntime) configure(specs []smartGroupSpec) {
+func (r *smartRuntime) configure(specs []smartGroupSpec, settings ...smartSettings) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	r.cancelLocked()
 	r.specs, r.paused, r.configuring = specs, map[string]bool{}, false
+	r.settings = defaultSmartSettings()
+	if len(settings) > 0 {
+		r.settings = settings[0]
+	}
+	r.phases, r.states = map[string]string{}, map[string]smartGroupStatus{}
+	r.transportFailure, r.resetAttempt = time.Time{}, time.Time{}
 	if runtime.GOOS != "android" && r.network == "" {
 		r.network = "desktop"
 	}
@@ -157,12 +183,14 @@ func (r *smartRuntime) stop() {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	r.cancelLocked()
+	r.transportFailure, r.resetAttempt = time.Time{}, time.Time{}
 }
 
 func (r *smartRuntime) resume() {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	r.paused = map[string]bool{}
+	r.transportFailure, r.resetAttempt = time.Time{}, time.Time{}
 	r.startLocked()
 }
 
@@ -181,10 +209,15 @@ func (r *smartRuntime) pauseLocked(group string) {
 		r.paused = map[string]bool{}
 	}
 	r.paused[group] = true
+	if r.phases == nil {
+		r.phases = map[string]string{}
+	}
+	r.phases[group] = "manual"
+	appendSmartJournal("manual", "manual selection")
 }
 
 func (r *smartRuntime) startLocked() {
-	if !isRunning.Load() || r.configuring || r.network == "" {
+	if !isRunning.Load() || r.configuring || r.network == "" || !r.settings.Enabled {
 		return
 	}
 	if r.workers == nil {
@@ -206,9 +239,31 @@ func (r *smartRuntime) startLocked() {
 		}
 		ctx, cancel := context.WithCancel(context.Background())
 		r.workers[spec.Name] = cancel
-		backend := &smartBackend{spec: spec, group: group, expected: "REJECT"}
+		refreshRouteLockedSafe()
+		backend := &smartBackend{spec: spec, group: group, expected: "REJECT", network: r.network, runtime: r, generation: r.generation}
+		if smartMobileNetwork(r.network) {
+			spec.Options.SpeedTTL = 30 * time.Minute
+			spec.Options.PoolRefreshInterval = 5 * time.Minute
+		} else {
+			spec.Options.SpeedTTL = 10 * time.Minute
+		}
 		engine := smart.New(spec.Options, r.history)
+		if r.engines == nil {
+			r.engines = map[string]*smart.Engine{}
+		}
+		r.engines[spec.Name] = engine
+		generation := r.generation
 		engine.Status = func(phase string) {
+			r.mu.Lock()
+			valid := generation == r.generation
+			if valid {
+				r.phases[spec.Name] = phase
+			}
+			r.mu.Unlock()
+			if !valid {
+				return
+			}
+			appendSmartJournal(phase, "")
 			if phase == "unavailable" || phase == "internal-error" {
 				log.Warnln("[SmartReconnect] %s", phase)
 			} else {
@@ -217,7 +272,20 @@ func (r *smartRuntime) startLocked() {
 		}
 		engine.Save = r.save
 		network := smartHash(r.network) + ":" + smartHash(spec.Name)
-		safeGo("smartReconnect", func() { engine.Run(ctx, network, backend) })
+		safeGo("smartReconnect", func() {
+			defer func() {
+				r.mu.Lock()
+				if generation == r.generation && r.engines[spec.Name] == engine {
+					delete(r.workers, spec.Name)
+					delete(r.engines, spec.Name)
+					if ctx.Err() == nil {
+						r.phases[spec.Name] = "internal-error"
+					}
+				}
+				r.mu.Unlock()
+			}()
+			engine.Run(ctx, network, backend)
+		})
 	}
 }
 
@@ -229,10 +297,12 @@ func smartHash(value string) string {
 func (r *smartRuntime) load() {
 	r.mu.Lock()
 	defer r.mu.Unlock()
+	loadSmartMetadata()
+	r.settings = defaultSmartSettings()
 	r.cancelLocked()
 	r.history = &smart.History{}
 	data, err := os.ReadFile(filepath.Join(constant.Path.HomeDir(), "smart-history.json"))
-	if err == nil && len(data) <= 1024*1024 {
+	if err == nil && len(data) <= 4*1024*1024 {
 		_ = json.Unmarshal(data, r.history)
 	}
 }
@@ -240,6 +310,7 @@ func (r *smartRuntime) load() {
 func (r *smartRuntime) save() {
 	r.saveMu.Lock()
 	defer r.saveMu.Unlock()
+	saveSmartMetadata()
 	r.mu.Lock()
 	history := r.history
 	r.mu.Unlock()
@@ -254,10 +325,18 @@ func (r *smartRuntime) save() {
 }
 
 type smartBackend struct {
-	spec     smartGroupSpec
-	group    pickableGroup
-	expected string
-	nodes    map[string]constant.Proxy
+	spec          smartGroupSpec
+	group         pickableGroup
+	expected      string
+	nodes         map[string]constant.Proxy
+	nodesMu       sync.RWMutex
+	qualified     map[string]smartGroupStatus
+	servicePassed map[string]time.Time
+	providerMu    sync.Mutex
+	providerCache map[string]smartProviderIdentity
+	network       string
+	runtime       *smartRuntime
+	generation    uint64
 }
 
 func (b *smartBackend) Candidates() []smart.Candidate {
@@ -267,14 +346,51 @@ func (b *smartBackend) Candidates() []smart.Candidate {
 	if err != nil || current != b.group {
 		return nil
 	}
+	b.nodesMu.Lock()
+	defer b.nodesMu.Unlock()
 	b.nodes = map[string]constant.Proxy{}
+	allowed := map[string]bool{}
+	visited := map[string]bool{}
+	var allow func(constant.Proxy)
+	allow = func(proxy constant.Proxy) {
+		if proxy == nil || visited[proxy.Name()] {
+			return
+		}
+		if proxy.Type() == constant.Relay {
+			return
+		}
+		visited[proxy.Name()] = true
+		if nested, ok := adapterAs[outboundgroup.ProxyGroup](proxy); ok {
+			for _, leaf := range nested.Proxies() {
+				allow(leaf)
+			}
+		} else {
+			allowed[proxy.Name()] = true
+		}
+	}
+	for _, name := range b.spec.Sources {
+		allow(lookupProxy(name))
+	}
+	for _, providerName := range b.spec.Providers {
+		if pd := tunnel.ProvidersSnapshot()[providerName]; pd != nil {
+			for _, proxy := range pd.Proxies() {
+				allow(proxy)
+			}
+		}
+	}
 	var candidates []smart.Candidate
 	for _, proxy := range b.group.Proxies() {
 		if proxy.Type() < constant.Shadowsocks || isProxyGroupType(proxy.Type()) {
 			continue
 		}
+		if (len(b.spec.Sources) > 0 || len(b.spec.Providers) > 0) && !allowed[proxy.Name()] {
+			continue
+		}
+		if !b.spec.Settings.AllowRussian && russianSmartName(proxy.Name()) {
+			continue
+		}
 		b.nodes[proxy.Name()] = proxy
-		candidates = append(candidates, smart.Candidate{ID: proxy.Name(), Fingerprint: smartHash(proxy.Name() + "|" + proxy.Addr() + "|" + proxy.Type().String())})
+		candidates = append(candidates, smart.Candidate{ID: proxy.Name(), Fingerprint: b.identity(proxy)})
 	}
 	return candidates
 }
@@ -286,7 +402,7 @@ func (b *smartBackend) Current() string {
 }
 
 func (b *smartBackend) Latency(ctx context.Context, name string) (time.Duration, error) {
-	proxy := b.nodes[name]
+	proxy := b.node(name)
 	if proxy == nil {
 		return 0, smart.ErrUnavailable
 	}
@@ -298,6 +414,21 @@ func (b *smartBackend) Latency(ctx context.Context, name string) (time.Duration,
 	delay, err := proxy.URLTest(ctx, probeURL, expected)
 	if err == nil && !proxy.AliveForTestUrl(probeURL) {
 		err = smart.ErrUnavailable
+	}
+	if b.runtime != nil && !errors.Is(ctx.Err(), context.Canceled) {
+		b.runtime.mu.Lock()
+		if b.generation != b.runtime.generation {
+			b.runtime.mu.Unlock()
+			return time.Duration(delay) * time.Millisecond, err
+		}
+		if err == nil {
+			b.runtime.transportOK = time.Now()
+			b.runtime.transportFailure = time.Time{}
+			b.runtime.resetAttempt = time.Time{}
+		} else if b.runtime.transportFailure.IsZero() {
+			b.runtime.transportFailure = time.Now()
+		}
+		b.runtime.mu.Unlock()
 	}
 	return time.Duration(delay) * time.Millisecond, err
 }
@@ -330,7 +461,7 @@ func (b *smartBackend) Select(ctx context.Context, name, reason string) error {
 	if name == b.expected {
 		return nil
 	}
-	if b.nodes[name] == nil {
+	if b.node(name) == nil {
 		return smart.ErrUnavailable
 	}
 	statistic.DefaultManager.Range(func(connection statistic.Tracker) bool {
@@ -345,8 +476,15 @@ func (b *smartBackend) Select(ctx context.Context, name, reason string) error {
 		return err
 	}
 	b.expected = name
+	if b.runtime != nil {
+		b.nodesMu.RLock()
+		state := b.qualified[name]
+		b.nodesMu.RUnlock()
+		b.runtime.states[b.spec.Name] = state
+	}
 	refreshRouteLocked(false)
 	log.Infoln("[SmartReconnect] switched (%s)", reason)
+	appendSmartJournal("switched", reason)
 	return nil
 }
 
@@ -355,9 +493,18 @@ func (b *smartBackend) Speed(ctx context.Context, name string, limit int64) (flo
 		return 0, context.DeadlineExceeded
 	}
 	defer smartSpeedSlots.release()
-	proxy := b.nodes[name]
+	proxy := b.node(name)
 	if proxy == nil {
 		return 0, smart.ErrUnavailable
+	}
+	if b.runtime != nil {
+		b.runtime.mu.Lock()
+		settings := b.runtime.settings
+		b.runtime.mu.Unlock()
+		if !smartTraffic.canDownload(b.network, settings, limit) {
+			appendSmartJournal("budget-exhausted", "")
+			return 0, errors.New("speed test budget exhausted")
+		}
 	}
 	tlsConfig, err := ca.GetTLSConfig(ca.Option{})
 	if err != nil {
@@ -390,6 +537,11 @@ func (b *smartBackend) Speed(ctx context.Context, name string, limit int64) (flo
 		return 0, errors.New("invalid speed probe response")
 	}
 	n, err := io.CopyN(io.Discard, response.Body, limit)
+	if b.runtime != nil {
+		smartTraffic.add(b.network, n, false)
+		b.runtime.save()
+		appendSmartJournal("speed-measurement", fmt.Sprintf("node=%s payload-bytes=%d complete=%t", smartHash(name)[:12], n, err == nil && n == limit))
+	}
 	if err != nil || n != limit {
 		return 0, errors.New("incomplete speed probe")
 	}

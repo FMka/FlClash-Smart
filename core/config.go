@@ -95,7 +95,7 @@ func loadConfig(path string) (*config.Config, error) {
 	return loadConfigSmart(path, nil)
 }
 
-func loadConfigSmart(path string, specs *[]smartGroupSpec) (*config.Config, error) {
+func loadConfigSmart(path string, specs *[]smartGroupSpec, settingsOut ...*smartSettings) (*config.Config, error) {
 	buf, err := os.ReadFile(path)
 	if err != nil {
 		return nil, err
@@ -104,7 +104,14 @@ func loadConfigSmart(path string, specs *[]smartGroupSpec) (*config.Config, erro
 	if err != nil {
 		return nil, err
 	}
-	if err = prepareSmartGroups(raw, specs); err != nil {
+	settings, err := decodeSmartSettings(buf)
+	if err != nil {
+		return nil, err
+	}
+	if len(settingsOut) > 0 {
+		*settingsOut[0] = settings
+	}
+	if err = prepareSmartGroups(raw, specs, settings); err != nil {
 		return nil, err
 	}
 	cfg, err := config.ParseRawConfig(raw)
@@ -126,12 +133,12 @@ func loadSetupConfig(params *SetupParams) (*config.Config, error) {
 	return loadSetupConfigSmart(params, nil)
 }
 
-func loadSetupConfigSmart(params *SetupParams, specs *[]smartGroupSpec) (*config.Config, error) {
+func loadSetupConfigSmart(params *SetupParams, specs *[]smartGroupSpec, settingsOut ...*smartSettings) (*config.Config, error) {
 	path := filepath.Join(constant.Path.HomeDir(), "config.yaml")
 	if params.Base != nil {
-		return loadConfigWithSmartBase(params.Base, path, specs)
+		return loadConfigWithSmartBase(params.Base, path, specs, settingsOut...)
 	}
-	return loadConfigSmart(path, specs)
+	return loadConfigSmart(path, specs, settingsOut...)
 }
 
 func applyConfig(params *SetupParams) error {
@@ -143,7 +150,8 @@ func applyConfig(params *SetupParams) error {
 	setTestURL(params.TestURL)
 	skipCertVerify.Store(params.SkipCertVerify)
 	var specs []smartGroupSpec
-	cfg, err := loadSetupConfigSmart(params, &specs)
+	settings := defaultSmartSettings()
+	cfg, err := loadSetupConfigSmart(params, &specs, &settings)
 	if err != nil {
 		// The fallback is what keeps the listeners serving while the host
 		// reports the error, but it applies a config with no proxies in it.
@@ -167,7 +175,7 @@ func applyConfig(params *SetupParams) error {
 	patchSelectGroup(params.SelectedMap)
 	bumpRouteEpoch()
 	updateListeners(cfg)
-	smartReconnect.configure(specs)
+	smartReconnect.configure(specs, settings)
 	reconcileGeoUpdater()
 	scheduleLoadMemoryRelease()
 	return err

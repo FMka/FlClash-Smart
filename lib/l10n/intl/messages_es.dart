@@ -1007,9 +1007,10 @@ class MessageLookup extends MessageLookupByLibrary {
     "inputRuleContent": MessageLookupByLibrary.simpleMessage(
       "Introduce el contenido de la regla",
     ),
-    "installedAppsPermissionDeniedMessage": MessageLookupByLibrary.simpleMessage(
-      "Se denegó el permiso de lista de apps, por lo que no se pueden mostrar las apps instaladas. Concédelo manualmente en los ajustes del sistema.",
-    ),
+    "installedAppsPermissionDeniedMessage":
+        MessageLookupByLibrary.simpleMessage(
+          "Se denegó el permiso de lista de apps, por lo que no se pueden mostrar las apps instaladas. Concédelo manualmente en los ajustes del sistema.",
+        ),
     "installedAppsPermissionDesc": MessageLookupByLibrary.simpleMessage(
       "Este sistema oculta la lista de apps instaladas hasta que se concede el permiso. Autorízalo para configurar el proxy por app.",
     ),
@@ -1819,6 +1820,69 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "slide": MessageLookupByLibrary.simpleMessage("Deslizar"),
     "sliders": MessageLookupByLibrary.simpleMessage("Reguladores"),
+    "smartAllowRussian": MessageLookupByLibrary.simpleMessage(
+      "Incluir servidores rusos en la selección automática",
+    ),
+    "smartBudgetDesc": MessageLookupByLibrary.simpleMessage(
+      "Límite diario solo para descargas de pruebas de velocidad. Las comprobaciones y la recuperación continúan al agotarlo. Cero desactiva las descargas de prueba.",
+    ),
+    "smartBudgetInvalid": MessageLookupByLibrary.simpleMessage(
+      "Introduce un número entre 0 y 10000.",
+    ),
+    "smartDiagnosticDesc": MessageLookupByLibrary.simpleMessage(
+      "Solo datos de diagnóstico recibidos, sin sobrecarga de protocolos. Separado de las pruebas de velocidad.",
+    ),
+    "smartDiagnosticTraffic": MessageLookupByLibrary.simpleMessage(
+      "Tráfico de diagnóstico (estimado)",
+    ),
+    "smartHistory": MessageLookupByLibrary.simpleMessage("Historial"),
+    "smartJournal": MessageLookupByLibrary.simpleMessage(
+      "Exportar registro de selección",
+    ),
+    "smartLastCheck": MessageLookupByLibrary.simpleMessage(
+      "Última comprobación",
+    ),
+    "smartManual": MessageLookupByLibrary.simpleMessage("Modo manual"),
+    "smartMobileBudget": MessageLookupByLibrary.simpleMessage(
+      "Límite de pruebas móviles (MiB/día)",
+    ),
+    "smartNoGroup": MessageLookupByLibrary.simpleMessage(
+      "No hay un grupo de servidores gestionado",
+    ),
+    "smartPartial": MessageLookupByLibrary.simpleMessage(
+      "Algunos servicios no disponibles",
+    ),
+    "smartPool": MessageLookupByLibrary.simpleMessage("Servidores disponibles"),
+    "smartReconnect": MessageLookupByLibrary.simpleMessage(
+      "Selección inteligente del servidor",
+    ),
+    "smartRepairFailed": MessageLookupByLibrary.simpleMessage(
+      "No se pudo iniciar la recuperación. Comprueba el VPN y el modo automático.",
+    ),
+    "smartRestore": MessageLookupByLibrary.simpleMessage(
+      "Restablecer conexión",
+    ),
+    "smartResumeAuto": MessageLookupByLibrary.simpleMessage(
+      "Reanudar selección automática",
+    ),
+    "smartSearching": MessageLookupByLibrary.simpleMessage(
+      "Comprobando servidores",
+    ),
+    "smartSettingsDesc": MessageLookupByLibrary.simpleMessage(
+      "Las suscripciones compatibles funcionan sin scripts. Los servicios se comparten con el panel. Elegir un servidor manualmente activa un modo manual visible.",
+    ),
+    "smartSpeed": MessageLookupByLibrary.simpleMessage(
+      "Última velocidad medida",
+    ),
+    "smartSpeedMeasuredAt": MessageLookupByLibrary.simpleMessage(
+      "Hora de medición de velocidad",
+    ),
+    "smartUnavailable": MessageLookupByLibrary.simpleMessage(
+      "No hay una conexión adecuada",
+    ),
+    "smartWifiBudget": MessageLookupByLibrary.simpleMessage(
+      "Límite de pruebas Wi-Fi (MiB/día)",
+    ),
     "sniffProtocols": MessageLookupByLibrary.simpleMessage("Protocolos"),
     "sniffer": MessageLookupByLibrary.simpleMessage("Sniffer"),
     "snifferStatusDesc": MessageLookupByLibrary.simpleMessage(

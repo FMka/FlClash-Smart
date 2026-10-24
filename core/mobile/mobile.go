@@ -96,6 +96,18 @@ func NetworkChanged(key string) {
 	core.NetworkChanged(key)
 }
 
+func SmartRecheck() bool {
+	return core.SmartRecheck()
+}
+
+func TakeSmartRestartRequest() bool {
+	return core.TakeSmartRestartRequest()
+}
+
+func SmartRestartStillNeeded() bool {
+	return core.SmartRestartStillNeeded()
+}
+
 func GetTraffic(onlyStatisticsProxy bool) string {
 	return core.GetTraffic(onlyStatisticsProxy)
 }

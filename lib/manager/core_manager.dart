@@ -9,6 +9,7 @@ import 'package:fl_clash/providers/app.dart';
 import 'package:fl_clash/providers/config.dart';
 import 'package:fl_clash/providers/core.dart';
 import 'package:fl_clash/providers/route_state.dart';
+import 'package:fl_clash/providers/smart_reconnect.dart';
 import 'package:fl_clash/providers/state.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -25,6 +26,25 @@ class CoreManager extends ConsumerStatefulWidget {
 class _CoreContainerState extends ConsumerState<CoreManager>
     with CoreEventListener {
   CoreController get _core => ref.read(coreHandlerProvider);
+  Timer? _smartTimer;
+
+  Future<void> _refreshSmart({bool check = false}) async {
+    if (!mounted ||
+        !ref.read(isStartProvider) ||
+        !ref.read(appVisibleProvider) ||
+        ref.read(suspendProvider) ||
+        ref.read(coreStatusProvider) != CoreStatus.connected) {
+      return;
+    }
+    try {
+      if (check && ref.read(appSettingProvider).smartReconnect) {
+        await _core.smartReconnectCheck();
+      }
+      if (mounted) await ref.read(smartStatusProvider.notifier).refresh();
+    } catch (error) {
+      commonPrint.log('Smart status: $error', logLevel: LogLevel.debug);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -36,6 +56,19 @@ class _CoreContainerState extends ConsumerState<CoreManager>
     super.initState();
     coreEventManager.addListener(this);
     ref.read(updatingActionProvider.notifier);
+    _smartTimer = Timer.periodic(const Duration(seconds: 3), (_) {
+      unawaited(_refreshSmart());
+    });
+    ref.listenManual(appVisibleProvider, (previous, visible) {
+      if (visible && previous != true) unawaited(_refreshSmart(check: true));
+    });
+    ref.listenManual(isStartProvider, (_, running) {
+      if (running) {
+        unawaited(_refreshSmart());
+      } else {
+        ref.read(smartStatusProvider.notifier).clear();
+      }
+    });
     // A rejected profile stays selected on purpose: silently reverting to
     // the previous one hides the error and looks like the switch was lost.
     ref.listenManual(currentProfileIdProvider, (prev, next) {
@@ -85,6 +118,7 @@ class _CoreContainerState extends ConsumerState<CoreManager>
 
   @override
   void dispose() {
+    _smartTimer?.cancel();
     coreEventManager.removeListener(this);
     super.dispose();
   }

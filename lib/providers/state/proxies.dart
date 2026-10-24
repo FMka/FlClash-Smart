@@ -5,7 +5,10 @@ GroupsState currentGroupsState(Ref ref) {
   final mode = ref.watch(
     patchClashConfigProvider.select((state) => state.mode),
   );
-  final groups = ref.watch(groupsProvider);
+  final groups = withoutSmartReject(
+    ref.watch(groupsProvider),
+    ref.watch(smartStatusProvider),
+  );
   final shown = switch (mode) {
     Mode.direct => const <Group>[],
     Mode.global => groups,
@@ -214,7 +217,15 @@ Map<String, String> selectedMap(Ref ref) {
   final selectedMap = ref.watch(
     currentProfileProvider.select((state) => state?.selectedMap ?? {}),
   );
-  return selectedMap;
+  if (!ref.watch(isStartProvider)) return selectedMap;
+  final route = ref.watch(routeTrackerProvider);
+  final actual = {...selectedMap, if (route.synced) ...route.picks};
+  if (!ref.watch(
+    appSettingProvider.select((settings) => settings.smartReconnect),
+  )) {
+    return actual;
+  }
+  return {...actual, ...ref.watch(smartStatusProvider).selections};
 }
 
 @riverpod

@@ -157,6 +157,34 @@ func checkYouTubePremium(env serviceEnv) ServiceCheckItem {
 	return item
 }
 
+func checkYouTube(env serviceEnv) ServiceCheckItem {
+	result := env.get("https://www.youtube.com/?hl=en", serviceSmallMaxBody)
+	item := itemFrom(result)
+	if !answered(item, result) {
+		return item
+	}
+	for _, pattern := range youTubeRegionPatterns {
+		if code := firstSubmatch(pattern, result.Body); code != "" {
+			item.Region = normalizeRegion(code)
+			break
+		}
+	}
+	switch {
+	case result.StatusCode == http.StatusOK &&
+		bodyContains(result, "ytcfg.set", "ytinitialdata", "ytd-app") &&
+		!bodyContains(result, "youtube is not available in your country", "youtube is not available in your region"):
+		item.Status = serviceAvailable
+	case bodyContains(result, "not available in your country", "not available in your region"):
+		item.Status = serviceUnsupportedRegion
+	default:
+		item.Status = statusFromCode(result.StatusCode)
+		if item.Status == serviceAvailable {
+			item.Status = serviceFailed
+		}
+	}
+	return item
+}
+
 func checkSpotify(env serviceEnv) ServiceCheckItem {
 	result := env.get(
 		"https://www.spotify.com/api/content/v1/country-selector?platform=web&format=json",

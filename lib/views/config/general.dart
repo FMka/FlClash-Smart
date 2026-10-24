@@ -6,6 +6,7 @@ import 'package:fl_clash/models/models.dart';
 import 'package:fl_clash/providers/providers.dart';
 import 'package:fl_clash/views/config/on_demand.dart';
 import 'package:fl_clash/views/config/user_agents.dart';
+import 'package:fl_clash/views/config/smart_reconnect.dart';
 import 'package:fl_clash/widgets/widgets.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -438,6 +439,14 @@ class GeneralView extends ConsumerWidget {
           horizontal: 16,
         ).copyWith(top: context.appBarInset, bottom: 16),
         children: [
+          generateSection(
+            items: [
+              ListItem.open(
+                title: Text(appLocalizations.smartReconnect),
+                widget: const SmartReconnectView(),
+              ),
+            ],
+          ),
           generateSection(
             title: appLocalizations.startupAndBackground,
             items: _startupItems(appLocalizations),

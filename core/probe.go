@@ -213,10 +213,14 @@ func runProbe(parent context.Context, req probeRequest) *ProbeResult {
 	if timeout <= 0 {
 		timeout = defaultProbeTimeout
 	}
-	if !probeSlots.acquireWithin(parent, timeout) {
+	limiter := probeSlots
+	if priority, _ := parent.Value(smartHealthKey{}).(bool); priority {
+		limiter = smartHealthProbeSlots
+	}
+	if !limiter.acquireWithin(parent, timeout) {
 		return nil
 	}
-	defer probeSlots.release()
+	defer limiter.release()
 
 	ctx, cancel := context.WithTimeout(parent, timeout)
 	defer cancel()
@@ -270,6 +274,9 @@ func runProbe(parent context.Context, req probeRequest) *ProbeResult {
 	}
 	if req.maxBody > 0 {
 		result.Body = readProbeBody(response.Body, req.maxBody, req.until)
+	}
+	if record, ok := parent.Value(smartDiagnosticKey{}).(func(int64)); ok {
+		record(int64(len(result.Body) + len(req.body)))
 	}
 	return result
 }

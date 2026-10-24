@@ -99,6 +99,7 @@ private class FakeHost(override val scope: CoroutineScope) : ServiceStateHost {
     var app: AppGateway? = null
     var duringSetup: (suspend () -> Unit)? = null
     var beforeStartService: (() -> Unit)? = null
+    var beforeStopService: (() -> Unit)? = null
     var lastStartOptions: VpnOptions? = null
 
     override var runtime: ServiceRuntime? = null
@@ -162,12 +163,126 @@ private class FakeHost(override val scope: CoroutineScope) : ServiceStateHost {
 
     override suspend fun stopService() {
         stopCalls++
+        beforeStopService?.invoke()
         runtime = null
     }
 }
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class ServiceStateMachineTest {
+
+    @Test
+    fun `smart recovery does not start a stopped VPN or a proxy only service`() = runTest {
+        val host = FakeHost(backgroundScope)
+        val machine = ServiceStateMachine(host)
+        machine.syncSharedState(configuredState(false))
+        assertFalse(machine.handleRecoveryAction())
+        assertEquals(0, host.startCalls)
+        machine.requestStart().await()
+        assertFalse(machine.handleRecoveryAction())
+        assertEquals(1, host.startCalls)
+        assertEquals(0, host.stopCalls)
+    }
+
+    @Test
+    fun `smart recovery revalidates the failure before restarting`() = runTest {
+        val host = FakeHost(backgroundScope)
+        val machine = ServiceStateMachine(host)
+        machine.syncSharedState(configuredState())
+        machine.requestStart().await()
+        assertFalse(machine.handleRecoveryAction { false })
+        assertEquals(0, host.stopCalls)
+        assertEquals(RunState.STARTED, machine.runState.value)
+    }
+
+    @Test
+    fun `smart recovery restarts an active VPN at most once per five minutes`() = runTest {
+        var clock = 0L
+        val host = FakeHost(backgroundScope)
+        val machine = ServiceStateMachine(host) { clock }
+        machine.syncSharedState(configuredState())
+        machine.requestStart().await()
+        assertTrue(machine.handleRecoveryAction())
+        assertEquals(2, host.startCalls)
+        assertEquals(RunState.STARTED, machine.runState.value)
+        assertFalse(machine.handleRecoveryAction())
+        clock = 300_000L
+        assertTrue(machine.handleRecoveryAction())
+        assertEquals(3, host.startCalls)
+        assertEquals(2, host.stopCalls)
+        assertEquals(0, host.stoppedNotifications)
+    }
+
+    @Test
+    fun `Stop during smart recovery prevents its delayed restart`() = runTest {
+        val host = FakeHost(backgroundScope)
+        val machine = ServiceStateMachine(host)
+        machine.syncSharedState(configuredState())
+        machine.requestStart().await()
+        host.beforeStopService = { machine.requestStop() }
+        assertFalse(machine.handleRecoveryAction())
+        testScheduler.runCurrent()
+        assertEquals(1, host.startCalls)
+        assertFalse(machine.isRunRequested)
+        assertEquals(RunState.STOPPED, machine.runState.value)
+    }
+
+    @Test
+    fun `failed smart recovery releases the run intent`() = runTest {
+        val host = FakeHost(backgroundScope)
+        val machine = ServiceStateMachine(host)
+        machine.syncSharedState(configuredState())
+        machine.requestStart().await()
+        host.startSucceeds = false
+        assertFalse(machine.handleRecoveryAction())
+        assertFalse(machine.isRunRequested)
+        assertEquals(RunState.STOPPED, machine.runState.value)
+        assertEquals(1, host.stoppedNotifications)
+    }
+
+    @Test
+    fun `a newer Start supersedes smart recovery and keeps its own intent`() = runTest {
+        val host = FakeHost(backgroundScope)
+        val machine = ServiceStateMachine(host)
+        machine.syncSharedState(configuredState())
+        machine.requestStart().await()
+        host.beforeStopService = {
+            host.beforeStopService = null
+            machine.requestStart()
+        }
+        assertFalse(machine.handleRecoveryAction())
+        testScheduler.runCurrent()
+        assertTrue(machine.isRunRequested)
+        assertEquals(RunState.STARTED, machine.runState.value)
+        assertEquals(2, host.startCalls)
+        assertEquals(0, host.stoppedNotifications)
+    }
+
+    @Test
+    fun `Stop while smart recovery starts tears down the new transport`() = runTest {
+        val host = FakeHost(backgroundScope)
+        val machine = ServiceStateMachine(host)
+        machine.syncSharedState(configuredState())
+        machine.requestStart().await()
+        host.beforeStartService = { machine.requestStop() }
+        assertFalse(machine.handleRecoveryAction())
+        testScheduler.runCurrent()
+        assertFalse(machine.isRunRequested)
+        assertEquals(RunState.STOPPED, machine.runState.value)
+        assertEquals(null, host.runtime)
+    }
+
+    @Test
+    fun `smart recovery does not ask for revoked VPN permission`() = runTest {
+        val host = FakeHost(backgroundScope)
+        val machine = ServiceStateMachine(host)
+        machine.syncSharedState(configuredState())
+        machine.requestStart().await()
+        host.vpnPermissionGranted = false
+        assertFalse(machine.handleRecoveryAction())
+        assertEquals(0, host.stopCalls)
+        assertEquals(1, host.startCalls)
+    }
 
     @Test
     fun `initParams spells the keys the Go wrapper expects`() {

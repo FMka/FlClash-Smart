@@ -7,6 +7,7 @@ typedef _SetupInputs = (
   PatchClashConfig,
   NetworkProps,
   SetupParams,
+  SelectValue<Map<String, dynamic>>,
 );
 
 typedef BuiltProfile = ({
@@ -375,6 +376,7 @@ class SetupAction extends _$SetupAction {
           _effectivePatchConfig(ref.read(patchClashConfigProvider)),
           ref.read(networkSettingProvider),
           _appliedParams,
+          SelectValue(smartReconnectSettings(ref.read(appSettingProvider))),
         );
   }
 
@@ -472,6 +474,10 @@ class SetupAction extends _$SetupAction {
     if (hasScript) {
       rawConfig = await handleEvaluate(scriptContent!, rawConfig);
     }
+    rawConfig = withSmartReconnectSettings(
+      rawConfig,
+      ref.read(appSettingProvider),
+    );
     final directory = await appPath.profilesPath;
     final injected = await _resolveInjectedProviders(
       setupState,
@@ -705,6 +711,7 @@ class SetupAction extends _$SetupAction {
         realPatchConfig,
         networkSetting,
         _appliedParams,
+        SelectValue(smartReconnectSettings(ref.read(appSettingProvider))),
       ),
       _ => null,
     };

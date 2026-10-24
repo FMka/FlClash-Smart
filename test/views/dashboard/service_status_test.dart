@@ -78,7 +78,10 @@ void main() {
   Widget app({
     FutureOr<OutboundIpResult?> Function(OutboundIpParams params)? outboundIp,
     bool started = true,
-    AppSettingProps settings = const AppSettingProps(),
+    AppSettingProps settings = const AppSettingProps(
+      serviceOrder: [],
+      disabledServices: [],
+    ),
     double width = 360,
     DashboardDensity density = DashboardDensity.mobile,
     Locale locale = const Locale('en'),
@@ -136,6 +139,7 @@ void main() {
   ];
 
   AppSettingProps only(List<ServiceTarget> targets) => AppSettingProps(
+    serviceOrder: [],
     disabledServices: [
       for (final target in ServiceTarget.values)
         if (!targets.contains(target)) target.id,
@@ -149,6 +153,27 @@ void main() {
 
   test('service status is registered as a dashboard card', () {
     expect(DashboardWidget.serviceStatus.card, isA<ServiceStatusCard>());
+  });
+
+  testWidgets('new Smart defaults check the same four priority services', (
+    tester,
+  ) async {
+    final asked = <String>[];
+    answer((params) {
+      asked.addAll(params.names);
+      return [
+        for (final name in params.names)
+          _item(name, ServiceProbeStatus.available),
+      ];
+    });
+    await tester.pumpWidget(app(settings: const AppSettingProps()));
+    await tester.pumpAndSettle();
+    expect(
+      asked,
+      unorderedEquals(['youtube', 'google', 'chatgpt', 'telegram']),
+    );
+    expect(tile(ServiceTarget.telegram), findsOneWidget);
+    expect(tile(ServiceTarget.github), findsNothing);
   });
 
   testWidgets('holds the latency with a skeleton until checked', (
@@ -573,6 +598,7 @@ void main() {
     await tester.pumpWidget(
       app(
         settings: AppSettingProps(
+          serviceOrder: [],
           disabledServices: [
             for (final target in ServiceTarget.values)
               if (target != ServiceTarget.google) target.id,
@@ -723,7 +749,7 @@ void main() {
     await tester.pumpWidget(
       app(
         outboundIp: (_) => _address('203.0.113.7', 'US'),
-        settings: only(ServiceTarget.values.take(5).toList()),
+        settings: only([...ServiceTarget.values.take(4), ServiceTarget.claude]),
       ),
     );
     await tester.pumpAndSettle();
@@ -731,7 +757,16 @@ void main() {
     await tester.pumpAndSettle();
 
     final row = find.widgetWithText(ListTile, ServiceTarget.claude.label);
-    await tester.ensureVisible(row);
+    await tester.scrollUntilVisible(
+      row,
+      80,
+      scrollable: find
+          .descendant(
+            of: find.byType(ServiceStatusSheet),
+            matching: find.byType(Scrollable),
+          )
+          .first,
+    );
     await tester.pumpAndSettle();
     final unchecked = tester.getSize(row).height;
     await tester.tap(
@@ -860,7 +895,12 @@ void main() {
   ) async {
     answer((params) => const []);
     await tester.pumpWidget(
-      app(settings: const AppSettingProps(disabledServices: ['github'])),
+      app(
+        settings: const AppSettingProps(
+          serviceOrder: [],
+          disabledServices: ['github'],
+        ),
+      ),
     );
     await tester.pumpAndSettle();
     await openManage(tester);
@@ -873,7 +913,7 @@ void main() {
       ServiceTarget.google,
       ServiceTarget.youtube,
       ServiceTarget.chatgpt,
-      ServiceTarget.claude,
+      ServiceTarget.telegram,
     ]) {
       expect(marked(target), findsOneWidget, reason: target.label);
     }
@@ -886,6 +926,7 @@ void main() {
     await tester.pumpWidget(
       app(
         settings: AppSettingProps(
+          serviceOrder: [],
           disabledServices: [
             for (final target in ServiceTarget.values)
               if (target != ServiceTarget.google) target.id,
@@ -957,6 +998,7 @@ void main() {
     ProviderScope.containerOf(
       tester.element(find.byType(ServiceStatusCard)),
     ).read(appSettingProvider.notifier).value = const AppSettingProps(
+      serviceOrder: [],
       disabledServices: ['google'],
     );
     await tester.pumpAndSettle();

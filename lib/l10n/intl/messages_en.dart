@@ -944,9 +944,10 @@ class MessageLookup extends MessageLookupByLibrary {
     "inputRuleContent": MessageLookupByLibrary.simpleMessage(
       "Enter the rule content",
     ),
-    "installedAppsPermissionDeniedMessage": MessageLookupByLibrary.simpleMessage(
-      "The app list permission was denied, so installed apps cannot be listed. Please grant it manually in system settings.",
-    ),
+    "installedAppsPermissionDeniedMessage":
+        MessageLookupByLibrary.simpleMessage(
+          "The app list permission was denied, so installed apps cannot be listed. Please grant it manually in system settings.",
+        ),
     "installedAppsPermissionDesc": MessageLookupByLibrary.simpleMessage(
       "This system hides the installed app list until the permission is granted. Authorize it to configure the per-app proxy.",
     ),
@@ -1692,6 +1693,61 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "slide": MessageLookupByLibrary.simpleMessage("Slide"),
     "sliders": MessageLookupByLibrary.simpleMessage("Sliders"),
+    "smartAllowRussian": MessageLookupByLibrary.simpleMessage(
+      "Include Russian servers in automatic selection",
+    ),
+    "smartBudgetDesc": MessageLookupByLibrary.simpleMessage(
+      "Daily limit for speed-test downloads only. Connection checks and recovery continue when the limit is reached. Zero disables speed downloads.",
+    ),
+    "smartBudgetInvalid": MessageLookupByLibrary.simpleMessage(
+      "Enter a number from 0 to 10000.",
+    ),
+    "smartDiagnosticDesc": MessageLookupByLibrary.simpleMessage(
+      "Received diagnostic payload only; protocol overhead is not included. Separate from speed-test downloads.",
+    ),
+    "smartDiagnosticTraffic": MessageLookupByLibrary.simpleMessage(
+      "Diagnostic traffic (estimated)",
+    ),
+    "smartHistory": MessageLookupByLibrary.simpleMessage("History"),
+    "smartJournal": MessageLookupByLibrary.simpleMessage(
+      "Export smart selection journal",
+    ),
+    "smartLastCheck": MessageLookupByLibrary.simpleMessage("Last check"),
+    "smartManual": MessageLookupByLibrary.simpleMessage("Manual mode"),
+    "smartMobileBudget": MessageLookupByLibrary.simpleMessage(
+      "Mobile test budget (MiB/day)",
+    ),
+    "smartNoGroup": MessageLookupByLibrary.simpleMessage(
+      "No managed server group",
+    ),
+    "smartPartial": MessageLookupByLibrary.simpleMessage(
+      "Some services unavailable",
+    ),
+    "smartPool": MessageLookupByLibrary.simpleMessage("Available pool"),
+    "smartReconnect": MessageLookupByLibrary.simpleMessage(
+      "Smart server selection",
+    ),
+    "smartRepairFailed": MessageLookupByLibrary.simpleMessage(
+      "Recovery could not start. Check VPN and automatic mode.",
+    ),
+    "smartRestore": MessageLookupByLibrary.simpleMessage("Restore connection"),
+    "smartResumeAuto": MessageLookupByLibrary.simpleMessage(
+      "Resume automatic selection",
+    ),
+    "smartSearching": MessageLookupByLibrary.simpleMessage("Checking servers"),
+    "smartSettingsDesc": MessageLookupByLibrary.simpleMessage(
+      "Works with supported subscriptions without scripts. Service selection is shared with the dashboard. Selecting a server manually pauses automatic selection visibly.",
+    ),
+    "smartSpeed": MessageLookupByLibrary.simpleMessage("Last measured speed"),
+    "smartSpeedMeasuredAt": MessageLookupByLibrary.simpleMessage(
+      "Speed measured at",
+    ),
+    "smartUnavailable": MessageLookupByLibrary.simpleMessage(
+      "No suitable connection",
+    ),
+    "smartWifiBudget": MessageLookupByLibrary.simpleMessage(
+      "Wi-Fi test budget (MiB/day)",
+    ),
     "sniffProtocols": MessageLookupByLibrary.simpleMessage("Protocols"),
     "sniffer": MessageLookupByLibrary.simpleMessage("Sniffer"),
     "snifferStatusDesc": MessageLookupByLibrary.simpleMessage(

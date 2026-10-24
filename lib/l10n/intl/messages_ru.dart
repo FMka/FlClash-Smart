@@ -981,9 +981,10 @@ class MessageLookup extends MessageLookupByLibrary {
     "inputRuleContent": MessageLookupByLibrary.simpleMessage(
       "Введите содержимое правила",
     ),
-    "installedAppsPermissionDeniedMessage": MessageLookupByLibrary.simpleMessage(
-      "Разрешение на список приложений отклонено, поэтому установленные приложения недоступны. Предоставьте его вручную в системных настройках.",
-    ),
+    "installedAppsPermissionDeniedMessage":
+        MessageLookupByLibrary.simpleMessage(
+          "Разрешение на список приложений отклонено, поэтому установленные приложения недоступны. Предоставьте его вручную в системных настройках.",
+        ),
     "installedAppsPermissionDesc": MessageLookupByLibrary.simpleMessage(
       "Эта система не выдаёт список установленных приложений без разрешения. Предоставьте его, чтобы настроить прокси для отдельных приложений.",
     ),
@@ -1771,6 +1772,65 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "slide": MessageLookupByLibrary.simpleMessage("Сдвиг"),
     "sliders": MessageLookupByLibrary.simpleMessage("Ползунки"),
+    "smartAllowRussian": MessageLookupByLibrary.simpleMessage(
+      "Включать российские серверы в автовыбор",
+    ),
+    "smartBudgetDesc": MessageLookupByLibrary.simpleMessage(
+      "Суточный лимит только загрузок для измерения скорости. Проверки связи и восстановление продолжаются после исчерпания. Ноль отключает скоростные загрузки.",
+    ),
+    "smartBudgetInvalid": MessageLookupByLibrary.simpleMessage(
+      "Введите число от 0 до 10000.",
+    ),
+    "smartDiagnosticDesc": MessageLookupByLibrary.simpleMessage(
+      "Только полученные диагностические данные, без накладных расходов протоколов. Учитываются отдельно от скоростных загрузок.",
+    ),
+    "smartDiagnosticTraffic": MessageLookupByLibrary.simpleMessage(
+      "Диагностический трафик (оценка)",
+    ),
+    "smartHistory": MessageLookupByLibrary.simpleMessage("История"),
+    "smartJournal": MessageLookupByLibrary.simpleMessage(
+      "Экспорт журнала автовыбора",
+    ),
+    "smartLastCheck": MessageLookupByLibrary.simpleMessage(
+      "Последняя проверка",
+    ),
+    "smartManual": MessageLookupByLibrary.simpleMessage("Ручной режим"),
+    "smartMobileBudget": MessageLookupByLibrary.simpleMessage(
+      "Лимит тестов LTE (МиБ/сутки)",
+    ),
+    "smartNoGroup": MessageLookupByLibrary.simpleMessage(
+      "Нет управляемой группы серверов",
+    ),
+    "smartPartial": MessageLookupByLibrary.simpleMessage(
+      "Часть сервисов недоступна",
+    ),
+    "smartPool": MessageLookupByLibrary.simpleMessage("Доступно в пуле"),
+    "smartReconnect": MessageLookupByLibrary.simpleMessage(
+      "Смарт-автовыбор сервера",
+    ),
+    "smartRepairFailed": MessageLookupByLibrary.simpleMessage(
+      "Не удалось начать восстановление. Проверьте VPN и автоматический режим.",
+    ),
+    "smartRestore": MessageLookupByLibrary.simpleMessage("Восстановить связь"),
+    "smartResumeAuto": MessageLookupByLibrary.simpleMessage(
+      "Вернуться в автовыбор",
+    ),
+    "smartSearching": MessageLookupByLibrary.simpleMessage("Проверка серверов"),
+    "smartSettingsDesc": MessageLookupByLibrary.simpleMessage(
+      "Работает с совместимыми подписками без скриптов. Выбор сервисов общий с главным экраном. Ручной выбор сервера переводит автоматику в видимый ручной режим.",
+    ),
+    "smartSpeed": MessageLookupByLibrary.simpleMessage(
+      "Последний замер скорости",
+    ),
+    "smartSpeedMeasuredAt": MessageLookupByLibrary.simpleMessage(
+      "Время замера скорости",
+    ),
+    "smartUnavailable": MessageLookupByLibrary.simpleMessage(
+      "Нет подходящего соединения",
+    ),
+    "smartWifiBudget": MessageLookupByLibrary.simpleMessage(
+      "Лимит тестов Wi-Fi (МиБ/сутки)",
+    ),
     "sniffProtocols": MessageLookupByLibrary.simpleMessage("Протоколы"),
     "sniffer": MessageLookupByLibrary.simpleMessage("Сниффер"),
     "snifferStatusDesc": MessageLookupByLibrary.simpleMessage(

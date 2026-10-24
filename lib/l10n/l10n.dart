@@ -7797,8 +7797,7 @@ class AppLocalizations {
   String customImportDroppedSubRules(num count, Object label) {
     return Intl.plural(
       count,
-      one:
-          '1 SUB-RULE rule was dropped, since custom profiles do not support sub-rules',
+      one: '1 SUB-RULE rule was dropped, since custom profiles do not support sub-rules',
       other:
           '$label SUB-RULE rules were dropped, since custom profiles do not support sub-rules',
       name: 'customImportDroppedSubRules',
@@ -7832,6 +7831,226 @@ class AppLocalizations {
     return Intl.message(
       'All referenced proxy providers',
       name: 'allReferencedProxyProviders',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Smart server selection`
+  String get smartReconnect {
+    return Intl.message(
+      'Smart server selection',
+      name: 'smartReconnect',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Include Russian servers in automatic selection`
+  String get smartAllowRussian {
+    return Intl.message(
+      'Include Russian servers in automatic selection',
+      name: 'smartAllowRussian',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Restore connection`
+  String get smartRestore {
+    return Intl.message(
+      'Restore connection',
+      name: 'smartRestore',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Manual mode`
+  String get smartManual {
+    return Intl.message('Manual mode', name: 'smartManual', desc: '', args: []);
+  }
+
+  /// `Checking servers`
+  String get smartSearching {
+    return Intl.message(
+      'Checking servers',
+      name: 'smartSearching',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `No suitable connection`
+  String get smartUnavailable {
+    return Intl.message(
+      'No suitable connection',
+      name: 'smartUnavailable',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Some services unavailable`
+  String get smartPartial {
+    return Intl.message(
+      'Some services unavailable',
+      name: 'smartPartial',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Mobile test budget (MiB/day)`
+  String get smartMobileBudget {
+    return Intl.message(
+      'Mobile test budget (MiB/day)',
+      name: 'smartMobileBudget',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Wi-Fi test budget (MiB/day)`
+  String get smartWifiBudget {
+    return Intl.message(
+      'Wi-Fi test budget (MiB/day)',
+      name: 'smartWifiBudget',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Daily limit for speed-test downloads only. Connection checks and recovery continue when the limit is reached. Zero disables speed downloads.`
+  String get smartBudgetDesc {
+    return Intl.message(
+      'Daily limit for speed-test downloads only. Connection checks and recovery continue when the limit is reached. Zero disables speed downloads.',
+      name: 'smartBudgetDesc',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Export smart selection journal`
+  String get smartJournal {
+    return Intl.message(
+      'Export smart selection journal',
+      name: 'smartJournal',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Last check`
+  String get smartLastCheck {
+    return Intl.message(
+      'Last check',
+      name: 'smartLastCheck',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `No managed server group`
+  String get smartNoGroup {
+    return Intl.message(
+      'No managed server group',
+      name: 'smartNoGroup',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Resume automatic selection`
+  String get smartResumeAuto {
+    return Intl.message(
+      'Resume automatic selection',
+      name: 'smartResumeAuto',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Last measured speed`
+  String get smartSpeed {
+    return Intl.message(
+      'Last measured speed',
+      name: 'smartSpeed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Works with supported subscriptions without scripts. Service selection is shared with the dashboard. Selecting a server manually pauses automatic selection visibly.`
+  String get smartSettingsDesc {
+    return Intl.message(
+      'Works with supported subscriptions without scripts. Service selection is shared with the dashboard. Selecting a server manually pauses automatic selection visibly.',
+      name: 'smartSettingsDesc',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Recovery could not start. Check VPN and automatic mode.`
+  String get smartRepairFailed {
+    return Intl.message(
+      'Recovery could not start. Check VPN and automatic mode.',
+      name: 'smartRepairFailed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Enter a number from 0 to 10000.`
+  String get smartBudgetInvalid {
+    return Intl.message(
+      'Enter a number from 0 to 10000.',
+      name: 'smartBudgetInvalid',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Diagnostic traffic (estimated)`
+  String get smartDiagnosticTraffic {
+    return Intl.message(
+      'Diagnostic traffic (estimated)',
+      name: 'smartDiagnosticTraffic',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Received diagnostic payload only; protocol overhead is not included. Separate from speed-test downloads.`
+  String get smartDiagnosticDesc {
+    return Intl.message(
+      'Received diagnostic payload only; protocol overhead is not included. Separate from speed-test downloads.',
+      name: 'smartDiagnosticDesc',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Speed measured at`
+  String get smartSpeedMeasuredAt {
+    return Intl.message(
+      'Speed measured at',
+      name: 'smartSpeedMeasuredAt',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `History`
+  String get smartHistory {
+    return Intl.message('History', name: 'smartHistory', desc: '', args: []);
+  }
+
+  /// `Available pool`
+  String get smartPool {
+    return Intl.message(
+      'Available pool',
+      name: 'smartPool',
       desc: '',
       args: [],
     );

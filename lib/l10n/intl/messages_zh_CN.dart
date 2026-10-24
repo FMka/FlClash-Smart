@@ -1307,6 +1307,43 @@ class MessageLookup extends MessageLookupByLibrary {
     "skipSrcAddress": MessageLookupByLibrary.simpleMessage("跳过来源地址"),
     "slide": MessageLookupByLibrary.simpleMessage("滑动"),
     "sliders": MessageLookupByLibrary.simpleMessage("滑块"),
+    "smartAllowRussian": MessageLookupByLibrary.simpleMessage("自动选择时包含俄罗斯服务器"),
+    "smartBudgetDesc": MessageLookupByLibrary.simpleMessage(
+      "每日限额仅用于测速下载。达到限额后仍继续连接检查和恢复。设为零可禁用测速下载。",
+    ),
+    "smartBudgetInvalid": MessageLookupByLibrary.simpleMessage(
+      "请输入 0 到 10000 之间的数字。",
+    ),
+    "smartDiagnosticDesc": MessageLookupByLibrary.simpleMessage(
+      "仅统计收到的诊断数据，不含协议开销，与测速下载分开统计。",
+    ),
+    "smartDiagnosticTraffic": MessageLookupByLibrary.simpleMessage("诊断流量（估计）"),
+    "smartHistory": MessageLookupByLibrary.simpleMessage("历史记录"),
+    "smartJournal": MessageLookupByLibrary.simpleMessage("导出智能选择日志"),
+    "smartLastCheck": MessageLookupByLibrary.simpleMessage("上次检查"),
+    "smartManual": MessageLookupByLibrary.simpleMessage("手动模式"),
+    "smartMobileBudget": MessageLookupByLibrary.simpleMessage(
+      "移动网络测速限额（MiB/天）",
+    ),
+    "smartNoGroup": MessageLookupByLibrary.simpleMessage("没有受管理的服务器组"),
+    "smartPartial": MessageLookupByLibrary.simpleMessage("部分服务不可用"),
+    "smartPool": MessageLookupByLibrary.simpleMessage("可用服务器池"),
+    "smartReconnect": MessageLookupByLibrary.simpleMessage("智能服务器选择"),
+    "smartRepairFailed": MessageLookupByLibrary.simpleMessage(
+      "无法开始恢复。请检查 VPN 和自动模式。",
+    ),
+    "smartRestore": MessageLookupByLibrary.simpleMessage("恢复连接"),
+    "smartResumeAuto": MessageLookupByLibrary.simpleMessage("恢复自动选择"),
+    "smartSearching": MessageLookupByLibrary.simpleMessage("正在检查服务器"),
+    "smartSettingsDesc": MessageLookupByLibrary.simpleMessage(
+      "支持的订阅无需脚本即可使用。服务选择与仪表盘共用。手动选择服务器会明确暂停自动选择。",
+    ),
+    "smartSpeed": MessageLookupByLibrary.simpleMessage("上次测得速度"),
+    "smartSpeedMeasuredAt": MessageLookupByLibrary.simpleMessage("速度测量时间"),
+    "smartUnavailable": MessageLookupByLibrary.simpleMessage("没有合适的连接"),
+    "smartWifiBudget": MessageLookupByLibrary.simpleMessage(
+      "Wi-Fi 测速限额（MiB/天）",
+    ),
     "sniffProtocols": MessageLookupByLibrary.simpleMessage("协议"),
     "sniffer": MessageLookupByLibrary.simpleMessage("域名嗅探"),
     "snifferStatusDesc": MessageLookupByLibrary.simpleMessage(

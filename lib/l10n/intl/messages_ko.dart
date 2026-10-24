@@ -1421,6 +1421,47 @@ class MessageLookup extends MessageLookupByLibrary {
     "skipSrcAddress": MessageLookupByLibrary.simpleMessage("건너뛸 출발지 주소"),
     "slide": MessageLookupByLibrary.simpleMessage("슬라이드"),
     "sliders": MessageLookupByLibrary.simpleMessage("슬라이더"),
+    "smartAllowRussian": MessageLookupByLibrary.simpleMessage(
+      "자동 선택에 러시아 서버 포함",
+    ),
+    "smartBudgetDesc": MessageLookupByLibrary.simpleMessage(
+      "속도 측정 다운로드에만 적용되는 일일 한도입니다. 한도 이후에도 연결 확인과 복구는 계속됩니다. 0으로 설정하면 속도 다운로드가 꺼집니다.",
+    ),
+    "smartBudgetInvalid": MessageLookupByLibrary.simpleMessage(
+      "0에서 10000 사이의 숫자를 입력하세요.",
+    ),
+    "smartDiagnosticDesc": MessageLookupByLibrary.simpleMessage(
+      "수신한 진단 데이터만 포함하며 프로토콜 오버헤드는 제외합니다. 속도 테스트와 별도로 계산합니다.",
+    ),
+    "smartDiagnosticTraffic": MessageLookupByLibrary.simpleMessage(
+      "진단 트래픽(추정)",
+    ),
+    "smartHistory": MessageLookupByLibrary.simpleMessage("기록"),
+    "smartJournal": MessageLookupByLibrary.simpleMessage("스마트 선택 로그 내보내기"),
+    "smartLastCheck": MessageLookupByLibrary.simpleMessage("마지막 확인"),
+    "smartManual": MessageLookupByLibrary.simpleMessage("수동 모드"),
+    "smartMobileBudget": MessageLookupByLibrary.simpleMessage(
+      "모바일 속도 테스트 한도(MiB/일)",
+    ),
+    "smartNoGroup": MessageLookupByLibrary.simpleMessage("관리되는 서버 그룹 없음"),
+    "smartPartial": MessageLookupByLibrary.simpleMessage("일부 서비스 사용 불가"),
+    "smartPool": MessageLookupByLibrary.simpleMessage("사용 가능한 서버 풀"),
+    "smartReconnect": MessageLookupByLibrary.simpleMessage("스마트 서버 선택"),
+    "smartRepairFailed": MessageLookupByLibrary.simpleMessage(
+      "복구를 시작할 수 없습니다. VPN과 자동 모드를 확인하세요.",
+    ),
+    "smartRestore": MessageLookupByLibrary.simpleMessage("연결 복구"),
+    "smartResumeAuto": MessageLookupByLibrary.simpleMessage("자동 선택 재개"),
+    "smartSearching": MessageLookupByLibrary.simpleMessage("서버 확인 중"),
+    "smartSettingsDesc": MessageLookupByLibrary.simpleMessage(
+      "지원되는 구독은 스크립트 없이 작동합니다. 서비스 선택은 대시보드와 공유됩니다. 서버를 직접 고르면 수동 모드가 명확히 표시됩니다.",
+    ),
+    "smartSpeed": MessageLookupByLibrary.simpleMessage("마지막 측정 속도"),
+    "smartSpeedMeasuredAt": MessageLookupByLibrary.simpleMessage("속도 측정 시각"),
+    "smartUnavailable": MessageLookupByLibrary.simpleMessage("적합한 연결 없음"),
+    "smartWifiBudget": MessageLookupByLibrary.simpleMessage(
+      "Wi-Fi 속도 테스트 한도(MiB/일)",
+    ),
     "sniffProtocols": MessageLookupByLibrary.simpleMessage("프로토콜"),
     "sniffer": MessageLookupByLibrary.simpleMessage("스니퍼"),
     "snifferStatusDesc": MessageLookupByLibrary.simpleMessage(

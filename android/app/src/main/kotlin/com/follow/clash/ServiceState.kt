@@ -1,6 +1,7 @@
 package com.follow.clash
 
 import com.follow.clash.models.SharedState
+import com.follow.clash.core.Core
 import io.flutter.embedding.engine.FlutterEngine
 import kotlinx.coroutines.Deferred
 
@@ -25,6 +26,8 @@ object ServiceState {
     suspend fun handleStopAction() = machine.handleStopAction()
 
     suspend fun handleVpnRevokeAction() = machine.handleVpnRevokeAction()
+
+    suspend fun handleRecoveryAction() = machine.handleRecoveryAction(Core::smartRestartStillNeeded)
 
     suspend fun awaitRunTime(): Long = machine.awaitRunTime()
 

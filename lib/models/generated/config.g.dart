@@ -69,12 +69,27 @@ _AppSettingProps _$AppSettingPropsFromJson(
       (json['serviceOrder'] as List<dynamic>?)
           ?.map((e) => e as String)
           .toList() ??
-      const [],
+      const ['youtube', 'google', 'chatgpt', 'telegram'],
   disabledServices:
       (json['disabledServices'] as List<dynamic>?)
           ?.map((e) => e as String)
           .toList() ??
-      const [],
+      const [
+        'github',
+        'claude',
+        'gemini',
+        'netflix',
+        'disney-plus',
+        'prime-video',
+        'spotify',
+        'tiktok',
+        'discord',
+        'bilibili',
+      ],
+  smartReconnect: json['smartReconnect'] as bool? ?? true,
+  smartAllowRussian: json['smartAllowRussian'] as bool? ?? false,
+  smartMobileBudgetMiB: (json['smartMobileBudgetMiB'] as num?)?.toInt() ?? 20,
+  smartWifiBudgetMiB: (json['smartWifiBudgetMiB'] as num?)?.toInt() ?? 100,
   tableColumnWidths:
       (json['tableColumnWidths'] as Map<String, dynamic>?)?.map(
         (k, e) => MapEntry(
@@ -119,6 +134,10 @@ Map<String, dynamic> _$AppSettingPropsToJson(_AppSettingProps instance) =>
       'editorFontSize': _$EditorFontSizeEnumMap[instance.editorFontSize]!,
       'serviceOrder': instance.serviceOrder,
       'disabledServices': instance.disabledServices,
+      'smartReconnect': instance.smartReconnect,
+      'smartAllowRussian': instance.smartAllowRussian,
+      'smartMobileBudgetMiB': instance.smartMobileBudgetMiB,
+      'smartWifiBudgetMiB': instance.smartWifiBudgetMiB,
       'tableColumnWidths': instance.tableColumnWidths,
     };
 

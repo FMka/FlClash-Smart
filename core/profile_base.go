@@ -102,7 +102,7 @@ func loadConfigWithBase(base *SetupBase, configPath string) (*config.Config, err
 	return loadConfigWithSmartBase(base, configPath, nil)
 }
 
-func loadConfigWithSmartBase(base *SetupBase, configPath string, specs *[]smartGroupSpec) (*config.Config, error) {
+func loadConfigWithSmartBase(base *SetupBase, configPath string, specs *[]smartGroupSpec, settingsOut ...*smartSettings) (*config.Config, error) {
 	document, err := mergeProfileBase(base)
 	if err != nil {
 		return nil, err
@@ -111,7 +111,26 @@ func loadConfigWithSmartBase(base *SetupBase, configPath string, specs *[]smartG
 	if err := document.Decode(raw); err != nil {
 		return nil, err
 	}
-	if err := prepareSmartGroups(raw, specs); err != nil {
+	settings := defaultSmartSettings()
+	if root, mappingErr := documentMapping(document); mappingErr == nil {
+		if node := mappingValue(root, "smart-reconnect-settings"); node != nil {
+			if err = node.Decode(&settings); err != nil {
+				return nil, err
+			}
+		}
+	}
+	encoded, err := yaml.Marshal(map[string]any{"smart-reconnect-settings": settings})
+	if err != nil {
+		return nil, err
+	}
+	settings, err = decodeSmartSettings(encoded)
+	if err != nil {
+		return nil, err
+	}
+	if len(settingsOut) > 0 {
+		*settingsOut[0] = settings
+	}
+	if err := prepareSmartGroups(raw, specs, settings); err != nil {
 		return nil, err
 	}
 	if err := writeConfigDocument(configPath, document); err != nil {

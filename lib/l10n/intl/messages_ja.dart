@@ -1450,6 +1450,47 @@ class MessageLookup extends MessageLookupByLibrary {
     "skipSrcAddress": MessageLookupByLibrary.simpleMessage("スキップする送信元アドレス"),
     "slide": MessageLookupByLibrary.simpleMessage("スライド"),
     "sliders": MessageLookupByLibrary.simpleMessage("スライダ"),
+    "smartAllowRussian": MessageLookupByLibrary.simpleMessage(
+      "自動選択にロシアのサーバーを含める",
+    ),
+    "smartBudgetDesc": MessageLookupByLibrary.simpleMessage(
+      "速度測定のダウンロードにのみ適用される日次上限です。上限後も接続確認と復旧は続きます。0 は速度測定を無効にします。",
+    ),
+    "smartBudgetInvalid": MessageLookupByLibrary.simpleMessage(
+      "0 から 10000 までの数値を入力してください。",
+    ),
+    "smartDiagnosticDesc": MessageLookupByLibrary.simpleMessage(
+      "受信した診断データのみ。プロトコルの追加通信量は含みません。速度測定とは別です。",
+    ),
+    "smartDiagnosticTraffic": MessageLookupByLibrary.simpleMessage(
+      "診断トラフィック（推定）",
+    ),
+    "smartHistory": MessageLookupByLibrary.simpleMessage("履歴"),
+    "smartJournal": MessageLookupByLibrary.simpleMessage("スマート選択ログを書き出す"),
+    "smartLastCheck": MessageLookupByLibrary.simpleMessage("最終確認"),
+    "smartManual": MessageLookupByLibrary.simpleMessage("手動モード"),
+    "smartMobileBudget": MessageLookupByLibrary.simpleMessage(
+      "モバイル速度テスト上限（MiB/日）",
+    ),
+    "smartNoGroup": MessageLookupByLibrary.simpleMessage("管理対象のサーバーグループなし"),
+    "smartPartial": MessageLookupByLibrary.simpleMessage("一部のサービスが利用不可"),
+    "smartPool": MessageLookupByLibrary.simpleMessage("利用可能なプール"),
+    "smartReconnect": MessageLookupByLibrary.simpleMessage("スマートサーバー選択"),
+    "smartRepairFailed": MessageLookupByLibrary.simpleMessage(
+      "復旧を開始できません。VPN と自動モードを確認してください。",
+    ),
+    "smartRestore": MessageLookupByLibrary.simpleMessage("接続を復元"),
+    "smartResumeAuto": MessageLookupByLibrary.simpleMessage("自動選択を再開"),
+    "smartSearching": MessageLookupByLibrary.simpleMessage("サーバーを確認中"),
+    "smartSettingsDesc": MessageLookupByLibrary.simpleMessage(
+      "対応するサブスクリプションはスクリプト不要です。サービス選択はダッシュボードと共通です。サーバーを手動選択すると手動モードを明示します。",
+    ),
+    "smartSpeed": MessageLookupByLibrary.simpleMessage("最終測定速度"),
+    "smartSpeedMeasuredAt": MessageLookupByLibrary.simpleMessage("速度測定時刻"),
+    "smartUnavailable": MessageLookupByLibrary.simpleMessage("適切な接続がありません"),
+    "smartWifiBudget": MessageLookupByLibrary.simpleMessage(
+      "Wi-Fi 速度テスト上限（MiB/日）",
+    ),
     "sniffProtocols": MessageLookupByLibrary.simpleMessage("プロトコル"),
     "sniffer": MessageLookupByLibrary.simpleMessage("スニッファー"),
     "snifferStatusDesc": MessageLookupByLibrary.simpleMessage(

@@ -17,6 +17,9 @@ import 'app.dart';
 import 'config.dart';
 import 'core.dart';
 import 'database.dart';
+import 'smart_reconnect.dart';
+import 'route_state.dart';
+import 'package:fl_clash/common/smart_reconnect.dart';
 
 part 'generated/state.g.dart';
 part 'state/proxies.dart';

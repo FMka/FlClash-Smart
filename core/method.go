@@ -105,6 +105,12 @@ func stackTrace() []byte {
 	return buf[:runtime.Stack(buf, false)]
 }
 
+func recoverExport(name string) {
+	if r := recover(); r != nil {
+		logError("panic in %s: %v\n%s", name, r, stackTrace())
+	}
+}
+
 func safeGo(name string, run func()) {
 	go func() {
 		defer func() {
@@ -207,6 +213,9 @@ var methodHandlers = map[CoreMethod]methodHandler{
 	probeMethod:                    withArguments(handleProbe),
 	outboundIpMethod:               withArguments(handleOutboundIp),
 	serviceCheckMethod:             withArguments(handleServiceCheck),
+	getSmartStatusMethod:           withoutArguments(handleGetSmartStatus),
+	smartReconnectCheckMethod:      withoutArguments(SmartRecheck),
+	getSmartJournalMethod:          withoutArguments(handleGetSmartJournal),
 	getTrafficMethod:               withArguments(handleGetTraffic),
 	getTotalTrafficMethod:          withArguments(handleGetTotalTraffic),
 	resetTrafficMethod:             acknowledged(handleResetTraffic),

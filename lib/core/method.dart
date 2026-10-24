@@ -51,6 +51,9 @@ enum CoreMethod {
   clearEffect,
   updateDns,
   watchRoute,
+  getSmartStatus,
+  smartReconnectCheck,
+  getSmartJournal,
 }
 
 class CoreMethodCall {

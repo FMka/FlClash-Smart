@@ -255,8 +255,25 @@ abstract class AppSettingProps with _$AppSettingProps {
     @Default(false) bool hideIp,
     @Default(false) bool editorLineWrap,
     @Default(EditorFontSize.standard) EditorFontSize editorFontSize,
-    @Default([]) List<String> serviceOrder,
-    @Default([]) List<String> disabledServices,
+    @Default(['youtube', 'google', 'chatgpt', 'telegram'])
+    List<String> serviceOrder,
+    @Default([
+      'github',
+      'claude',
+      'gemini',
+      'netflix',
+      'disney-plus',
+      'prime-video',
+      'spotify',
+      'tiktok',
+      'discord',
+      'bilibili',
+    ])
+    List<String> disabledServices,
+    @Default(true) bool smartReconnect,
+    @Default(false) bool smartAllowRussian,
+    @Default(20) int smartMobileBudgetMiB,
+    @Default(100) int smartWifiBudgetMiB,
     @Default({}) Map<String, Map<String, double>> tableColumnWidths,
   }) = _AppSettingProps;
 
@@ -267,7 +284,22 @@ abstract class AppSettingProps with _$AppSettingProps {
     if (json == null) {
       return defaultAppSettingProps;
     }
-    return decodeSalvaging('app settings', json, AppSettingProps.fromJson);
+    final settings = decodeSalvaging(
+      'app settings',
+      json,
+      AppSettingProps.fromJson,
+    );
+    if (!json.containsKey('smartReconnect') &&
+        json['serviceOrder'] is List &&
+        (json['serviceOrder'] as List).isEmpty &&
+        json['disabledServices'] is List &&
+        (json['disabledServices'] as List).isEmpty) {
+      return settings.copyWith(
+        serviceOrder: defaultAppSettingProps.serviceOrder,
+        disabledServices: defaultAppSettingProps.disabledServices,
+      );
+    }
+    return settings;
   }
 }
 

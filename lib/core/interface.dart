@@ -66,6 +66,12 @@ mixin CoreInterface {
 
   Future<RouteSnapshot?> watchRoute(bool watch);
 
+  Future<Map<String, dynamic>> getSmartStatus();
+
+  Future<bool> smartReconnectCheck();
+
+  Future<String> getSmartJournal();
+
   Future<bool> startListener();
 
   Future<bool> stopListener();
@@ -617,4 +623,23 @@ abstract class CoreHandlerInterface with CoreInterface {
     );
     return data == null ? null : CoreMemoryStats.fromJson(data);
   }
+
+  @override
+  Future<Map<String, dynamic>> getSmartStatus() async =>
+      await _invokeMethod<Map<String, dynamic>>(
+        method: CoreMethod.getSmartStatus,
+      ) ??
+      {};
+
+  @override
+  Future<bool> smartReconnectCheck() async =>
+      await _invokeMethod<bool>(
+        method: CoreMethod.smartReconnectCheck,
+        arguments: const {},
+      ) ??
+      false;
+
+  @override
+  Future<String> getSmartJournal() async =>
+      await _invokeMethod<String>(method: CoreMethod.getSmartJournal) ?? '';
 }

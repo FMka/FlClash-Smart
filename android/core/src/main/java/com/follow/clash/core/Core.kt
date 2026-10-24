@@ -18,6 +18,12 @@ object Core {
 
     fun networkChanged(key: String) = Mobile.networkChanged(key)
 
+    fun smartRecheck(): Boolean = Mobile.smartRecheck()
+
+    fun takeSmartRestartRequest(): Boolean = Mobile.takeSmartRestartRequest()
+
+    fun smartRestartStillNeeded(): Boolean = Mobile.smartRestartStillNeeded()
+
     private fun parseInetSocketAddress(address: String): InetSocketAddress {
         val uri = URI("tcp://$address")
         val host = requireNotNull(uri.host) { "Missing host in address: $address" }

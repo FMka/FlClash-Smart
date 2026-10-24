@@ -16,6 +16,7 @@ import 'style.dart';
 import 'widget_registry.dart';
 import 'widgets/core_status_button.dart';
 import 'widgets/widgets.dart';
+import 'package:fl_clash/views/config/smart_reconnect.dart';
 
 // Narrower columns leave the service grid's cells too tight for a status, so
 // the grid takes the memory card's column instead.
@@ -133,6 +134,7 @@ class _DesktopDashboard extends StatelessWidget {
       24,
       24 + MediaQuery.paddingOf(context).bottom,
     );
+    final smartHeight = 96 * scale;
     final topHeight = (compact ? 176 : 208) * scale;
     final controlHeight = (compact ? 56 : 64) * scale;
     final middleHeight = (compact ? 152 : 176) * scale;
@@ -181,6 +183,7 @@ class _DesktopDashboard extends StatelessWidget {
             child: Column(
               spacing: gap,
               children: [
+                sized(smartHeight, const SmartConnectionCard()),
                 sized(
                   topHeight,
                   const RepaintBoundary(child: CurrentOutboundCard()),
@@ -211,6 +214,7 @@ class _DesktopDashboard extends StatelessWidget {
           );
         }
         final rows = [
+          sized(smartHeight, const SmartConnectionCard()),
           sized(
             topHeight,
             row(const [
@@ -238,10 +242,11 @@ class _DesktopDashboard extends StatelessWidget {
         ];
         final rowsHeight =
             padding.vertical +
+            smartHeight +
             topHeight +
             controlHeight +
             middleHeight +
-            gap * 3;
+            gap * 4;
         final tablesFit = constraints.maxHeight >= rowsHeight + tablesHeight;
         final fills = constraints.maxHeight >= rowsHeight + summaryHeight;
         return SingleChildScrollView(
@@ -340,6 +345,7 @@ class _MobileDashboard extends ConsumerWidget {
                 child: Column(
                   spacing: gap,
                   children: [
+                    const SmartConnectionCard(),
                     for (final widget in widgets)
                       RepaintBoundary(
                         key: cardKeyOf(widget),

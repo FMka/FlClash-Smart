@@ -1,8 +1,22 @@
 package core
 
 import (
+	"context"
+	"crypto/ecdsa"
+	"crypto/elliptic"
+	"crypto/rand"
+	"crypto/tls"
+	"crypto/x509"
+	"math/big"
 	"net/http"
+	"net/http/httptest"
+	"slices"
 	"testing"
+	"time"
+
+	"github.com/metacubex/mihomo/component/ca"
+	"github.com/metacubex/mihomo/constant"
+	"github.com/metacubex/mihomo/tunnel"
 )
 
 func TestNormalizeRegion(t *testing.T) {
@@ -137,6 +151,77 @@ func TestYouTubeRegionPatterns(t *testing.T) {
 		if got != want {
 			t.Errorf("region from %q = %q, want %q", body, got, want)
 		}
+	}
+}
+
+type serviceEndpointProxy struct {
+	constant.Proxy
+	address string
+}
+
+func (p *serviceEndpointProxy) DialContext(ctx context.Context, metadata *constant.Metadata) (constant.Conn, error) {
+	local := *metadata
+	if err := local.SetRemoteAddress(p.address); err != nil {
+		return nil, err
+	}
+	return p.Proxy.DialContext(ctx, &local)
+}
+
+func TestYouTubeOrdinaryProbe(t *testing.T) {
+	defer ca.ResetCertificate()
+	for _, test := range []struct {
+		name, body, status, region string
+		code                       int
+	}{
+		{name: "ordinary-page", code: http.StatusOK, body: `<script>ytcfg.set({"GL":"DE"});</script>`, status: serviceAvailable, region: "DE"},
+		{name: "premium-denied-only", code: http.StatusOK, body: `<script>ytcfg.set({"GL":"DE"});</script><span>YouTube Premium is not available in your country</span>`, status: serviceAvailable, region: "DE"},
+		{name: "empty-success", code: http.StatusOK, status: serviceFailed},
+		{name: "captcha", code: http.StatusOK, body: `<html>Please solve this captcha</html>`, status: serviceFailed},
+		{name: "forbidden", code: http.StatusForbidden, body: `<html>Access denied</html>`, status: serviceRestricted},
+		{name: "ordinary-region-denied", code: http.StatusOK, body: `<script>ytcfg.set({"GL":"RU"});</script><span>YouTube is not available in your country</span>`, status: serviceUnsupportedRegion, region: "RU"},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			requests := 0
+			server := httptest.NewUnstartedServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				requests++
+				if r.Host != "www.youtube.com" || r.URL.Path != "/" || r.URL.Query().Get("hl") != "en" {
+					t.Errorf("unexpected service endpoint %s%s", r.Host, r.URL.String())
+				}
+				w.WriteHeader(test.code)
+				_, _ = w.Write([]byte(test.body))
+			}))
+			key, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
+			if err != nil {
+				t.Fatal(err)
+			}
+			template := &x509.Certificate{
+				SerialNumber: big.NewInt(1), DNSNames: []string{"www.youtube.com"},
+				NotBefore: time.Now().Add(-time.Hour), NotAfter: time.Now().Add(time.Hour),
+				KeyUsage:    x509.KeyUsageDigitalSignature | x509.KeyUsageCertSign,
+				ExtKeyUsage: []x509.ExtKeyUsage{x509.ExtKeyUsageServerAuth},
+				IsCA:        true, BasicConstraintsValid: true,
+			}
+			certificate, err := x509.CreateCertificate(rand.Reader, template, template, &key.PublicKey, key)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if err = ca.AddCertificate(string(certificate)); err != nil {
+				t.Fatal(err)
+			}
+			server.TLS = &tls.Config{Certificates: []tls.Certificate{{Certificate: [][]byte{certificate}, PrivateKey: key}}}
+			server.StartTLS()
+			defer server.Close()
+			proxy := &serviceEndpointProxy{Proxy: namedProxy("youtube-probe"), address: server.Listener.Addr().String()}
+			tunnel.UpdateProxies(map[string]constant.Proxy{"youtube-probe": proxy}, nil)
+			defer tunnel.UpdateProxies(nil, nil)
+			item := checkYouTube(serviceEnv{ctx: context.Background(), proxyName: "youtube-probe", timeout: time.Second})
+			if item.Status != test.status || item.Region != test.region {
+				t.Errorf("result %+v, want status=%s region=%s", item, test.status, test.region)
+			}
+			if requests != 1 || !slices.Equal(item.Chains, []string{"youtube-probe"}) {
+				t.Errorf("requests=%d chains=%v, wanted one pinned ordinary-page request", requests, item.Chains)
+			}
+		})
 	}
 }
 

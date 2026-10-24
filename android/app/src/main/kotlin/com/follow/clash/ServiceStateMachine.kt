@@ -42,11 +42,15 @@ private enum class StartOutcome {
  * [publish] derives it from the latest intent, the transition in flight and what the host really
  * runs, so no path can leave it claiming a service that is not there.
  */
-internal class ServiceStateMachine(private val host: ServiceStateHost) {
+internal class ServiceStateMachine(
+    private val host: ServiceStateHost,
+    private val monotonicMillis: () -> Long = { System.nanoTime() / 1_000_000 },
+) {
     private val transitionLock = Mutex()
     private val startPreparationLock = Mutex()
     private val mutableRunState = MutableStateFlow(RunState.STOPPED)
     private val arbiter = RunIntentArbiter()
+    private var lastRecoveryAt: Long? = null
 
     @Volatile
     private var sharedState = SharedState()
@@ -118,6 +122,39 @@ internal class ServiceStateMachine(private val host: ServiceStateHost) {
             return
         }
         handleStopAction()
+    }
+
+    suspend fun handleRecoveryAction(stillNeeded: () -> Boolean = { true }): Boolean {
+        val request = captureRequestToken()
+        if (!request.running) return false
+        var attempted = false
+        val recovered = try {
+            transitionLock.withLock {
+                val options = sharedState.vpnOptions ?: return@withLock false
+                if (!isCurrent(request) || host.runtime?.vpn != true || !options.enable ||
+                    !host.isVpnPermissionGranted() || !stillNeeded()
+                ) return@withLock false
+                val now = monotonicMillis()
+                if (lastRecoveryAt?.let { now - it < RECOVERY_COOLDOWN_MILLIS } == true) {
+                    return@withLock false
+                }
+                lastRecoveryAt = now
+                attempted = true
+                host.log("Smart recovery: restarting unresponsive VPN transport")
+                stopLocked()
+                if (!isCurrent(request)) return@withLock false
+                transitioning(RunState.STARTING) {
+                    host.startService(withLocalNetworkFallback(options)) && isCurrent(request)
+                }
+            }
+        } catch (error: CancellationException) {
+            throw error
+        } catch (error: Exception) {
+            host.log("Smart recovery failed: $error")
+            false
+        }
+        if (attempted && !recovered) abandon(request)
+        return recovered
     }
 
     fun requestStart(): Deferred<Boolean> {
@@ -360,6 +397,7 @@ internal class ServiceStateMachine(private val host: ServiceStateHost) {
     internal companion object {
         val KERNEL_TCP_STACKS = setOf("system", "mixed")
         const val FALLBACK_STACK = "gvisor"
+        private const val RECOVERY_COOLDOWN_MILLIS = 300_000L
 
         /**
          * The Core init payload. The key spelling is a cross-language contract with the Go wrapper,

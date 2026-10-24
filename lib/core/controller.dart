@@ -43,6 +43,12 @@ class CoreController {
 
   Future<CoreLifecycleResult> start() => _interface.start();
 
+  Future<Map<String, dynamic>> getSmartStatus() => _interface.getSmartStatus();
+
+  Future<bool> smartReconnectCheck() => _interface.smartReconnectCheck();
+
+  Future<String> getSmartJournal() => _interface.getSmartJournal();
+
   Future<CoreLifecycleResult> restart() => _interface.restart();
 
   Future<CoreLifecycleResult> stop() => _interface.stop();
