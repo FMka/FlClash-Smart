@@ -154,6 +154,8 @@ func selectableGroup(groupName string) (pickableGroup, error) {
 }
 
 func handleChangeProxy(params *ChangeProxyParams) *ChangeProxyResult {
+	smartReconnect.mu.Lock()
+	defer smartReconnect.mu.Unlock()
 	selectMu.Lock()
 	defer selectMu.Unlock()
 
@@ -167,6 +169,7 @@ func handleChangeProxy(params *ChangeProxyParams) *ChangeProxyResult {
 	} else if err := selector.Set(params.ProxyName); err != nil {
 		return &ChangeProxyResult{Message: err.Error()}
 	}
+	smartReconnect.pauseLocked(params.GroupName)
 	changed := selector.Now() != before
 	refreshRouteLocked(false)
 	return &ChangeProxyResult{Changed: changed}

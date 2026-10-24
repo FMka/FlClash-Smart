@@ -92,6 +92,10 @@ func ResetNetwork() {
 	core.ResetNetwork()
 }
 
+func NetworkChanged(key string) {
+	core.NetworkChanged(key)
+}
+
 func GetTraffic(onlyStatisticsProxy bool) string {
 	return core.GetTraffic(onlyStatisticsProxy)
 }

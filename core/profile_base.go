@@ -99,12 +99,19 @@ func isMatchRule(rule string) bool {
 }
 
 func loadConfigWithBase(base *SetupBase, configPath string) (*config.Config, error) {
+	return loadConfigWithSmartBase(base, configPath, nil)
+}
+
+func loadConfigWithSmartBase(base *SetupBase, configPath string, specs *[]smartGroupSpec) (*config.Config, error) {
 	document, err := mergeProfileBase(base)
 	if err != nil {
 		return nil, err
 	}
 	raw := config.DefaultRawConfig()
 	if err := document.Decode(raw); err != nil {
+		return nil, err
+	}
+	if err := prepareSmartGroups(raw, specs); err != nil {
 		return nil, err
 	}
 	if err := writeConfigDocument(configPath, document); err != nil {

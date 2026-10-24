@@ -7,6 +7,8 @@ This file is the entry point for AI coding agents working in this repository. Ke
 
 Read these files before making changes:
 
+- For this Smart fork, [SMART_RECONNECT.md](SMART_RECONNECT.md) describes the current implementation and
+  [SMART_ROADMAP.md](SMART_ROADMAP.md) records the next build requirements. Keep planned behavior distinct from shipped behavior.
 - [.agents/project.md](.agents/project.md): project overview, versions, and build dependencies.
 - [.agents/commands.md](.agents/commands.md): build, development, code generation, and test commands.
 - [.agents/rules.md](.agents/rules.md): lint, testing, generated-code, and workflow rules.

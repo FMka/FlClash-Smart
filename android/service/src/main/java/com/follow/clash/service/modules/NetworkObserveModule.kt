@@ -36,6 +36,7 @@ internal class NetworkObserveModule(private val service: Service) : ServiceModul
     private val handler = Handler(networkObserveLooper)
     private var currentDnsList = listOf<String>()
     private var currentNetwork: Network? = null
+    private var currentNetworkKey = ""
 
     private val request = NetworkRequest.Builder().apply {
         addCapability(NetworkCapabilities.NET_CAPABILITY_NOT_VPN)
@@ -72,6 +73,10 @@ internal class NetworkObserveModule(private val service: Service) : ServiceModul
 
         override fun onLinkPropertiesChanged(network: Network, linkProperties: LinkProperties) {
             networkInfos[network]?.dnsList = linkProperties.dnsServers
+            scheduleUpdateDns()
+        }
+
+        override fun onCapabilitiesChanged(network: Network, capabilities: NetworkCapabilities) {
             scheduleUpdateDns()
         }
     }
@@ -122,13 +127,22 @@ internal class NetworkObserveModule(private val service: Service) : ServiceModul
             currentDnsList = dnsList
             Core.updateDNS(dnsList.joinToString(","))
         }
-        val network = preferred?.key ?: return
+        val network = preferred?.key
         // Sockets protected onto the network we left stay bound to it; closing
         // them makes apps reconnect now instead of after a TCP timeout.
-        if (currentNetwork != null && currentNetwork != network) {
-            Core.resetNetwork()
+        val capabilities = network?.let { connectivity?.getNetworkCapabilities(it) }
+        val transport = when {
+            capabilities?.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) == true -> "wifi"
+            capabilities?.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) == true -> "cellular"
+            else -> "other"
+        }
+        val interfaceName = network?.let { connectivity?.getLinkProperties(it)?.interfaceName }.orEmpty()
+        val key = if (network == null) "" else "$transport|$interfaceName|${dnsList.sorted().joinToString(",")}"
+        if (currentNetwork != network || currentNetworkKey != key) {
+            Core.networkChanged(key)
         }
         currentNetwork = network
+        currentNetworkKey = key
     }
 
     override fun stop() {

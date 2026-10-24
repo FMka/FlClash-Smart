@@ -398,3 +398,28 @@ func ResetNetwork() {
 	defer recoverExport("resetNetwork")
 	safeGo("resetNetwork", handleResetNetwork)
 }
+
+var networkChangeRevision atomic.Uint64
+var networkResetMu sync.Mutex
+
+func NetworkChanged(key string) {
+	defer recoverExport("networkChanged")
+	revision := networkChangeRevision.Add(1)
+	smartReconnect.mu.Lock()
+	smartReconnect.cancelLocked()
+	smartReconnect.network = key
+	smartReconnect.mu.Unlock()
+	safeGo("networkChanged", func() {
+		networkResetMu.Lock()
+		defer networkResetMu.Unlock()
+		if revision != networkChangeRevision.Load() {
+			return
+		}
+		handleResetNetwork()
+		smartReconnect.mu.Lock()
+		defer smartReconnect.mu.Unlock()
+		if revision == networkChangeRevision.Load() {
+			smartReconnect.startLocked()
+		}
+	})
+}

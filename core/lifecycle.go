@@ -30,6 +30,7 @@ func handleInitClash(params *InitParams) bool {
 	defer configMu.Unlock()
 	sdkVersion.Store(int32(params.Version))
 	constant.SetHomeDir(params.HomeDir)
+	smartReconnect.load()
 	initOwnership(params.HomeDir)
 	clearSpilledResponses()
 	isInit.Store(true)
@@ -47,6 +48,7 @@ func handleStartListener() bool {
 	updateListeners(currentConfig)
 	resolver.ResetConnection()
 	refreshRoute()
+	smartReconnect.resume()
 	return true
 }
 
@@ -54,6 +56,7 @@ func handleStopListener() bool {
 	configMu.Lock()
 	defer configMu.Unlock()
 	isRunning.Store(false)
+	smartReconnect.stop()
 	listener.StopListener()
 	resolver.ResetConnection()
 	return true
@@ -91,6 +94,7 @@ func handleShutdown() bool {
 
 	configMu.Lock()
 	isRunning.Store(false)
+	smartReconnect.stop()
 	listener.StopListener()
 	updater.StopGeoUpdater()
 	executor.Shutdown()

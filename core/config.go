@@ -18,7 +18,6 @@ import (
 	"github.com/metacubex/mihomo/config"
 	"github.com/metacubex/mihomo/constant"
 	"github.com/metacubex/mihomo/hub"
-	"github.com/metacubex/mihomo/hub/executor"
 	"github.com/metacubex/mihomo/hub/route"
 	authStore "github.com/metacubex/mihomo/listener/auth"
 	LC "github.com/metacubex/mihomo/listener/config"
@@ -93,11 +92,22 @@ func handleDecryptConfig(params DecryptConfigParams) (string, error) {
 var systemTimeWritable = runtime.GOOS != "android"
 
 func loadConfig(path string) (*config.Config, error) {
+	return loadConfigSmart(path, nil)
+}
+
+func loadConfigSmart(path string, specs *[]smartGroupSpec) (*config.Config, error) {
 	buf, err := os.ReadFile(path)
 	if err != nil {
 		return nil, err
 	}
-	cfg, err := executor.ParseWithBytes(buf)
+	raw, err := unmarshalRawConfig(buf)
+	if err != nil {
+		return nil, err
+	}
+	if err = prepareSmartGroups(raw, specs); err != nil {
+		return nil, err
+	}
+	cfg, err := config.ParseRawConfig(raw)
 	if err != nil {
 		return nil, err
 	}
@@ -113,21 +123,27 @@ func withPlatformLimits(cfg *config.Config) *config.Config {
 }
 
 func loadSetupConfig(params *SetupParams) (*config.Config, error) {
+	return loadSetupConfigSmart(params, nil)
+}
+
+func loadSetupConfigSmart(params *SetupParams, specs *[]smartGroupSpec) (*config.Config, error) {
 	path := filepath.Join(constant.Path.HomeDir(), "config.yaml")
 	if params.Base != nil {
-		return loadConfigWithBase(params.Base, path)
+		return loadConfigWithSmartBase(params.Base, path, specs)
 	}
-	return loadConfig(path)
+	return loadConfigSmart(path, specs)
 }
 
 func applyConfig(params *SetupParams) error {
 	runtime.GC()
 	configMu.Lock()
 	defer configMu.Unlock()
+	smartReconnect.beginConfig()
 
 	setTestURL(params.TestURL)
 	skipCertVerify.Store(params.SkipCertVerify)
-	cfg, err := loadSetupConfig(params)
+	var specs []smartGroupSpec
+	cfg, err := loadSetupConfigSmart(params, &specs)
 	if err != nil {
 		// The fallback is what keeps the listeners serving while the host
 		// reports the error, but it applies a config with no proxies in it.
@@ -143,6 +159,7 @@ func applyConfig(params *SetupParams) error {
 			return err
 		}
 		cfg = fallback
+		specs = nil
 	}
 
 	currentConfig = cfg
@@ -150,6 +167,7 @@ func applyConfig(params *SetupParams) error {
 	patchSelectGroup(params.SelectedMap)
 	bumpRouteEpoch()
 	updateListeners(cfg)
+	smartReconnect.configure(specs)
 	reconcileGeoUpdater()
 	scheduleLoadMemoryRelease()
 	return err
