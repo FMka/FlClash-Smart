@@ -10,12 +10,14 @@ import (
 	"io"
 	"os"
 	"regexp"
+	"slices"
 	"strings"
 	"time"
 
 	"github.com/metacubex/mihomo/constant"
 	P "github.com/metacubex/mihomo/constant/provider"
 	"github.com/metacubex/mihomo/tunnel"
+	"golang.org/x/text/language"
 )
 
 var russianSmartToken = regexp.MustCompile(`(?i)(^|[^\pL\pN])(?:ru|russia(?:n(?: federation)?)?|россия)([^\pL\pN]|$)`)
@@ -28,6 +30,30 @@ type smartHealthKey struct{}
 func russianSmartName(name string) bool {
 	name = strings.ToLower(name)
 	return strings.Contains(name, "🇷🇺") || russianSmartToken.MatchString(name)
+}
+
+func validSmartCountry(country string) bool {
+	if len(country) != 2 || !isAsciiUpper(country) || country == "ZZ" || country == "XX" {
+		return false
+	}
+	region, err := language.ParseRegion(country)
+	return err == nil && region.IsCountry() && region.String() == country
+}
+
+func smartCountryAdmission(settings smartSettings, country string) error {
+	if settings.PreferredCountry != "" && slices.Contains(settings.ExcludedCountries, settings.PreferredCountry) {
+		return errors.New("country-filter-conflict")
+	}
+	if !validSmartCountry(country) {
+		return errors.New("exit-country-unknown")
+	}
+	if slices.Contains(settings.ExcludedCountries, country) {
+		return fmt.Errorf("country-excluded:%s", country)
+	}
+	if settings.PreferredCountry != "" && settings.PreferredCountry != country {
+		return fmt.Errorf("preferred-country-unavailable:%s", settings.PreferredCountry)
+	}
+	return nil
 }
 
 func (b *smartBackend) node(name string) constant.Proxy {
@@ -98,13 +124,14 @@ func parseSmartCountry(body string) (string, string) {
 		}
 	}
 	country = strings.ToUpper(strings.TrimSpace(country))
-	if len(country) != 2 || !isAsciiUpper(country) || country == "XX" || country == "ZZ" || !mentionsIp(ip) {
+	if !validSmartCountry(country) || !mentionsIp(ip) {
 		return "", ""
 	}
 	return country, smartHash(ip)
 }
 
 func (b *smartBackend) country(ctx context.Context, name string) (string, error) {
+	ctx = context.WithValue(ctx, smartDiagnosticKey{}, true)
 	proxy := b.node(name)
 	if proxy == nil {
 		return "", errors.New("candidate missing")
@@ -117,7 +144,8 @@ func (b *smartBackend) country(ctx context.Context, name string) (string, error)
 	if smartMobileNetwork(b.network) {
 		ttl = 30 * time.Minute
 	}
-	if cached.Country != "" && time.Since(cached.Checked) < ttl {
+	if cached.Country != "" && time.Since(cached.Checked) >= 0 && time.Since(cached.Checked) < ttl {
+		b.rememberCountry(name, key, cached)
 		return cached.Country, nil
 	}
 	for _, source := range smartCountrySources {
@@ -146,8 +174,10 @@ func (b *smartBackend) country(ctx context.Context, name string) (string, error)
 			}
 			delete(smartTraffic.Geo, oldest)
 		}
-		smartTraffic.Geo[key] = smartGeoEntry{Country: country, Exit: exit, Checked: time.Now()}
+		entry := smartGeoEntry{Country: country, Exit: exit, Checked: time.Now()}
+		smartTraffic.Geo[key] = entry
 		smartTraffic.mu.Unlock()
+		b.rememberCountry(name, key, entry)
 		if cached.Exit != "" && cached.Exit != exit && b.runtime != nil && b.runtime.history != nil {
 			historyKey := smartHash(b.network) + ":" + smartHash(b.spec.Name)
 			record := b.runtime.history.Snapshot(historyKey)[name]
@@ -161,20 +191,13 @@ func (b *smartBackend) country(ctx context.Context, name string) (string, error)
 }
 
 func (b *smartBackend) Qualify(ctx context.Context, name string) error {
-	if !b.spec.Settings.AllowRussian && russianSmartName(name) {
-		return errors.New("russian-name-excluded")
-	}
 	country, err := b.country(ctx, name)
-	if !b.spec.Settings.AllowRussian {
-		if err != nil {
-			b.rememberQualification(ctx, name, "", err.Error())
-			return err
-		}
-		if country == "RU" {
-			err = errors.New("russian-exit-excluded")
-			b.rememberQualification(ctx, name, country, err.Error())
-			return err
-		}
+	if err == nil {
+		err = smartCountryAdmission(b.spec.Settings, country)
+	}
+	if err != nil {
+		b.rememberQualification(ctx, name, country, err.Error())
+		return err
 	}
 	err = b.checkPriorityServices(ctx, name)
 	reason := ""

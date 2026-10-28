@@ -214,7 +214,7 @@ var methodHandlers = map[CoreMethod]methodHandler{
 	outboundIpMethod:               withArguments(handleOutboundIp),
 	serviceCheckMethod:             withArguments(handleServiceCheck),
 	getSmartStatusMethod:           withoutArguments(handleGetSmartStatus),
-	smartReconnectCheckMethod:      withoutArguments(SmartRecheck),
+	smartReconnectCheckMethod:      withoutArguments(handleSmartReconnectCheck),
 	getSmartJournalMethod:          withoutArguments(handleGetSmartJournal),
 	getTrafficMethod:               withArguments(handleGetTraffic),
 	getTotalTrafficMethod:          withArguments(handleGetTotalTraffic),

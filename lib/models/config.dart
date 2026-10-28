@@ -210,6 +210,11 @@ Object? _readUserAgents(Map<dynamic, dynamic> json, String key) {
   return [...defaultUserAgents, custom];
 }
 
+Object? _readSmartExcludedCountries(Map<dynamic, dynamic> json, String key) {
+  if (json.containsKey(key)) return json[key];
+  return json['smartAllowRussian'] == true ? <String>[] : null;
+}
+
 @freezed
 abstract class Filter with _$Filter {
   const factory Filter({required String label, required String regex}) =
@@ -271,7 +276,11 @@ abstract class AppSettingProps with _$AppSettingProps {
     ])
     List<String> disabledServices,
     @Default(true) bool smartReconnect,
-    @Default(false) bool smartAllowRussian,
+    @Default('') String smartPreferredCountry,
+    @Default(['RU'])
+    @JsonKey(readValue: _readSmartExcludedCountries)
+    List<String> smartExcludedCountries,
+    @Default(true) bool smartDnsRecovery,
     @Default(20) int smartMobileBudgetMiB,
     @Default(100) int smartWifiBudgetMiB,
     @Default({}) Map<String, Map<String, double>> tableColumnWidths,

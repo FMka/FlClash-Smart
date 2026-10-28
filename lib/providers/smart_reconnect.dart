@@ -3,6 +3,64 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'core.dart';
 
+class SmartRoutingStatus {
+  const SmartRoutingStatus({
+    this.source = 'none',
+    this.version = '',
+    this.updatedAt = '',
+    this.error = '',
+  });
+
+  factory SmartRoutingStatus.fromJson(Map<String, dynamic> json) =>
+      SmartRoutingStatus(
+        source: json['source'] as String? ?? 'none',
+        version: json['version'] as String? ?? '',
+        updatedAt: json['updated-at'] as String? ?? '',
+        error: json['error'] as String? ?? '',
+      );
+
+  final String source;
+  final String version;
+  final String updatedAt;
+  final String error;
+}
+
+class SmartDnsStatus {
+  const SmartDnsStatus({
+    this.enabled = true,
+    this.phase = 'idle',
+    this.scope = '',
+    this.source = 'profile',
+    this.provider = '',
+    this.endpoint = '',
+    this.reason = '',
+    this.lastChecked = 0,
+    this.diagnosticCount = 0,
+  });
+
+  factory SmartDnsStatus.fromJson(Map<String, dynamic> json) => SmartDnsStatus(
+    enabled: json['enabled'] as bool? ?? true,
+    phase: json['phase'] as String? ?? 'idle',
+    scope: json['scope'] as String? ?? '',
+    source: json['source'] as String? ?? 'profile',
+    provider: json['provider'] as String? ?? '',
+    endpoint: json['endpoint'] as String? ?? '',
+    reason: json['reason'] as String? ?? '',
+    lastChecked: (json['last-checked'] as num?)?.toInt() ?? 0,
+    diagnosticCount: (json['diagnostic-count'] as num?)?.toInt() ?? 0,
+  );
+
+  final bool enabled;
+  final String phase;
+  final String scope;
+  final String source;
+  final String provider;
+  final String endpoint;
+  final String reason;
+  final int lastChecked;
+  final int diagnosticCount;
+}
+
 class SmartGroupStatus {
   const SmartGroupStatus({
     required this.name,
@@ -61,6 +119,10 @@ class SmartStatus {
     this.wifiUsed = 0,
     this.mobileBudget = 20 * 1024 * 1024,
     this.wifiBudget = 100 * 1024 * 1024,
+    this.discoveredCountries = const [],
+    this.unresolvedCountries = 0,
+    this.dns = const SmartDnsStatus(),
+    this.routing = const SmartRoutingStatus(),
   });
 
   factory SmartStatus.fromJson(Map<String, dynamic> json) => SmartStatus(
@@ -76,6 +138,17 @@ class SmartStatus {
     wifiUsed: (json['wifi-used-bytes'] as num?)?.toInt() ?? 0,
     mobileBudget: (json['mobile-budget-bytes'] as num?)?.toInt() ?? 0,
     wifiBudget: (json['wifi-budget-bytes'] as num?)?.toInt() ?? 0,
+    discoveredCountries: [
+      for (final country in json['discovered-countries'] as List? ?? const [])
+        if (country is String) country,
+    ],
+    unresolvedCountries: (json['unresolved-countries'] as num?)?.toInt() ?? 0,
+    dns: json['dns'] is Map<String, dynamic>
+        ? SmartDnsStatus.fromJson(json['dns'] as Map<String, dynamic>)
+        : const SmartDnsStatus(),
+    routing: json['routing'] is Map<String, dynamic>
+        ? SmartRoutingStatus.fromJson(json['routing'] as Map<String, dynamic>)
+        : const SmartRoutingStatus(),
   );
 
   final bool enabled;
@@ -87,6 +160,10 @@ class SmartStatus {
   final int wifiUsed;
   final int mobileBudget;
   final int wifiBudget;
+  final List<String> discoveredCountries;
+  final int unresolvedCountries;
+  final SmartDnsStatus dns;
+  final SmartRoutingStatus routing;
 
   Set<String> get managedGroups => groups.map((group) => group.name).toSet();
   Map<String, String> get selections => {

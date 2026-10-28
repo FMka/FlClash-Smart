@@ -8,6 +8,7 @@ import (
 	mihomoHttp "github.com/metacubex/mihomo/component/http"
 	"github.com/metacubex/mihomo/component/proxydialer"
 	"github.com/metacubex/mihomo/component/updater"
+	"github.com/metacubex/mihomo/constant"
 	"github.com/metacubex/mihomo/dns"
 	"github.com/metacubex/mihomo/hub/executor"
 	"github.com/metacubex/mihomo/tunnel/statistic"
@@ -19,6 +20,9 @@ func init() {
 		sendMessage(DelayMessage, &Delay{Url: url, Name: name, Value: delayValue(delay, timedOut)})
 	}
 	statistic.DefaultRequestNotify = func(c statistic.Tracker) {
+		if info := c.Info(); info != nil && info.Metadata != nil && info.Metadata.Type != constant.INNER {
+			smartNotifyActivity()
+		}
 		notifyProbeRoute(c)
 		if hasEventListener() {
 			sendMessage(RequestMessage, c)
@@ -26,6 +30,7 @@ func init() {
 		}
 	}
 	dns.DefaultQueryNotify = func(record dns.QueryRecord) {
+		smartDNS.observeRecord(record)
 		if hasEventListener() {
 			sendMessage(DnsMessage, newDnsQuery(record))
 		}

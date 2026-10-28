@@ -120,8 +120,14 @@ func (e *Engine) probeCandidate(ctx context.Context, network string, backend Bac
 }
 
 func (e *Engine) RefreshPool(ctx context.Context, network string, backend Backend) {
-	if ctx.Err() != nil {
+	if ctx.Err() != nil || !optionalWorkAllowed(backend) {
 		return
+	}
+	if recovery, ok := backend.(RecoveryBackend); ok {
+		if !recovery.BeginRecovery() {
+			return
+		}
+		defer recovery.EndRecovery()
 	}
 	defer e.persist()
 	history := e.History.Snapshot(network)
@@ -163,6 +169,9 @@ func (e *Engine) RefreshPool(ctx context.Context, network string, backend Backen
 	probeCtx, cancel := context.WithTimeout(ctx, e.Options.ScanBudget)
 	defer cancel()
 	e.runWorkers(probeCtx, batch, func(candidate Candidate) {
+		if discovery, ok := backend.(DiscoveryBackend); ok {
+			discovery.Discover(probeCtx, candidate.ID)
+		}
 		e.probeCandidate(probeCtx, network, backend, candidate)
 	})
 }

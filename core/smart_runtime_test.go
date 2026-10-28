@@ -20,9 +20,15 @@ import (
 func isolateSmartState(t *testing.T) {
 	t.Helper()
 	oldHome, oldTraffic, oldRuntime := constant.Path.HomeDir(), smartTraffic, smartReconnect
+	oldActivity := smartLastActivity.Swap(0)
 	constant.SetHomeDir(t.TempDir())
 	smartTraffic = &smartTrafficState{}
-	t.Cleanup(func() { constant.SetHomeDir(oldHome); smartTraffic = oldTraffic; smartReconnect = oldRuntime })
+	t.Cleanup(func() {
+		constant.SetHomeDir(oldHome)
+		smartTraffic = oldTraffic
+		smartReconnect = oldRuntime
+		smartLastActivity.Store(oldActivity)
+	})
 }
 
 func TestSmartSettingsDefaultAndGlobalDisableOverrideLegacyScript(t *testing.T) {
@@ -113,7 +119,7 @@ func TestSmartQualificationPinsExitAndFailsClosedOnUnknownAndRussianCountry(t *t
 	withProbeProxies(t, "foreign-label")
 	b := &smartBackend{spec: smartGroupSpec{Settings: defaultSmartSettings()}, network: "cellular", nodes: map[string]constant.Proxy{"foreign-label": lookupProxy("foreign-label")}}
 	b.spec.Settings.Services = []string{}
-	if err := b.Qualify(context.Background(), "foreign-label"); err == nil || !strings.Contains(err.Error(), "russian-exit") {
+	if err := b.Qualify(context.Background(), "foreign-label"); err == nil || !strings.Contains(err.Error(), "country-excluded:RU") {
 		t.Fatalf("Russian exit admitted: %v", err)
 	}
 	body = "captcha"
@@ -231,12 +237,21 @@ func TestSmartRestartRequiresTransportFailureAndStopInvalidatesRequest(t *testin
 	r := &smartRuntime{settings: defaultSmartSettings(), network: "cellular", workers: map[string]context.CancelFunc{"Smart": func() {}}, transportFailure: time.Now().Add(-2 * time.Minute), resetAttempt: time.Now().Add(-time.Minute), transportOK: time.Now()}
 	smartReconnect = r
 	if TakeSmartRestartRequest() {
+		t.Fatal("quiet idle requested a VPN restart")
+	}
+	smartRecordActivity()
+	if TakeSmartRestartRequest() {
 		t.Fatal("recent transport success allowed restart for service-only failure")
 	}
 	r.transportOK = time.Time{}
 	if !TakeSmartRestartRequest() || !SmartRestartStillNeeded() || TakeSmartRestartRequest() {
 		t.Fatal("restart not rate-limited or request lost")
 	}
+	smartLastActivity.Store(time.Now().Add(-2 * time.Minute).UnixNano())
+	if SmartRestartStillNeeded() {
+		t.Fatal("idle did not invalidate native restart request")
+	}
+	smartRecordActivity()
 	isRunning.Store(false)
 	if SmartRestartStillNeeded() || SmartRecheck() {
 		t.Fatal("Stop was overridden")

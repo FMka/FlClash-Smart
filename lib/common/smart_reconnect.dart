@@ -14,11 +14,33 @@ List<String> smartServiceIds(AppSettingProps settings) {
 
 Map<String, dynamic> smartReconnectSettings(AppSettingProps settings) => {
   'enabled': settings.smartReconnect,
-  'allow-russian': settings.smartAllowRussian,
+  'preferred-country': settings.smartPreferredCountry.trim().toUpperCase(),
+  'excluded-countries': normalizeSmartCountries(
+    settings.smartExcludedCountries,
+  ),
+  'dns-recovery-enabled': settings.smartDnsRecovery,
   'services': smartServiceIds(settings),
   'mobile-budget-mib': settings.smartMobileBudgetMiB.clamp(0, 10000),
   'wifi-budget-mib': settings.smartWifiBudgetMiB.clamp(0, 10000),
 };
+
+List<String> normalizeSmartCountries(Iterable<String> countries) {
+  return countries
+      .map((country) => country.trim().toUpperCase())
+      .where((country) => RegExp(r'^[A-Z]{2}$').hasMatch(country))
+      .toSet()
+      .toList()
+    ..sort();
+}
+
+List<String> smartCountryOptions(
+  AppSettingProps settings,
+  Iterable<String> discovered,
+) => normalizeSmartCountries([
+  ...discovered,
+  settings.smartPreferredCountry,
+  ...settings.smartExcludedCountries,
+]);
 
 Map<String, dynamic> withSmartReconnectSettings(
   Map<String, dynamic> config,

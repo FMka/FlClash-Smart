@@ -175,7 +175,7 @@ func (e *Engine) choose(ctx context.Context, network string, backend Backend, fo
 		}
 		id := candidate.candidate.ID
 		record := history[id]
-		if !speedFresh(record, e.Options.SpeedTTL) {
+		if !speedFresh(record, e.Options.SpeedTTL) && optionalWorkAllowed(backend) {
 			speedCtx, stop := context.WithTimeout(ctx, e.Options.SpeedTimeout)
 			speed, err := backend.Speed(speedCtx, id, e.Options.SpeedBytes)
 			stop()

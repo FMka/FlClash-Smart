@@ -397,6 +397,7 @@ var networkChangeRevision atomic.Uint64
 func NetworkChanged(key string) {
 	defer recoverExport("networkChanged")
 	revision := networkChangeRevision.Add(1)
+	smartDNS.networkChanged(key)
 	smartReconnect.mu.Lock()
 	smartReconnect.cancelLocked()
 	smartReconnect.network = key

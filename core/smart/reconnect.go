@@ -27,6 +27,25 @@ type QualifyingBackend interface {
 	Health(context.Context, string) error
 }
 
+type ActivityBackend interface {
+	RecentlyActive() bool
+	OptionalWorkAllowed() bool
+}
+
+type RecoveryBackend interface {
+	BeginRecovery() bool
+	EndRecovery()
+}
+
+type PolicyBackend interface {
+	PolicyFailure(error) bool
+	Block(context.Context, string) error
+}
+
+type DiscoveryBackend interface {
+	Discover(context.Context, string)
+}
+
 type Options struct {
 	Concurrency          int
 	ProbeTimeout         time.Duration
@@ -47,6 +66,7 @@ type Options struct {
 	FailureCooldown      time.Duration
 	ServiceFailureWindow time.Duration
 	ServiceRetryInterval time.Duration
+	IdleInterval         time.Duration
 }
 
 func DefaultOptions() Options {
@@ -61,6 +81,7 @@ func DefaultOptions() Options {
 		PoolSize: 20, PoolRefreshInterval: 2 * time.Minute,
 		FailureCooldown: time.Minute, ServiceFailureWindow: 15 * time.Second,
 		ServiceRetryInterval: 3 * time.Second,
+		IdleInterval:         2 * time.Minute,
 	}
 }
 
@@ -118,47 +139,94 @@ func (e *Engine) Run(ctx context.Context, network string, backend Backend) {
 	}
 	optimizeAt, poolAt := time.Time{}, time.Time{}
 	backoff, force := 3*time.Second, true
+	initial, explicit := true, false
 	for ctx.Err() == nil {
-		if force || time.Since(optimizeAt) >= e.Options.OptimizeInterval {
-			err := e.Scan(ctx, network, backend, force)
+		if !initial && !explicit && !recentlyActive(backend) {
+			event := e.waitHealthEvent(ctx, e.idleInterval())
+			if event == waitCancelled {
+				return
+			}
+			explicit = event == waitRequested
+			if event == waitElapsed && !recentlyActive(backend) {
+				current := backend.Current()
+				_, err, _, admitted := e.checkCurrent(ctx, backend, current, false)
+				if ctx.Err() != nil {
+					return
+				}
+				if admitted && err != nil {
+					e.failCurrent(network, backend, current, err)
+					force, explicit = true, true
+				}
+			}
+			continue
+		}
+		requested := explicit
+		initial, explicit = false, false
+		if force || (optionalWorkAllowed(backend) && time.Since(optimizeAt) >= e.Options.OptimizeInterval) {
+			err, admitted := e.scanWithRecovery(ctx, network, backend, force)
+			if !admitted {
+				event := e.waitHealthEvent(ctx, e.Options.HealthInterval)
+				if event == waitCancelled {
+					return
+				}
+				explicit = event == waitRequested
+				continue
+			}
 			if ctx.Err() != nil {
 				return
 			}
 			if err != nil {
 				e.report("unavailable")
-				if !e.waitHealth(ctx, backoff) {
+				event := e.waitHealthEvent(ctx, backoff)
+				if event == waitCancelled {
 					return
 				}
+				explicit = event == waitRequested
 				backoff, force = min(backoff*2, time.Minute), true
 				continue
 			}
 			optimizeAt, poolAt, backoff, force = time.Now(), time.Now(), 3*time.Second, false
 		}
-		if !e.waitHealth(ctx, e.Options.HealthInterval) {
+		event := waitRequested
+		if !requested {
+			event = e.waitHealthEvent(ctx, e.Options.HealthInterval)
+		}
+		if event == waitCancelled {
 			return
 		}
+		if event != waitRequested && !recentlyActive(backend) {
+			continue
+		}
 		current := backend.Current()
-		latency, err := e.latency(ctx, backend, current)
+		latency, err, serviceErr, admitted := e.checkCurrent(ctx, backend, current, true)
+		if !admitted {
+			continue
+		}
 		if err != nil {
 			if ctx.Err() != nil {
 				return
 			}
 			e.failCurrent(network, backend, current, err)
-			force = true
+			force, explicit = true, true
 			continue
 		}
 		healthy := true
 		if qualified, ok := backend.(QualifyingBackend); ok {
-			probeCtx, cancel := context.WithTimeout(ctx, e.Options.QualificationTimeout)
-			err = qualified.Health(probeCtx, current)
-			cancel()
+			err = serviceErr
 			healthy = err == nil
 			if ctx.Err() != nil {
 				return
 			}
 			if err != nil {
 				e.failCurrent(network, backend, current, err)
-				if err = e.recoverServices(ctx, network, backend, qualified, current); err != nil {
+				if policy, ok := backend.(PolicyBackend); ok && policy.PolicyFailure(err) {
+					if blockErr := policy.Block(ctx, err.Error()); blockErr != nil {
+						return
+					}
+					force, explicit = true, true
+					continue
+				}
+				if err = e.recoverServicesCoordinated(ctx, network, backend, qualified, current); err != nil {
 					if ctx.Err() != nil || errors.Is(err, context.Canceled) {
 						return
 					}
@@ -176,11 +244,70 @@ func (e *Engine) Run(ctx context.Context, network string, backend Backend) {
 			}
 			e.persist()
 		}
-		if time.Since(poolAt) >= e.Options.PoolRefreshInterval {
+		if optionalWorkAllowed(backend) && time.Since(poolAt) >= e.Options.PoolRefreshInterval {
 			e.RefreshPool(ctx, network, backend)
 			poolAt = time.Now()
 		}
 	}
+}
+
+func recentlyActive(backend Backend) bool {
+	activity, ok := backend.(ActivityBackend)
+	return !ok || activity.RecentlyActive()
+}
+
+func optionalWorkAllowed(backend Backend) bool {
+	activity, ok := backend.(ActivityBackend)
+	return !ok || activity.OptionalWorkAllowed()
+}
+
+func (e *Engine) idleInterval() time.Duration {
+	if e.Options.IdleInterval > 0 {
+		return e.Options.IdleInterval
+	}
+	return 2 * time.Minute
+}
+
+func (e *Engine) scanWithRecovery(ctx context.Context, network string, backend Backend, force bool) (error, bool) {
+	if recovery, ok := backend.(RecoveryBackend); ok {
+		if !recovery.BeginRecovery() {
+			return nil, false
+		}
+		defer recovery.EndRecovery()
+	}
+	return e.Scan(ctx, network, backend, force), true
+}
+
+func (e *Engine) checkCurrent(ctx context.Context, backend Backend, current string, qualify bool) (time.Duration, error, error, bool) {
+	if recovery, ok := backend.(RecoveryBackend); ok {
+		if !recovery.BeginRecovery() {
+			return 0, nil, nil, false
+		}
+		defer recovery.EndRecovery()
+	}
+	latency, err := e.latency(ctx, backend, current)
+	if err != nil {
+		return latency, err, nil, true
+	}
+	if !qualify {
+		return latency, nil, nil, true
+	}
+	if qualified, ok := backend.(QualifyingBackend); ok {
+		probeCtx, cancel := context.WithTimeout(ctx, e.Options.QualificationTimeout)
+		defer cancel()
+		return latency, nil, qualified.Health(probeCtx, current), true
+	}
+	return latency, nil, nil, true
+}
+
+func (e *Engine) recoverServicesCoordinated(ctx context.Context, network string, backend Backend, qualified QualifyingBackend, current string) error {
+	if recovery, ok := backend.(RecoveryBackend); ok {
+		if !recovery.BeginRecovery() {
+			return nil
+		}
+		defer recovery.EndRecovery()
+	}
+	return e.recoverServices(ctx, network, backend, qualified, current)
 }
 
 func (e *Engine) failCurrent(network string, backend Backend, current string, err error) {
@@ -200,15 +327,27 @@ func (e *Engine) latency(ctx context.Context, backend Backend, id string) (time.
 }
 
 func (e *Engine) waitHealth(ctx context.Context, delay time.Duration) bool {
+	return e.waitHealthEvent(ctx, delay) != waitCancelled
+}
+
+type waitEvent uint8
+
+const (
+	waitCancelled waitEvent = iota
+	waitElapsed
+	waitRequested
+)
+
+func (e *Engine) waitHealthEvent(ctx context.Context, delay time.Duration) waitEvent {
 	timer := time.NewTimer(delay)
 	defer timer.Stop()
 	select {
 	case <-ctx.Done():
-		return false
+		return waitCancelled
 	case <-e.wake:
-		return true
+		return waitRequested
 	case <-timer.C:
-		return true
+		return waitElapsed
 	}
 }
 

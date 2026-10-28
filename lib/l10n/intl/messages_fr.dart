@@ -224,16 +224,20 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m77(label) => "${label} doit être un seul élément";
 
-  static String m78(value) => "Pic ${value}";
+  static String m78(count) => "${count} serveurs non identifiés";
 
-  static String m79(value) => "Total ${value}";
+  static String m79(count) => "${count} pays vérifiés";
 
-  static String m80(label) => "${label} doit être une URL";
+  static String m80(value) => "Pic ${value}";
 
-  static String m81(count) =>
+  static String m81(value) => "Total ${value}";
+
+  static String m82(label) => "${label} doit être une URL";
+
+  static String m83(count) =>
       "${Intl.plural(count, one: 'il y a 1 an', other: 'il y a ${count} ans')}";
 
-  static String m82(count) =>
+  static String m84(count) =>
       "${Intl.plural(count, other: 'il y a ${count} a')}";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
@@ -1010,10 +1014,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "inputRuleContent": MessageLookupByLibrary.simpleMessage(
       "Saisissez le contenu de la règle",
     ),
-    "installedAppsPermissionDeniedMessage":
-        MessageLookupByLibrary.simpleMessage(
-          "L’autorisation de la liste des apps a été refusée ; les apps installées ne peuvent donc pas être listées. Veuillez l’accorder manuellement dans les réglages du système.",
-        ),
+    "installedAppsPermissionDeniedMessage": MessageLookupByLibrary.simpleMessage(
+      "L’autorisation de la liste des apps a été refusée ; les apps installées ne peuvent donc pas être listées. Veuillez l’accorder manuellement dans les réglages du système.",
+    ),
     "installedAppsPermissionDesc": MessageLookupByLibrary.simpleMessage(
       "Ce système masque la liste des apps installées tant que l’autorisation n’est pas accordée. Accordez-la pour configurer le proxy par app.",
     ),
@@ -1825,20 +1828,97 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "slide": MessageLookupByLibrary.simpleMessage("Glissement"),
     "sliders": MessageLookupByLibrary.simpleMessage("Curseurs"),
-    "smartAllowRussian": MessageLookupByLibrary.simpleMessage(
-      "Inclure les serveurs russes dans la sélection automatique",
-    ),
     "smartBudgetDesc": MessageLookupByLibrary.simpleMessage(
       "Limite quotidienne des téléchargements de mesure de débit uniquement. Les contrôles et le rétablissement continuent au-delà. Zéro désactive ces téléchargements.",
     ),
     "smartBudgetInvalid": MessageLookupByLibrary.simpleMessage(
       "Saisissez un nombre de 0 à 10000.",
     ),
+    "smartCountryAny": MessageLookupByLibrary.simpleMessage("Tous"),
+    "smartCountryConflict": MessageLookupByLibrary.simpleMessage(
+      "Le pays préféré est exclu. Modifiez la préférence ou les exclusions pour rétablir la sélection automatique.",
+    ),
+    "smartCountryDiscovery": MessageLookupByLibrary.simpleMessage(
+      "Pays de sortie vérifiés",
+    ),
+    "smartCountryDiscoveryDesc": MessageLookupByLibrary.simpleMessage(
+      "Les pays sont identifiés progressivement pendant que Smart fonctionne. Les choix enregistrés restent conservés même en leur absence. Aucune analyse supplémentaire au repos.",
+    ),
+    "smartCountryEmpty": MessageLookupByLibrary.simpleMessage(
+      "Aucun pays vérifié. Démarrez Smart pour identifier les sorties.",
+    ),
+    "smartCountryExcluded": MessageLookupByLibrary.simpleMessage(
+      "Le pays de sortie est exclu.",
+    ),
+    "smartCountryNotVerified": MessageLookupByLibrary.simpleMessage(
+      "Choix enregistré ; aucune sortie actuellement vérifiée.",
+    ),
+    "smartCountryStrict": MessageLookupByLibrary.simpleMessage(
+      "La sélection automatique se limite à ce pays. Les exclusions sont prioritaires.",
+    ),
+    "smartCountryUnavailable": MessageLookupByLibrary.simpleMessage(
+      "Aucun serveur adapté dans le pays préféré.",
+    ),
+    "smartCountryUnknown": m78,
+    "smartCountryVerified": m79,
     "smartDiagnosticDesc": MessageLookupByLibrary.simpleMessage(
       "Données de diagnostic reçues uniquement, hors surcoût des protocoles. Séparé des tests de débit.",
     ),
     "smartDiagnosticTraffic": MessageLookupByLibrary.simpleMessage(
       "Trafic de diagnostic (estimation)",
+    ),
+    "smartDnsDestination": MessageLookupByLibrary.simpleMessage(
+      "DNS des sites",
+    ),
+    "smartDnsDiagnosing": MessageLookupByLibrary.simpleMessage(
+      "Vérification des DNS de secours",
+    ),
+    "smartDnsDirect": MessageLookupByLibrary.simpleMessage(
+      "DNS du trafic direct",
+    ),
+    "smartDnsExpired": MessageLookupByLibrary.simpleMessage(
+      "Récupération expirée ; DNS initial rétabli",
+    ),
+    "smartDnsNetworkChanged": MessageLookupByLibrary.simpleMessage(
+      "Réseau modifié ; vérifications précédentes invalidées",
+    ),
+    "smartDnsNode": MessageLookupByLibrary.simpleMessage("DNS du serveur VPN"),
+    "smartDnsObserving": MessageLookupByLibrary.simpleMessage(
+      "En attente de véritables erreurs DNS",
+    ),
+    "smartDnsOriginalRestored": MessageLookupByLibrary.simpleMessage(
+      "DNS initial rétabli",
+    ),
+    "smartDnsPolicyPreserved": MessageLookupByLibrary.simpleMessage(
+      "Politique DNS explicite préservée",
+    ),
+    "smartDnsRecovered": MessageLookupByLibrary.simpleMessage("DNS rétabli"),
+    "smartDnsRecovery": MessageLookupByLibrary.simpleMessage(
+      "Récupération DNS intelligente",
+    ),
+    "smartDnsRecoveryDesc": MessageLookupByLibrary.simpleMessage(
+      "Récupère les véritables erreurs DNS, y compris le trafic direct. Préserve le routage et les politiques DNS explicites. Aucun sondage DNS périodique ni réveil supplémentaire.",
+    ),
+    "smartDnsSourceProfile": MessageLookupByLibrary.simpleMessage(
+      "Source : profil et paramètres DNS",
+    ),
+    "smartDnsSourceRecovery": MessageLookupByLibrary.simpleMessage(
+      "Source : récupération automatique",
+    ),
+    "smartDnsStatus": MessageLookupByLibrary.simpleMessage(
+      "État de récupération DNS",
+    ),
+    "smartDnsTimeout": MessageLookupByLibrary.simpleMessage(
+      "Délais DNS dépassés à plusieurs reprises",
+    ),
+    "smartDnsUnavailable": MessageLookupByLibrary.simpleMessage(
+      "Récupération DNS indisponible",
+    ),
+    "smartDnsVerificationFailed": MessageLookupByLibrary.simpleMessage(
+      "Échec de vérification de la réponse DNS",
+    ),
+    "smartExcludedCountries": MessageLookupByLibrary.simpleMessage(
+      "Pays exclus",
     ),
     "smartHistory": MessageLookupByLibrary.simpleMessage("Historique"),
     "smartJournal": MessageLookupByLibrary.simpleMessage(
@@ -1856,6 +1936,9 @@ class MessageLookup extends MessageLookupByLibrary {
       "Certains services indisponibles",
     ),
     "smartPool": MessageLookupByLibrary.simpleMessage("Serveurs disponibles"),
+    "smartPreferredCountry": MessageLookupByLibrary.simpleMessage(
+      "Pays préféré",
+    ),
     "smartReconnect": MessageLookupByLibrary.simpleMessage(
       "Sélection intelligente du serveur",
     ),
@@ -1867,6 +1950,21 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "smartResumeAuto": MessageLookupByLibrary.simpleMessage(
       "Reprendre la sélection automatique",
+    ),
+    "smartRoutingBuiltin": MessageLookupByLibrary.simpleMessage(
+      "Trafic direct russe intégré",
+    ),
+    "smartRoutingCustom": MessageLookupByLibrary.simpleMessage(
+      "Règles personnelles",
+    ),
+    "smartRoutingSource": MessageLookupByLibrary.simpleMessage(
+      "Source des règles de routage",
+    ),
+    "smartRoutingSubscription": MessageLookupByLibrary.simpleMessage(
+      "Règles de l’abonnement",
+    ),
+    "smartRoutingUpdateFailed": MessageLookupByLibrary.simpleMessage(
+      "Échec de mise à jour des règles ; dernière version valide utilisée.",
     ),
     "smartSearching": MessageLookupByLibrary.simpleMessage(
       "Vérification des serveurs",
@@ -1983,8 +2081,8 @@ class MessageLookup extends MessageLookupByLibrary {
     "totalUpload": MessageLookupByLibrary.simpleMessage("Envoyé"),
     "tproxyPort": MessageLookupByLibrary.simpleMessage("Port TProxy"),
     "traffic": MessageLookupByLibrary.simpleMessage("Trafic"),
-    "trafficPeak": m78,
-    "trafficTotal": m79,
+    "trafficPeak": m80,
+    "trafficTotal": m81,
     "trafficUsage": MessageLookupByLibrary.simpleMessage("Trafic utilisé"),
     "transport": MessageLookupByLibrary.simpleMessage("Transport"),
     "tun": MessageLookupByLibrary.simpleMessage("TUN"),
@@ -2022,7 +2120,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "Bande passante d’envoi",
     ),
     "url": MessageLookupByLibrary.simpleMessage("URL"),
-    "urlTip": m80,
+    "urlTip": m82,
     "useHosts": MessageLookupByLibrary.simpleMessage("Utiliser hosts"),
     "useSystemHosts": MessageLookupByLibrary.simpleMessage(
       "Utiliser les hosts du système",
@@ -2051,8 +2149,8 @@ class MessageLookup extends MessageLookupByLibrary {
     "writeToSystemDesc": MessageLookupByLibrary.simpleMessage(
       "Écrire dans le système règle aussi l’horloge système ; Android l’ignore.",
     ),
-    "yearsAgo": m81,
-    "yearsAgoShort": m82,
+    "yearsAgo": m83,
+    "yearsAgoShort": m84,
     "yes": MessageLookupByLibrary.simpleMessage("Oui"),
     "zhCN": MessageLookupByLibrary.simpleMessage("Chinois simplifié"),
   };

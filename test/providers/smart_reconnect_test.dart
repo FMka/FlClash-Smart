@@ -27,7 +27,9 @@ void main() {
       }),
     ]) {
       expect(settings.smartReconnect, isTrue);
-      expect(settings.smartAllowRussian, isFalse);
+      expect(settings.smartPreferredCountry, isEmpty);
+      expect(settings.smartExcludedCountries, ['RU']);
+      expect(settings.smartDnsRecovery, isTrue);
       expect(settings.smartMobileBudgetMiB, 20);
       expect(settings.smartWifiBudgetMiB, 100);
       expect(smartServiceIds(settings), [
@@ -47,7 +49,9 @@ void main() {
               jsonEncode(
                 const AppSettingProps(
                   smartReconnect: false,
-                  smartAllowRussian: true,
+                  smartPreferredCountry: 'DE',
+                  smartExcludedCountries: ['RU', 'US'],
+                  smartDnsRecovery: false,
                   smartMobileBudgetMiB: 5,
                   smartWifiBudgetMiB: 40,
                 ).toJson(),
@@ -65,7 +69,9 @@ void main() {
       final config = withSmartReconnectSettings(oldConfig, settings);
       expect(config['smart-reconnect-settings'], {
         'enabled': false,
-        'allow-russian': true,
+        'preferred-country': 'DE',
+        'excluded-countries': ['RU', 'US'],
+        'dns-recovery-enabled': false,
         'services': ['youtube', 'google', 'chatgpt', 'telegram'],
         'mobile-budget-mib': 5,
         'wifi-budget-mib': 40,
@@ -73,6 +79,112 @@ void main() {
       expect(config['rules'], same(oldConfig['rules']));
       expect(config['proxy-groups'], same(oldConfig['proxy-groups']));
       expect(oldConfig['smart-reconnect-settings'], {'enabled': true});
+    },
+  );
+
+  test(
+    'old Russian permission migrates without overriding explicit exclusions',
+    () {
+      expect(
+        AppSettingProps.fromJson({
+          'smartAllowRussian': true,
+        }).smartExcludedCountries,
+        isEmpty,
+      );
+      expect(
+        AppSettingProps.fromJson({
+          'smartAllowRussian': false,
+        }).smartExcludedCountries,
+        ['RU'],
+      );
+      final restored = AppSettingProps.fromJson({
+        'smartAllowRussian': true,
+        'smartPreferredCountry': 'DE',
+        'smartExcludedCountries': ['RU', 'DE'],
+      });
+      expect(restored.smartExcludedCountries, ['RU', 'DE']);
+      expect(restored.smartPreferredCountry, 'DE');
+      expect(restored.toJson().containsKey('smartAllowRussian'), isFalse);
+      expect(
+        AppSettingProps.fromJson({
+          'smartExcludedCountries': [],
+        }).smartExcludedCountries,
+        isEmpty,
+      );
+    },
+  );
+
+  test('country choices retain absent preferences and exclusions', () {
+    const settings = AppSettingProps(
+      smartPreferredCountry: 'DE',
+      smartExcludedCountries: ['RU', 'US'],
+    );
+    expect(smartCountryOptions(settings, ['FR']), ['DE', 'FR', 'RU', 'US']);
+    expect(smartCountryOptions(settings, []), ['DE', 'RU', 'US']);
+    final params = smartReconnectSettings(
+      settings.copyWith(
+        smartPreferredCountry: ' de ',
+        smartExcludedCountries: ['ru', 'RU', 'bad', ' us '],
+      ),
+    );
+    expect(params['preferred-country'], 'DE');
+    expect(params['excluded-countries'], ['RU', 'US']);
+  });
+
+  test(
+    'DNS recovery remains enabled while automatic node selection is off',
+    () {
+      final container = ProviderContainer();
+      addTearDown(container.dispose);
+      container.listen(setupPatchProvider, (_, _) {});
+      container
+          .read(appSettingProvider.notifier)
+          .update((settings) => settings.copyWith(smartReconnect: false));
+      final manual = container.read(setupPatchProvider);
+      expect(
+        smartReconnectSettings(container.read(appSettingProvider)),
+        containsPair('dns-recovery-enabled', true),
+      );
+      container
+          .read(appSettingProvider.notifier)
+          .update((settings) => settings.copyWith(smartDnsRecovery: false));
+      expect(container.read(setupPatchProvider), isNot(manual));
+    },
+  );
+
+  test(
+    'country inventory and DNS evidence parse without inventing a provider',
+    () {
+      final status = SmartStatus.fromJson({
+        'discovered-countries': ['DE', 'RU'],
+        'unresolved-countries': 7,
+        'dns': {
+          'enabled': true,
+          'phase': 'unavailable',
+          'scope': 'direct',
+          'source': 'profile',
+          'reason': 'resolvers-unavailable',
+          'last-checked': 12345,
+          'diagnostic-count': 2,
+        },
+        'routing': {
+          'source': 'builtin-ru',
+          'version': '2026-10-28',
+          'updated-at': '2026-10-28T12:00:00Z',
+          'error': 'update-failed',
+        },
+      });
+      expect(status.discoveredCountries, ['DE', 'RU']);
+      expect(status.unresolvedCountries, 7);
+      expect(status.dns.phase, 'unavailable');
+      expect(status.dns.scope, 'direct');
+      expect(status.dns.provider, isEmpty);
+      expect(status.dns.lastChecked, 12345);
+      expect(status.dns.diagnosticCount, 2);
+      expect(status.routing.source, 'builtin-ru');
+      expect(status.routing.version, '2026-10-28');
+      expect(status.routing.error, 'update-failed');
+      expect(SmartStatus.fromJson({}).dns.phase, 'idle');
     },
   );
 

@@ -117,6 +117,9 @@ func loadConfigWithSmartBase(base *SetupBase, configPath string, specs *[]smartG
 			if err = node.Decode(&settings); err != nil {
 				return nil, err
 			}
+			if mappingValue(resolveAlias(node), "excluded-countries") == nil && settings.AllowRussian {
+				settings.ExcludedCountries = []string{}
+			}
 		}
 	}
 	encoded, err := yaml.Marshal(map[string]any{"smart-reconnect-settings": settings})
@@ -129,6 +132,30 @@ func loadConfigWithSmartBase(base *SetupBase, configPath string, specs *[]smartG
 	}
 	if len(settingsOut) > 0 {
 		*settingsOut[0] = settings
+	}
+	root, err := documentMapping(document)
+	if err != nil {
+		return nil, err
+	}
+	routingHeader := map[string]any{}
+	if source := mappingValue(root, "smart-routing-source"); source != nil {
+		routingHeader["smart-routing-source"] = source.Value
+	}
+	routingBytes, err := yaml.Marshal(routingHeader)
+	if err != nil {
+		return nil, err
+	}
+	if err = prepareSmartRouting(raw, routingBytes); err != nil {
+		return nil, err
+	}
+	if smartRoutingSnapshot().Source == "builtin-ru" {
+		for key, value := range map[string]any{"rules": raw.Rule, "rule-providers": raw.RuleProvider, "proxy-groups": raw.ProxyGroup, "smart-routing-source": "builtin-ru"} {
+			node := &yaml.Node{}
+			if err = node.Encode(value); err != nil {
+				return nil, err
+			}
+			setMappingValue(root, key, node)
+		}
 	}
 	if err := prepareSmartGroups(raw, specs, settings); err != nil {
 		return nil, err
@@ -172,6 +199,12 @@ func mergeProfileBase(base *SetupBase) (*yaml.Node, error) {
 			setMappingValue(root, key, value)
 		}
 	}
+	profileRules := resolveAlias(mappingValue(profile, "rules"))
+	source := "none"
+	if profileRules != nil && !isNull(profileRules) && (profileRules.Kind != yaml.SequenceNode || len(profileRules.Content) > 0) {
+		source = "subscription"
+	}
+	setMappingValue(root, "smart-routing-source", &yaml.Node{Kind: yaml.ScalarNode, Tag: "!!str", Value: source})
 	rules, err := appendRules(mappingValue(root, "rules"), mappingValue(profile, "rules"))
 	if err != nil {
 		return nil, err
@@ -247,7 +280,7 @@ func setMappingValue(mapping *yaml.Node, key string, value *yaml.Node) {
 // The overlay's rules are the ones the host adds in front of the profile's.
 func appendRules(added, profile *yaml.Node) (*yaml.Node, error) {
 	if profile == nil {
-		return nil, nil
+		return added, nil
 	}
 	added, profile = resolveAlias(added), resolveAlias(profile)
 	if added == nil || isNull(added) || (added.Kind == yaml.SequenceNode && len(added.Content) == 0) {

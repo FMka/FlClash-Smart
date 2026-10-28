@@ -87,7 +87,14 @@ _AppSettingProps _$AppSettingPropsFromJson(
         'bilibili',
       ],
   smartReconnect: json['smartReconnect'] as bool? ?? true,
-  smartAllowRussian: json['smartAllowRussian'] as bool? ?? false,
+  smartPreferredCountry: json['smartPreferredCountry'] as String? ?? '',
+  smartExcludedCountries:
+      (_readSmartExcludedCountries(json, 'smartExcludedCountries')
+              as List<dynamic>?)
+          ?.map((e) => e as String)
+          .toList() ??
+      const ['RU'],
+  smartDnsRecovery: json['smartDnsRecovery'] as bool? ?? true,
   smartMobileBudgetMiB: (json['smartMobileBudgetMiB'] as num?)?.toInt() ?? 20,
   smartWifiBudgetMiB: (json['smartWifiBudgetMiB'] as num?)?.toInt() ?? 100,
   tableColumnWidths:
@@ -135,7 +142,9 @@ Map<String, dynamic> _$AppSettingPropsToJson(_AppSettingProps instance) =>
       'serviceOrder': instance.serviceOrder,
       'disabledServices': instance.disabledServices,
       'smartReconnect': instance.smartReconnect,
-      'smartAllowRussian': instance.smartAllowRussian,
+      'smartPreferredCountry': instance.smartPreferredCountry,
+      'smartExcludedCountries': instance.smartExcludedCountries,
+      'smartDnsRecovery': instance.smartDnsRecovery,
       'smartMobileBudgetMiB': instance.smartMobileBudgetMiB,
       'smartWifiBudgetMiB': instance.smartWifiBudgetMiB,
       'tableColumnWidths': instance.tableColumnWidths,

@@ -13,8 +13,9 @@ See [SMART_ROADMAP.md](SMART_ROADMAP.md) for agreed requirements and device acce
    application ID (`com.follow.clash.smart.dev`) and does not import another client's
    settings automatically. Configure the required application bypass exclusions.
 2. Connect. Smart selection is enabled by default; no profile script is required.
-   Settings contain the smart switch, Russian-server permission, daily test-download
-   budgets and the priority-service chooser shared with the dashboard.
+   Settings contain the smart switch, preferred country (Any), excluded countries
+   (Russia), DNS recovery, daily test-download budgets and the priority-service
+   chooser shared with the dashboard. A selected country is a strict restriction.
 3. On Wi-Fi/LTE changes the old search is cancelled, old connections are closed,
    and a new search starts. If no node is available, the managed group blocks
    traffic rather than falling back to DIRECT. Existing direct routing rules remain.
@@ -58,11 +59,16 @@ the global disabled switch takes precedence over legacy script opt-ins.
   up to twenty nodes per network is refreshed every two minutes on Wi-Fi and five
   minutes on mobile. Failed nodes leave the active pool but retain history, and
   discovery rotates beyond the pool and the beginning of the subscription.
-- Russian names are excluded by default. Other candidates must have a known non-RU
-  exit country determined through that specific node. Unknown country fails closed;
-  the ingress address is not treated as the exit. Country results expire after ten
-  minutes on Wi-Fi or thirty minutes on mobile. Enabling Russian candidates changes
-  admission, not routing rules or manual selection.
+- Candidates must have a known exit country determined through that specific
+  node. Russia is excluded by default. Admission uses the
+  verified exit rather than a name heuristic: the preferred country and exclusions
+  both apply, exclusions win, and unknown country fails closed. The ingress address
+  is not treated as the exit. Admission results expire after ten minutes on Wi-Fi
+  or thirty minutes on mobile. Country inventory is filled progressively during
+  running Smart work, independently of service admission, and retains bounded
+  cached discoveries. Importing a profile does not start VPN or a discovery scan.
+  Country settings constrain automatic VPN exits, not domestic bypass destinations,
+  DNS-provider location or an explicit manual server selection.
 - The first qualified node restores routing immediately. Results are collected for
   another second, then up to three candidates within minimum latency +15 ms receive
   serial, bounded download probes (512 KiB each, three seconds). The test endpoint
@@ -75,7 +81,16 @@ the global disabled switch takes precedence over legacy script opt-ins.
   node, a change requires a 20% speed improvement. Failure recovery bypasses
   the hold. A download probe failure falls back to measured latency.
 - The current node is checked every fifteen seconds. When all candidates fail,
-  retries back off from three to sixty seconds. Network changes restart recovery.
+  retries back off from three to sixty seconds. During inactivity the engine defers
+  full service checks and optional optimization/pool/country work. The existing
+  idle wait samples activity and runs one short current-node latency check every
+  two minutes without a native wakeup alarm; a failed check permits bounded
+  recovery without optional speed downloads. Real
+  traffic and existing wake/network/manual-check events resume necessary checks.
+  Internal diagnostics do not count as user activity. A quiet transport failure
+  may remain undetected until the next sparse check or a relevant event; Doze can
+  delay that check. Network changes
+  restart recovery. Idle transport failures do not repeatedly restart the VPN.
 - Successful full service checks can be reused for thirty seconds on Wi-Fi and
   sixty seconds on mobile. Failed checks are never cached, so confirmation retries
   during a service outage stay fresh. Candidate admission always checks services.
@@ -112,6 +127,47 @@ the global disabled switch takes precedence over legacy script opt-ins.
   A running Android VPN service alone does not
   prove internet access. Device background restrictions still apply.
 
+## DNS recovery and routing defaults (v3)
+
+DNS recovery is on by default and has an independent opt-out. It works while the
+VPN service runs, including manual server mode and a detached Flutter UI, without
+requiring debug logs. Repeated actual public-name resolution timeouts trigger one
+bounded diagnostic episode shared with Smart transport work. DNS and VPN failures
+remain separate diagnoses; user Stop and newer network/configuration generations
+invalidate pending work.
+
+Alternatives use HTTPS with validated certificates and independent pinned-IP
+bootstrap. The pool contains Google, Cloudflare, Quad9 No Threat Blocking and
+AdGuard Non-filtering. Yandex Basic is an additional last candidate for DIRECT
+resolution only. Availability on a particular carrier is not assumed. A candidate
+must resolve the failed public name and independent controls; promotion is verified
+through the effective resolver path. IPv6 settings and original lookup behavior
+are preserved.
+
+If the failed name and an independent control both fail on the original transport,
+the compatible public DNS branch receives one shared temporary replacement. An
+isolated name failure receives an exact-name replacement. This avoids waiting for
+separate recovery episodes for a site's public CDN names while retaining exceptions.
+
+Recovery retains explicit domain/filtering policies, private/system DNS scopes,
+DIRECT inheritance and configured mihomo fallback semantics. An incompatible
+scope reports `policy-preserved` instead of removing those settings. Application-
+owned DoH and DNS outside this Core are not observable by the recovery module.
+Temporary recovery state expires and is invalidated on network/config changes;
+remembered provider preferences are bounded per network and held in memory.
+The settings show the last diagnosed scope/provider/reason, not a claim that every
+resolver or Internet service is currently healthy.
+
+The profile's supplied routing rules keep their order and personal exceptions
+keep precedence. An explicit MATCH alone is still a supplied policy. A servers-only
+profile receives a bundled Russian domain bypass preset plus a final VPN route.
+The domain snapshot comes from MetaCubeX/meta-rules-dat `category-ru`; its source,
+version and timestamp appear in Smart settings. Updates validate the whole list
+before replacement, preserve the last valid data on failure, and are attempted
+through an available route at most daily (failed attempts back off six hours).
+No additional update timer wakes the phone; existing start/recovery events check
+whether work is due. Existing groups explicitly opted out of Smart stay manual.
+
 ## Building and checking
 
 Follow `.agents/commands.md` for toolchains and full build instructions. Initialize
@@ -127,8 +183,8 @@ The debug APK is signed with the local Android debug key and is intended for dev
 testing. Do not install upstream update APKs as updates for this custom variant.
 
 On a Windows build host, Rust bindgen needs a host `libclang.dll` and an explicit
-Clang resource directory containing builtin headers. The test build used the
-PyPI libclang 18.1.1 runtime and NDK headers, with `-resource-dir` supplied through
+Clang resource directory containing builtin headers. The v3 test build used the
+Android NDK 28.2 host libclang and its Clang 19 headers, with `-resource-dir` supplied through
 the target's `BINDGEN_EXTRA_CLANG_ARGS`. When project and pub cache are on different
 drives, set `kotlin.incremental=false` in the build's Gradle user properties. Keep
 Rust/Cargo cache directories explicitly forwarded to subprocesses: Flutter's hook

@@ -1,4 +1,5 @@
 import 'package:fl_clash/providers/providers.dart';
+import 'package:fl_clash/ui/list.dart';
 import 'package:fl_clash/views/config/smart_reconnect.dart';
 import 'package:fl_clash/views/disclaimer.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -12,6 +13,16 @@ class _Status extends SmartStatusNotifier {
   SmartStatus build() => SmartStatus.fromJson({
     'enabled': true,
     'phase': 'connected',
+    'discovered-countries': ['DE', 'FR'],
+    'unresolved-countries': 3,
+    'dns': {
+      'phase': 'recovered',
+      'source': 'recovery',
+      'provider': 'Cloudflare',
+      'scope': 'direct',
+      'reason': 'recovered',
+    },
+    'routing': {'source': 'subscription'},
     'groups': [
       {
         'name': 'Any subscription',
@@ -24,6 +35,112 @@ class _Status extends SmartStatusNotifier {
 }
 
 void main() {
+  Future<ProviderContainer> openSmartSettings(WidgetTester tester) async {
+    await tester.binding.setSurfaceSize(const Size(900, 1800));
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+    final container = ProviderContainer(
+      overrides: [
+        isStartProvider.overrideWithValue(true),
+        smartStatusProvider.overrideWith(_Status.new),
+      ],
+    );
+    addTearDown(container.dispose);
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: container,
+        child: const TestApp(locale: Locale('en'), child: SmartReconnectView()),
+      ),
+    );
+    await tester.pumpAndSettle();
+    return container;
+  }
+
+  testWidgets('shows strict countries, passive DNS state and rule source', (
+    tester,
+  ) async {
+    final container = await openSmartSettings(tester);
+    expect(find.text('Preferred country'), findsOneWidget);
+    expect(find.text('Excluded countries'), findsOneWidget);
+    expect(find.text('Any'), findsOneWidget);
+    expect(find.text('🇷🇺 RU'), findsOneWidget);
+    expect(find.textContaining('2 countries verified'), findsOneWidget);
+    expect(find.textContaining('3 servers unresolved'), findsOneWidget);
+    expect(find.textContaining('Subscription rules'), findsOneWidget);
+    expect(find.textContaining('Cloudflare'), findsOneWidget);
+    expect(find.textContaining('Bypass DNS'), findsOneWidget);
+    expect(
+      find.text('Include Russian servers in automatic selection'),
+      findsNothing,
+    );
+
+    container
+        .read(appSettingProvider.notifier)
+        .update((settings) => settings.copyWith(smartPreferredCountry: 'RU'));
+    await tester.pumpAndSettle();
+    expect(
+      find.textContaining('The preferred country is excluded.'),
+      findsOneWidget,
+    );
+    expect(container.read(appSettingProvider).smartPreferredCountry, 'RU');
+    expect(container.read(appSettingProvider).smartExcludedCountries, ['RU']);
+  });
+
+  testWidgets('country exclusions remain editable when the exit is absent', (
+    tester,
+  ) async {
+    final container = await openSmartSettings(tester);
+    await tester.tap(find.text('Excluded countries'));
+    await tester.pumpAndSettle();
+    expect(find.text('🇩🇪 DE'), findsOneWidget);
+    expect(find.text('🇫🇷 FR'), findsOneWidget);
+    expect(find.text('🇷🇺 RU'), findsWidgets);
+    expect(
+      find.text('Saved selection; no currently verified exit.'),
+      findsOneWidget,
+    );
+    await tester.tap(find.text('🇷🇺 RU').last);
+    await tester.pumpAndSettle();
+    expect(container.read(appSettingProvider).smartExcludedCountries, isEmpty);
+    expect(
+      tester
+          .widgetList<Checkbox>(find.byType(Checkbox))
+          .every((checkbox) => checkbox.value == false),
+      isTrue,
+    );
+  });
+
+  testWidgets('preferred country picker saves one verified country', (
+    tester,
+  ) async {
+    final container = await openSmartSettings(tester);
+    await tester.tap(find.text('Any'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('🇩🇪 DE'));
+    await tester.pumpAndSettle();
+    expect(container.read(appSettingProvider).smartPreferredCountry, 'DE');
+    expect(container.read(appSettingProvider).smartExcludedCountries, ['RU']);
+    expect(find.text('🇩🇪 DE'), findsOneWidget);
+  });
+
+  testWidgets('DNS toggle is independent of the automatic server switch', (
+    tester,
+  ) async {
+    final container = await openSmartSettings(tester);
+    container
+        .read(appSettingProvider.notifier)
+        .update((settings) => settings.copyWith(smartReconnect: false));
+    await tester.pumpAndSettle();
+    final dnsRow = find.ancestor(
+      of: find.text('Smart DNS recovery').last,
+      matching: find.byType(ListItem<dynamic>),
+    );
+    await tester.ensureVisible(dnsRow);
+    await tester.tap(find.text('Smart DNS recovery').last);
+    await tester.pumpAndSettle();
+    expect(container.read(appSettingProvider).smartDnsRecovery, isFalse);
+    expect(container.read(appSettingProvider).smartReconnect, isFalse);
+  });
+
   testWidgets('shows actual smart selection and a visible manual mode', (
     tester,
   ) async {

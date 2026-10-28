@@ -9,15 +9,18 @@ import (
 )
 
 type smartSettings struct {
-	Enabled         bool     `yaml:"enabled"`
-	AllowRussian    bool     `yaml:"allow-russian"`
-	Services        []string `yaml:"services"`
-	MobileBudgetMiB int64    `yaml:"mobile-budget-mib"`
-	WiFiBudgetMiB   int64    `yaml:"wifi-budget-mib"`
+	Enabled            bool     `yaml:"enabled"`
+	AllowRussian       bool     `yaml:"allow-russian"`
+	PreferredCountry   string   `yaml:"preferred-country"`
+	ExcludedCountries  []string `yaml:"excluded-countries"`
+	DNSRecoveryEnabled bool     `yaml:"dns-recovery-enabled"`
+	Services           []string `yaml:"services"`
+	MobileBudgetMiB    int64    `yaml:"mobile-budget-mib"`
+	WiFiBudgetMiB      int64    `yaml:"wifi-budget-mib"`
 }
 
 func defaultSmartSettings() smartSettings {
-	return smartSettings{Enabled: true, Services: []string{"youtube", "google", "chatgpt", "telegram"}, MobileBudgetMiB: 20, WiFiBudgetMiB: 100}
+	return smartSettings{Enabled: true, ExcludedCountries: []string{"RU"}, DNSRecoveryEnabled: true, Services: []string{"youtube", "google", "chatgpt", "telegram"}, MobileBudgetMiB: 20, WiFiBudgetMiB: 100}
 }
 
 func decodeSmartSettings(data []byte) (smartSettings, error) {
@@ -38,7 +41,23 @@ func decodeSmartSettings(data []byte) (smartSettings, error) {
 		if err = root.Settings.Decode(&settings); err != nil {
 			return settings, err
 		}
+		if mappingValue(root.Settings, "excluded-countries") == nil && settings.AllowRussian {
+			settings.ExcludedCountries = []string{}
+		}
 	}
+	settings.PreferredCountry = strings.ToUpper(strings.TrimSpace(settings.PreferredCountry))
+	if settings.PreferredCountry != "" && !validSmartCountry(settings.PreferredCountry) {
+		return settings, errors.New("invalid smart preferred country")
+	}
+	excluded := []string{}
+	for _, country := range settings.ExcludedCountries {
+		country = strings.ToUpper(strings.TrimSpace(country))
+		if !validSmartCountry(country) {
+			return settings, errors.New("invalid smart excluded country")
+		}
+		excluded = append(excluded, country)
+	}
+	settings.ExcludedCountries = uniqueSmartStrings(excluded)
 	if settings.MobileBudgetMiB < 0 || settings.WiFiBudgetMiB < 0 || settings.MobileBudgetMiB > 10240 || settings.WiFiBudgetMiB > 10240 {
 		return settings, errors.New("smart speed budget must be between 0 and 10240 MiB")
 	}

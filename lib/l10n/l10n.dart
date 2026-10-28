@@ -7797,7 +7797,8 @@ class AppLocalizations {
   String customImportDroppedSubRules(num count, Object label) {
     return Intl.plural(
       count,
-      one: '1 SUB-RULE rule was dropped, since custom profiles do not support sub-rules',
+      one:
+          '1 SUB-RULE rule was dropped, since custom profiles do not support sub-rules',
       other:
           '$label SUB-RULE rules were dropped, since custom profiles do not support sub-rules',
       name: 'customImportDroppedSubRules',
@@ -7846,11 +7847,356 @@ class AppLocalizations {
     );
   }
 
-  /// `Include Russian servers in automatic selection`
-  String get smartAllowRussian {
+  /// `Preferred country`
+  String get smartPreferredCountry {
     return Intl.message(
-      'Include Russian servers in automatic selection',
-      name: 'smartAllowRussian',
+      'Preferred country',
+      name: 'smartPreferredCountry',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Excluded countries`
+  String get smartExcludedCountries {
+    return Intl.message(
+      'Excluded countries',
+      name: 'smartExcludedCountries',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Any`
+  String get smartCountryAny {
+    return Intl.message('Any', name: 'smartCountryAny', desc: '', args: []);
+  }
+
+  /// `Automatic selection uses only this country. Exclusions take priority.`
+  String get smartCountryStrict {
+    return Intl.message(
+      'Automatic selection uses only this country. Exclusions take priority.',
+      name: 'smartCountryStrict',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Verified exit countries`
+  String get smartCountryDiscovery {
+    return Intl.message(
+      'Verified exit countries',
+      name: 'smartCountryDiscovery',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `{count} countries verified`
+  String smartCountryVerified(Object count) {
+    return Intl.message(
+      '$count countries verified',
+      name: 'smartCountryVerified',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `{count} servers unresolved`
+  String smartCountryUnknown(Object count) {
+    return Intl.message(
+      '$count servers unresolved',
+      name: 'smartCountryUnknown',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `Countries are discovered gradually while Smart is running. Saved choices remain when a country is absent. No extra idle scans.`
+  String get smartCountryDiscoveryDesc {
+    return Intl.message(
+      'Countries are discovered gradually while Smart is running. Saved choices remain when a country is absent. No extra idle scans.',
+      name: 'smartCountryDiscoveryDesc',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `The preferred country is excluded. Change the preference or exclusion to restore automatic selection.`
+  String get smartCountryConflict {
+    return Intl.message(
+      'The preferred country is excluded. Change the preference or exclusion to restore automatic selection.',
+      name: 'smartCountryConflict',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `The exit country is excluded.`
+  String get smartCountryExcluded {
+    return Intl.message(
+      'The exit country is excluded.',
+      name: 'smartCountryExcluded',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `No suitable server in the preferred country.`
+  String get smartCountryUnavailable {
+    return Intl.message(
+      'No suitable server in the preferred country.',
+      name: 'smartCountryUnavailable',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Saved selection; no currently verified exit.`
+  String get smartCountryNotVerified {
+    return Intl.message(
+      'Saved selection; no currently verified exit.',
+      name: 'smartCountryNotVerified',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `No verified countries yet. Start Smart to discover exits.`
+  String get smartCountryEmpty {
+    return Intl.message(
+      'No verified countries yet. Start Smart to discover exits.',
+      name: 'smartCountryEmpty',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Smart DNS recovery`
+  String get smartDnsRecovery {
+    return Intl.message(
+      'Smart DNS recovery',
+      name: 'smartDnsRecovery',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Recover real DNS failures automatically, including bypass traffic. Preserves routing and explicit DNS policies. No periodic DNS polling or extra wakeups.`
+  String get smartDnsRecoveryDesc {
+    return Intl.message(
+      'Recover real DNS failures automatically, including bypass traffic. Preserves routing and explicit DNS policies. No periodic DNS polling or extra wakeups.',
+      name: 'smartDnsRecoveryDesc',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `DNS recovery status`
+  String get smartDnsStatus {
+    return Intl.message(
+      'DNS recovery status',
+      name: 'smartDnsStatus',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Checking alternatives`
+  String get smartDnsDiagnosing {
+    return Intl.message(
+      'Checking alternatives',
+      name: 'smartDnsDiagnosing',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `DNS recovered`
+  String get smartDnsRecovered {
+    return Intl.message(
+      'DNS recovered',
+      name: 'smartDnsRecovered',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `DNS recovery unavailable`
+  String get smartDnsUnavailable {
+    return Intl.message(
+      'DNS recovery unavailable',
+      name: 'smartDnsUnavailable',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Waiting for real DNS errors`
+  String get smartDnsObserving {
+    return Intl.message(
+      'Waiting for real DNS errors',
+      name: 'smartDnsObserving',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Bypass DNS`
+  String get smartDnsDirect {
+    return Intl.message(
+      'Bypass DNS',
+      name: 'smartDnsDirect',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `VPN server DNS`
+  String get smartDnsNode {
+    return Intl.message(
+      'VPN server DNS',
+      name: 'smartDnsNode',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Website DNS`
+  String get smartDnsDestination {
+    return Intl.message(
+      'Website DNS',
+      name: 'smartDnsDestination',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Source: automatic recovery`
+  String get smartDnsSourceRecovery {
+    return Intl.message(
+      'Source: automatic recovery',
+      name: 'smartDnsSourceRecovery',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Source: profile and DNS settings`
+  String get smartDnsSourceProfile {
+    return Intl.message(
+      'Source: profile and DNS settings',
+      name: 'smartDnsSourceProfile',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Routing rule source`
+  String get smartRoutingSource {
+    return Intl.message(
+      'Routing rule source',
+      name: 'smartRoutingSource',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Subscription rules`
+  String get smartRoutingSubscription {
+    return Intl.message(
+      'Subscription rules',
+      name: 'smartRoutingSubscription',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Built-in Russian bypass`
+  String get smartRoutingBuiltin {
+    return Intl.message(
+      'Built-in Russian bypass',
+      name: 'smartRoutingBuiltin',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Personal rules`
+  String get smartRoutingCustom {
+    return Intl.message(
+      'Personal rules',
+      name: 'smartRoutingCustom',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Rule update failed; using the last valid version.`
+  String get smartRoutingUpdateFailed {
+    return Intl.message(
+      'Rule update failed; using the last valid version.',
+      name: 'smartRoutingUpdateFailed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Repeated DNS timeouts`
+  String get smartDnsTimeout {
+    return Intl.message(
+      'Repeated DNS timeouts',
+      name: 'smartDnsTimeout',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Explicit DNS policy preserved`
+  String get smartDnsPolicyPreserved {
+    return Intl.message(
+      'Explicit DNS policy preserved',
+      name: 'smartDnsPolicyPreserved',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Original DNS restored`
+  String get smartDnsOriginalRestored {
+    return Intl.message(
+      'Original DNS restored',
+      name: 'smartDnsOriginalRestored',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Network changed; earlier checks invalidated`
+  String get smartDnsNetworkChanged {
+    return Intl.message(
+      'Network changed; earlier checks invalidated',
+      name: 'smartDnsNetworkChanged',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Recovery expired; original DNS restored`
+  String get smartDnsExpired {
+    return Intl.message(
+      'Recovery expired; original DNS restored',
+      name: 'smartDnsExpired',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `DNS response verification failed`
+  String get smartDnsVerificationFailed {
+    return Intl.message(
+      'DNS response verification failed',
+      name: 'smartDnsVerificationFailed',
       desc: '',
       args: [],
     );

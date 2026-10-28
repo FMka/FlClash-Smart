@@ -215,16 +215,20 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m77(label) => "${label} must be a single item";
 
-  static String m78(value) => "Peak ${value}";
+  static String m78(count) => "${count} servers unresolved";
 
-  static String m79(value) => "Total ${value}";
+  static String m79(count) => "${count} countries verified";
 
-  static String m80(label) => "${label} must be a URL";
+  static String m80(value) => "Peak ${value}";
 
-  static String m81(count) =>
+  static String m81(value) => "Total ${value}";
+
+  static String m82(label) => "${label} must be a URL";
+
+  static String m83(count) =>
       "${Intl.plural(count, one: '1 year ago', other: '${count} years ago')}";
 
-  static String m82(count) => "${Intl.plural(count, other: '${count}y ago')}";
+  static String m84(count) => "${Intl.plural(count, other: '${count}y ago')}";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
@@ -944,10 +948,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "inputRuleContent": MessageLookupByLibrary.simpleMessage(
       "Enter the rule content",
     ),
-    "installedAppsPermissionDeniedMessage":
-        MessageLookupByLibrary.simpleMessage(
-          "The app list permission was denied, so installed apps cannot be listed. Please grant it manually in system settings.",
-        ),
+    "installedAppsPermissionDeniedMessage": MessageLookupByLibrary.simpleMessage(
+      "The app list permission was denied, so installed apps cannot be listed. Please grant it manually in system settings.",
+    ),
     "installedAppsPermissionDesc": MessageLookupByLibrary.simpleMessage(
       "This system hides the installed app list until the permission is granted. Authorize it to configure the per-app proxy.",
     ),
@@ -1693,20 +1696,93 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "slide": MessageLookupByLibrary.simpleMessage("Slide"),
     "sliders": MessageLookupByLibrary.simpleMessage("Sliders"),
-    "smartAllowRussian": MessageLookupByLibrary.simpleMessage(
-      "Include Russian servers in automatic selection",
-    ),
     "smartBudgetDesc": MessageLookupByLibrary.simpleMessage(
       "Daily limit for speed-test downloads only. Connection checks and recovery continue when the limit is reached. Zero disables speed downloads.",
     ),
     "smartBudgetInvalid": MessageLookupByLibrary.simpleMessage(
       "Enter a number from 0 to 10000.",
     ),
+    "smartCountryAny": MessageLookupByLibrary.simpleMessage("Any"),
+    "smartCountryConflict": MessageLookupByLibrary.simpleMessage(
+      "The preferred country is excluded. Change the preference or exclusion to restore automatic selection.",
+    ),
+    "smartCountryDiscovery": MessageLookupByLibrary.simpleMessage(
+      "Verified exit countries",
+    ),
+    "smartCountryDiscoveryDesc": MessageLookupByLibrary.simpleMessage(
+      "Countries are discovered gradually while Smart is running. Saved choices remain when a country is absent. No extra idle scans.",
+    ),
+    "smartCountryEmpty": MessageLookupByLibrary.simpleMessage(
+      "No verified countries yet. Start Smart to discover exits.",
+    ),
+    "smartCountryExcluded": MessageLookupByLibrary.simpleMessage(
+      "The exit country is excluded.",
+    ),
+    "smartCountryNotVerified": MessageLookupByLibrary.simpleMessage(
+      "Saved selection; no currently verified exit.",
+    ),
+    "smartCountryStrict": MessageLookupByLibrary.simpleMessage(
+      "Automatic selection uses only this country. Exclusions take priority.",
+    ),
+    "smartCountryUnavailable": MessageLookupByLibrary.simpleMessage(
+      "No suitable server in the preferred country.",
+    ),
+    "smartCountryUnknown": m78,
+    "smartCountryVerified": m79,
     "smartDiagnosticDesc": MessageLookupByLibrary.simpleMessage(
       "Received diagnostic payload only; protocol overhead is not included. Separate from speed-test downloads.",
     ),
     "smartDiagnosticTraffic": MessageLookupByLibrary.simpleMessage(
       "Diagnostic traffic (estimated)",
+    ),
+    "smartDnsDestination": MessageLookupByLibrary.simpleMessage("Website DNS"),
+    "smartDnsDiagnosing": MessageLookupByLibrary.simpleMessage(
+      "Checking alternatives",
+    ),
+    "smartDnsDirect": MessageLookupByLibrary.simpleMessage("Bypass DNS"),
+    "smartDnsExpired": MessageLookupByLibrary.simpleMessage(
+      "Recovery expired; original DNS restored",
+    ),
+    "smartDnsNetworkChanged": MessageLookupByLibrary.simpleMessage(
+      "Network changed; earlier checks invalidated",
+    ),
+    "smartDnsNode": MessageLookupByLibrary.simpleMessage("VPN server DNS"),
+    "smartDnsObserving": MessageLookupByLibrary.simpleMessage(
+      "Waiting for real DNS errors",
+    ),
+    "smartDnsOriginalRestored": MessageLookupByLibrary.simpleMessage(
+      "Original DNS restored",
+    ),
+    "smartDnsPolicyPreserved": MessageLookupByLibrary.simpleMessage(
+      "Explicit DNS policy preserved",
+    ),
+    "smartDnsRecovered": MessageLookupByLibrary.simpleMessage("DNS recovered"),
+    "smartDnsRecovery": MessageLookupByLibrary.simpleMessage(
+      "Smart DNS recovery",
+    ),
+    "smartDnsRecoveryDesc": MessageLookupByLibrary.simpleMessage(
+      "Recover real DNS failures automatically, including bypass traffic. Preserves routing and explicit DNS policies. No periodic DNS polling or extra wakeups.",
+    ),
+    "smartDnsSourceProfile": MessageLookupByLibrary.simpleMessage(
+      "Source: profile and DNS settings",
+    ),
+    "smartDnsSourceRecovery": MessageLookupByLibrary.simpleMessage(
+      "Source: automatic recovery",
+    ),
+    "smartDnsStatus": MessageLookupByLibrary.simpleMessage(
+      "DNS recovery status",
+    ),
+    "smartDnsTimeout": MessageLookupByLibrary.simpleMessage(
+      "Repeated DNS timeouts",
+    ),
+    "smartDnsUnavailable": MessageLookupByLibrary.simpleMessage(
+      "DNS recovery unavailable",
+    ),
+    "smartDnsVerificationFailed": MessageLookupByLibrary.simpleMessage(
+      "DNS response verification failed",
+    ),
+    "smartExcludedCountries": MessageLookupByLibrary.simpleMessage(
+      "Excluded countries",
     ),
     "smartHistory": MessageLookupByLibrary.simpleMessage("History"),
     "smartJournal": MessageLookupByLibrary.simpleMessage(
@@ -1724,6 +1800,9 @@ class MessageLookup extends MessageLookupByLibrary {
       "Some services unavailable",
     ),
     "smartPool": MessageLookupByLibrary.simpleMessage("Available pool"),
+    "smartPreferredCountry": MessageLookupByLibrary.simpleMessage(
+      "Preferred country",
+    ),
     "smartReconnect": MessageLookupByLibrary.simpleMessage(
       "Smart server selection",
     ),
@@ -1733,6 +1812,21 @@ class MessageLookup extends MessageLookupByLibrary {
     "smartRestore": MessageLookupByLibrary.simpleMessage("Restore connection"),
     "smartResumeAuto": MessageLookupByLibrary.simpleMessage(
       "Resume automatic selection",
+    ),
+    "smartRoutingBuiltin": MessageLookupByLibrary.simpleMessage(
+      "Built-in Russian bypass",
+    ),
+    "smartRoutingCustom": MessageLookupByLibrary.simpleMessage(
+      "Personal rules",
+    ),
+    "smartRoutingSource": MessageLookupByLibrary.simpleMessage(
+      "Routing rule source",
+    ),
+    "smartRoutingSubscription": MessageLookupByLibrary.simpleMessage(
+      "Subscription rules",
+    ),
+    "smartRoutingUpdateFailed": MessageLookupByLibrary.simpleMessage(
+      "Rule update failed; using the last valid version.",
     ),
     "smartSearching": MessageLookupByLibrary.simpleMessage("Checking servers"),
     "smartSettingsDesc": MessageLookupByLibrary.simpleMessage(
@@ -1839,8 +1933,8 @@ class MessageLookup extends MessageLookupByLibrary {
     "totalUpload": MessageLookupByLibrary.simpleMessage("Uploaded"),
     "tproxyPort": MessageLookupByLibrary.simpleMessage("TProxy port"),
     "traffic": MessageLookupByLibrary.simpleMessage("Traffic"),
-    "trafficPeak": m78,
-    "trafficTotal": m79,
+    "trafficPeak": m80,
+    "trafficTotal": m81,
     "trafficUsage": MessageLookupByLibrary.simpleMessage("Traffic usage"),
     "transport": MessageLookupByLibrary.simpleMessage("Transport"),
     "tun": MessageLookupByLibrary.simpleMessage("TUN"),
@@ -1874,7 +1968,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "upload": MessageLookupByLibrary.simpleMessage("Upload"),
     "uploadBandwidth": MessageLookupByLibrary.simpleMessage("Upload bandwidth"),
     "url": MessageLookupByLibrary.simpleMessage("URL"),
-    "urlTip": m80,
+    "urlTip": m82,
     "useHosts": MessageLookupByLibrary.simpleMessage("Use hosts"),
     "useSystemHosts": MessageLookupByLibrary.simpleMessage("Use system hosts"),
     "usedShort": MessageLookupByLibrary.simpleMessage("used"),
@@ -1899,8 +1993,8 @@ class MessageLookup extends MessageLookupByLibrary {
     "writeToSystemDesc": MessageLookupByLibrary.simpleMessage(
       "Write to system also sets the system clock; Android ignores it.",
     ),
-    "yearsAgo": m81,
-    "yearsAgoShort": m82,
+    "yearsAgo": m83,
+    "yearsAgoShort": m84,
     "yes": MessageLookupByLibrary.simpleMessage("Yes"),
     "zhCN": MessageLookupByLibrary.simpleMessage("Simplified Chinese"),
   };

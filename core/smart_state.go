@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 	"sync"
 	"time"
@@ -12,17 +13,19 @@ import (
 )
 
 type smartGroupStatus struct {
-	Name        string          `json:"name"`
-	Mode        string          `json:"mode"`
-	Current     string          `json:"current"`
-	Phase       string          `json:"phase"`
-	Country     string          `json:"country"`
-	Reason      string          `json:"reason"`
-	LastChecked int64           `json:"last-checked"`
-	Speed       float64         `json:"last-speed-bytes-per-second"`
-	SpeedAt     int64           `json:"speed-at"`
-	SpeedSource string          `json:"speed-source"`
-	Pool        []smartPoolItem `json:"pool"`
+	Name                string          `json:"name"`
+	Mode                string          `json:"mode"`
+	Current             string          `json:"current"`
+	Phase               string          `json:"phase"`
+	Country             string          `json:"country"`
+	Reason              string          `json:"reason"`
+	LastChecked         int64           `json:"last-checked"`
+	Speed               float64         `json:"last-speed-bytes-per-second"`
+	SpeedAt             int64           `json:"speed-at"`
+	SpeedSource         string          `json:"speed-source"`
+	Pool                []smartPoolItem `json:"pool"`
+	DiscoveredCountries []string        `json:"discovered-countries"`
+	UnresolvedCountries int             `json:"unresolved-countries"`
 }
 
 type smartPoolItem struct {
@@ -34,15 +37,19 @@ type smartPoolItem struct {
 }
 
 type smartStatus struct {
-	Enabled      bool               `json:"enabled"`
-	Phase        string             `json:"phase"`
-	Network      string             `json:"network"`
-	Groups       []smartGroupStatus `json:"groups"`
-	MobileUsed   int64              `json:"mobile-used-bytes"`
-	WiFiUsed     int64              `json:"wifi-used-bytes"`
-	MobileBudget int64              `json:"mobile-budget-bytes"`
-	WiFiBudget   int64              `json:"wifi-budget-bytes"`
-	Diagnostic   int64              `json:"diagnostic-used-bytes"`
+	Enabled             bool               `json:"enabled"`
+	Phase               string             `json:"phase"`
+	Network             string             `json:"network"`
+	Groups              []smartGroupStatus `json:"groups"`
+	MobileUsed          int64              `json:"mobile-used-bytes"`
+	WiFiUsed            int64              `json:"wifi-used-bytes"`
+	MobileBudget        int64              `json:"mobile-budget-bytes"`
+	WiFiBudget          int64              `json:"wifi-budget-bytes"`
+	Diagnostic          int64              `json:"diagnostic-used-bytes"`
+	DiscoveredCountries []string           `json:"discovered-countries"`
+	UnresolvedCountries int                `json:"unresolved-countries"`
+	DNS                 smartDNSStatus     `json:"dns"`
+	Routing             smartRoutingInfo   `json:"routing"`
 }
 
 type smartGeoEntry struct {
@@ -162,6 +169,10 @@ func handleGetSmartStatus() smartStatus {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	status := smartStatus{Enabled: r.settings.Enabled, Phase: "idle", Groups: []smartGroupStatus{}, Network: "wifi", MobileBudget: r.settings.MobileBudgetMiB * 1024 * 1024, WiFiBudget: r.settings.WiFiBudgetMiB * 1024 * 1024}
+	status.DNS = smartDNS.status()
+	status.Routing = smartRoutingSnapshot()
+	status.DiscoveredCountries = []string{}
+	countries := map[string]bool{}
 	if smartMobileNetwork(r.network) {
 		status.Network = "mobile"
 	}
@@ -181,6 +192,13 @@ func handleGetSmartStatus() smartStatus {
 		item.Name = spec.Name
 		item.Mode = "auto"
 		item.Phase = r.phases[spec.Name]
+		if backend := r.backends[spec.Name]; backend != nil && backend.network == r.network {
+			item.DiscoveredCountries, item.UnresolvedCountries = backend.countryInventory()
+			status.UnresolvedCountries += item.UnresolvedCountries
+			for _, country := range item.DiscoveredCountries {
+				countries[country] = true
+			}
+		}
 		if group, err := selectableGroup(spec.Name); err == nil {
 			item.Current = group.Now()
 		}
@@ -214,6 +232,10 @@ func handleGetSmartStatus() smartStatus {
 		status.Groups = append(status.Groups, item)
 	}
 	selectMu.Unlock()
+	for country := range countries {
+		status.DiscoveredCountries = append(status.DiscoveredCountries, country)
+	}
+	slices.Sort(status.DiscoveredCountries)
 	smartTraffic.mu.Lock()
 	smartTraffic.rolloverLocked()
 	status.MobileUsed = smartTraffic.Mobile
@@ -227,6 +249,7 @@ func refreshRouteLockedSafe() { selectMu.Lock(); defer selectMu.Unlock(); refres
 
 func SmartRecheck() bool {
 	defer recoverExport("smartRecheck")
+	smartDNS.resume()
 	r := smartReconnect
 	r.mu.Lock()
 	defer r.mu.Unlock()
@@ -244,11 +267,16 @@ func SmartRecheck() bool {
 	return requested
 }
 
+func handleSmartReconnectCheck() bool {
+	smartRecordActivity()
+	return SmartRecheck()
+}
+
 func TakeSmartRestartRequest() bool {
 	defer recoverExport("takeSmartRestartRequest")
 	r := smartReconnect
 	r.mu.Lock()
-	if !isRunning.Load() || !r.settings.Enabled || r.configuring || r.network == "" || len(r.workers) == 0 || r.transportFailure.IsZero() || time.Since(r.transportFailure) < 60*time.Second || time.Since(r.transportOK) < 60*time.Second || time.Since(r.lastRestart) < 5*time.Minute {
+	if !smartHasRecentActivity() || smartDNSDiagnosticActive() || !isRunning.Load() || !r.settings.Enabled || r.configuring || r.network == "" || len(r.workers) == 0 || r.transportFailure.IsZero() || time.Since(r.transportFailure) < 60*time.Second || time.Since(r.transportOK) < 60*time.Second || time.Since(r.lastRestart) < 5*time.Minute {
 		r.mu.Unlock()
 		return false
 	}
@@ -262,7 +290,7 @@ func TakeSmartRestartRequest() bool {
 			valid := func() bool {
 				r.mu.Lock()
 				defer r.mu.Unlock()
-				valid := isRunning.Load() && generation == r.generation && network == r.network && r.settings.Enabled && len(r.workers) > 0 && !r.transportFailure.IsZero()
+				valid := smartHasRecentActivity() && !smartDNSDiagnosticActive() && isRunning.Load() && generation == r.generation && network == r.network && r.settings.Enabled && len(r.workers) > 0 && !r.transportFailure.IsZero()
 				if valid {
 					handleResetNetwork()
 				}
@@ -290,5 +318,5 @@ func SmartRestartStillNeeded() bool {
 	r := smartReconnect
 	r.mu.Lock()
 	defer r.mu.Unlock()
-	return isRunning.Load() && r.settings.Enabled && !r.configuring && r.network != "" && len(r.workers) > 0 && !r.transportFailure.IsZero() && time.Since(r.transportFailure) >= 60*time.Second && time.Since(r.transportOK) >= 60*time.Second && !r.resetAttempt.IsZero() && time.Since(r.resetAttempt) >= 30*time.Second && time.Since(r.lastRestart) < time.Minute
+	return smartHasRecentActivity() && !smartDNSDiagnosticActive() && isRunning.Load() && r.settings.Enabled && !r.configuring && r.network != "" && len(r.workers) > 0 && !r.transportFailure.IsZero() && time.Since(r.transportFailure) >= 60*time.Second && time.Since(r.transportOK) >= 60*time.Second && !r.resetAttempt.IsZero() && time.Since(r.resetAttempt) >= 30*time.Second && time.Since(r.lastRestart) < time.Minute
 }

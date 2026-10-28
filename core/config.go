@@ -111,6 +111,9 @@ func loadConfigSmart(path string, specs *[]smartGroupSpec, settingsOut ...*smart
 	if len(settingsOut) > 0 {
 		*settingsOut[0] = settings
 	}
+	if err = prepareSmartRouting(raw, buf); err != nil {
+		return nil, err
+	}
 	if err = prepareSmartGroups(raw, specs, settings); err != nil {
 		return nil, err
 	}
@@ -146,6 +149,7 @@ func applyConfig(params *SetupParams) error {
 	configMu.Lock()
 	defer configMu.Unlock()
 	smartReconnect.beginConfig()
+	smartDNS.invalidate("observing")
 
 	setTestURL(params.TestURL)
 	skipCertVerify.Store(params.SkipCertVerify)
@@ -172,10 +176,12 @@ func applyConfig(params *SetupParams) error {
 
 	currentConfig = cfg
 	hub.ApplyConfig(cfg)
+	smartDNS.install(cfg, settings.DNSRecoveryEnabled)
 	patchSelectGroup(params.SelectedMap)
 	bumpRouteEpoch()
 	updateListeners(cfg)
 	smartReconnect.configure(specs, settings)
+	setSmartRoutingRunning(isRunning.Load())
 	reconcileGeoUpdater()
 	scheduleLoadMemoryRelease()
 	return err

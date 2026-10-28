@@ -134,6 +134,7 @@ type smartRuntime struct {
 	configuring      bool
 	settings         smartSettings
 	engines          map[string]*smart.Engine
+	backends         map[string]*smartBackend
 	generation       uint64
 	phases           map[string]string
 	states           map[string]smartGroupStatus
@@ -172,6 +173,7 @@ func (r *smartRuntime) configure(specs []smartGroupSpec, settings ...smartSettin
 		r.settings = settings[0]
 	}
 	r.phases, r.states = map[string]string{}, map[string]smartGroupStatus{}
+	r.backends = map[string]*smartBackend{}
 	r.transportFailure, r.resetAttempt = time.Time{}, time.Time{}
 	if runtime.GOOS != "android" && r.network == "" {
 		r.network = "desktop"
@@ -241,6 +243,10 @@ func (r *smartRuntime) startLocked() {
 		r.workers[spec.Name] = cancel
 		refreshRouteLockedSafe()
 		backend := &smartBackend{spec: spec, group: group, expected: "REJECT", network: r.network, runtime: r, generation: r.generation}
+		if r.backends == nil {
+			r.backends = map[string]*smartBackend{}
+		}
+		r.backends[spec.Name] = backend
 		if smartMobileNetwork(r.network) {
 			spec.Options.SpeedTTL = 30 * time.Minute
 			spec.Options.PoolRefreshInterval = 5 * time.Minute
@@ -325,12 +331,15 @@ func (r *smartRuntime) save() {
 }
 
 type smartBackend struct {
+	activity      smartActivitySample
 	spec          smartGroupSpec
 	group         pickableGroup
 	expected      string
 	nodes         map[string]constant.Proxy
 	nodesMu       sync.RWMutex
 	qualified     map[string]smartGroupStatus
+	countryKeys   map[string]string
+	countries     map[string]smartGeoEntry
 	servicePassed map[string]time.Time
 	providerMu    sync.Mutex
 	providerCache map[string]smartProviderIdentity
@@ -349,6 +358,8 @@ func (b *smartBackend) Candidates() []smart.Candidate {
 	b.nodesMu.Lock()
 	defer b.nodesMu.Unlock()
 	b.nodes = map[string]constant.Proxy{}
+	previousKeys := b.countryKeys
+	b.countryKeys = map[string]string{}
 	allowed := map[string]bool{}
 	visited := map[string]bool{}
 	var allow func(constant.Proxy)
@@ -386,11 +397,25 @@ func (b *smartBackend) Candidates() []smart.Candidate {
 		if (len(b.spec.Sources) > 0 || len(b.spec.Providers) > 0) && !allowed[proxy.Name()] {
 			continue
 		}
-		if !b.spec.Settings.AllowRussian && russianSmartName(proxy.Name()) {
-			continue
-		}
 		b.nodes[proxy.Name()] = proxy
-		candidates = append(candidates, smart.Candidate{ID: proxy.Name(), Fingerprint: b.identity(proxy)})
+		identity := b.identity(proxy)
+		key := smartHash(b.network + "|" + identity)
+		b.countryKeys[proxy.Name()] = key
+		if previousKeys[proxy.Name()] != key {
+			delete(b.servicePassed, proxy.Name())
+			delete(b.qualified, proxy.Name())
+			delete(b.countries, proxy.Name())
+		}
+		smartTraffic.mu.Lock()
+		cached := smartTraffic.Geo[key]
+		smartTraffic.mu.Unlock()
+		if cached.Country != "" {
+			if b.countries == nil {
+				b.countries = map[string]smartGeoEntry{}
+			}
+			b.countries[proxy.Name()] = cached
+		}
+		candidates = append(candidates, smart.Candidate{ID: proxy.Name(), Fingerprint: identity})
 	}
 	return candidates
 }
@@ -402,6 +427,7 @@ func (b *smartBackend) Current() string {
 }
 
 func (b *smartBackend) Latency(ctx context.Context, name string) (time.Duration, error) {
+	ctx = context.WithValue(ctx, smartDiagnosticKey{}, true)
 	proxy := b.node(name)
 	if proxy == nil {
 		return 0, smart.ErrUnavailable
@@ -461,7 +487,7 @@ func (b *smartBackend) Select(ctx context.Context, name, reason string) error {
 	if name == b.expected {
 		return nil
 	}
-	if b.node(name) == nil {
+	if name != "REJECT" && b.node(name) == nil {
 		return smart.ErrUnavailable
 	}
 	statistic.DefaultManager.Range(func(connection statistic.Tracker) bool {
@@ -489,6 +515,7 @@ func (b *smartBackend) Select(ctx context.Context, name, reason string) error {
 }
 
 func (b *smartBackend) Speed(ctx context.Context, name string, limit int64) (float64, error) {
+	ctx = context.WithValue(ctx, smartDiagnosticKey{}, true)
 	if !smartSpeedSlots.acquireWithin(ctx, b.spec.Options.SpeedTimeout) {
 		return 0, context.DeadlineExceeded
 	}
