@@ -5,6 +5,14 @@ Date: 2026-10-29. First parent is official stable FlClash 0.9.2
 V3.1 `d0e5f54`. The rejected V3.1 installation was not diagnosed or repaired.
 Official mihomo remains `c5062921054902b25215a6a933e72ccd714c9bfa` unmodified.
 
+The verified source merge `145d72c092c19f978f7343ac2eb782e303d1eeeb` is published
+on `main` and `codex/fresh-v092-smart`; previous V3.1 is on `codex/archive-v31`.
+The replacement APK is available in the
+[V3.2 prerelease](https://github.com/FMka/FlClash-Smart/releases/tag/smart-v3.2-20261029).
+GitHub reports the same SHA-256 as the local artifact and its public download
+responds successfully. Subsequent documentation bookkeeping does not change the
+compiled production sources. Former PR #1 is confirmed closed and merged.
+
 ## Current implementation and evidence
 
 All agreed Smart functionality through V3.1 is retained on the fresh source:

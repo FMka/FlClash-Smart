@@ -4,5 +4,5 @@
 - [x] Discover imported subscriptions without VPN start or active-profile changes.
 - [x] Expose scan progress, cancellation and partial/unsupported outcomes.
 - [x] Verify Go, Flutter, Android and release APK integration.
-- [ ] Publish the replacement source and APK in the user's GitHub repository.
+- [x] Publish the replacement source and APK in the user's GitHub repository.
 - [x] Record phone acceptance limits and continuation context.
