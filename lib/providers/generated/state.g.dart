@@ -60,16 +60,19 @@ final class SetupPatchProvider
             bool appendSystemDns,
             bool bypassPrivateRoute,
             PatchClashConfig patchConfig,
+            SelectValue<Map<String, dynamic>> smartSettings,
           }),
           ({
             bool appendSystemDns,
             bool bypassPrivateRoute,
             PatchClashConfig patchConfig,
+            SelectValue<Map<String, dynamic>> smartSettings,
           }),
           ({
             bool appendSystemDns,
             bool bypassPrivateRoute,
             PatchClashConfig patchConfig,
+            SelectValue<Map<String, dynamic>> smartSettings,
           })
         >
     with
@@ -78,6 +81,7 @@ final class SetupPatchProvider
             bool appendSystemDns,
             bool bypassPrivateRoute,
             PatchClashConfig patchConfig,
+            SelectValue<Map<String, dynamic>> smartSettings,
           })
         > {
   SetupPatchProvider._()
@@ -101,6 +105,7 @@ final class SetupPatchProvider
       bool appendSystemDns,
       bool bypassPrivateRoute,
       PatchClashConfig patchConfig,
+      SelectValue<Map<String, dynamic>> smartSettings,
     })
   >
   $createElement($ProviderPointer pointer) => $ProviderElement(pointer);
@@ -110,6 +115,7 @@ final class SetupPatchProvider
     bool appendSystemDns,
     bool bypassPrivateRoute,
     PatchClashConfig patchConfig,
+    SelectValue<Map<String, dynamic>> smartSettings,
   })
   create(Ref ref) {
     return setupPatch(ref);
@@ -121,6 +127,7 @@ final class SetupPatchProvider
       bool appendSystemDns,
       bool bypassPrivateRoute,
       PatchClashConfig patchConfig,
+      SelectValue<Map<String, dynamic>> smartSettings,
     })
     value,
   ) {
@@ -132,13 +139,14 @@ final class SetupPatchProvider
               bool appendSystemDns,
               bool bypassPrivateRoute,
               PatchClashConfig patchConfig,
+              SelectValue<Map<String, dynamic>> smartSettings,
             })
           >(value),
     );
   }
 }
 
-String _$setupPatchHash() => r'283e94846903bafab1c22985b6f90d4c0e2a4697';
+String _$setupPatchHash() => r'2380dd3ca5f40d057dfa58bbdbe8c6b89362f67f';
 
 @ProviderFor(trayState)
 final trayStateProvider = TrayStateProvider._();
@@ -1752,7 +1760,7 @@ final class CurrentGroupsStateProvider
 }
 
 String _$currentGroupsStateHash() =>
-    r'd4ea3c3271a77d8bd791f94c697cc94a41fff38f';
+    r'ac47bf8e45691c24f7bf85979e10cd01283be2c4';
 
 @ProviderFor(proxyState)
 final proxyStateProvider = ProxyStateProvider._();
@@ -2490,7 +2498,7 @@ final class SelectedMapProvider
   }
 }
 
-String _$selectedMapHash() => r'd4438d8d87d0c7ec7d9c5d02f577cdba6ba2a785';
+String _$selectedMapHash() => r'c0f6bd7f04ec98f8d446d272ef55e71d74afe785';
 
 @ProviderFor(unfoldSet)
 final unfoldSetProvider = UnfoldSetProvider._();

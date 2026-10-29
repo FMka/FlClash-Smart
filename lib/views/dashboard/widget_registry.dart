@@ -11,7 +11,7 @@ extension DashboardWidgetView on DashboardWidget {
     DashboardWidget.outboundMode => const OutboundModeCard(),
     DashboardWidget.vpnButton => const VpnCard(),
     DashboardWidget.networkTakeover => const NetworkTakeoverCard(),
-    DashboardWidget.serviceStatus => const ServiceStatusCard(),
+    DashboardWidget.serviceStatus => const ServiceStatusCard(rows: 2),
     DashboardWidget.profiles => const ProfilesCard(),
     DashboardWidget.proxyGroups => const ProxyGroupsCard(),
     DashboardWidget.connectionStats => const ConnectionStatsCard(),

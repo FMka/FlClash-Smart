@@ -14,6 +14,7 @@ enum ServiceTarget {
   github('github', 'GitHub', 'github'),
   youtube('youtube', 'YouTube', 'youtube'),
   chatgpt('chatgpt', 'ChatGPT', 'openai'),
+  telegram('telegram', 'Telegram', 'telegram'),
   claude('claude', 'Claude', 'claude'),
   gemini('gemini', 'Gemini', 'gemini'),
   netflix('netflix', 'Netflix', 'netflix'),

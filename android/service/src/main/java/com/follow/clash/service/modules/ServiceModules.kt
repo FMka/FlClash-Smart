@@ -1,6 +1,7 @@
 package com.follow.clash.service.modules
 
 import android.app.Service
+import com.follow.clash.service.NetworkObserver
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -31,9 +32,11 @@ internal class ServiceModules(private val service: Service) {
                 module.start()
                 startedModules.add(module)
             }
+            NetworkObserver.startSmartMonitoring(service)
             scope = nextScope
             modules = nextModules
         } catch (error: Throwable) {
+            NetworkObserver.stopSmartMonitoring(service)
             nextScope.cancel()
             startedModules.asReversed().forEach { module ->
                 runCatching { module.stop() }
@@ -49,6 +52,7 @@ internal class ServiceModules(private val service: Service) {
         scope = null
         modules = emptyList()
 
+        NetworkObserver.stopSmartMonitoring(service)
         currentScope.cancel()
         currentModules.asReversed().forEach { module ->
             runCatching { module.stop() }

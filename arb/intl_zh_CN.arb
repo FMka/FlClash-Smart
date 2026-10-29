@@ -963,5 +963,108 @@
   "preferred": "首选",
   "addToLocalProxies": "添加到本地代理",
   "addedToLocalProxies": "已将 {name} 添加到本地代理",
-  "alreadyInLocalProxies": "本地代理中已有 {name}"
+  "alreadyInLocalProxies": "本地代理中已有 {name}",
+  "smartRepairFailed": "无法开始恢复。请检查 VPN 和自动模式。",
+  "smartDnsRecoveryDesc": "在真实 DNS 错误发生时自动恢复，包括直连流量。保留路由和显式 DNS 策略。不定期轮询 DNS，也不额外唤醒设备。",
+  "smartCountryEmpty": "尚无已验证的国家/地区。启动 Smart 以识别出口。",
+  "smartDnsDiagnosing": "正在检查备用 DNS",
+  "smartDiagnosticTraffic": "诊断流量（估计）",
+  "smartPoolMobile": "LTE / 移动网络池",
+  "smartSpeed": "上次测得速度",
+  "smartDnsUnavailable": "DNS 无法恢复",
+  "smartCountryStrict": "优先尝试此国家；不可用时使用其他允许的国家，恢复后返回。始终遵守排除列表。",
+  "smartReconnect": "智能服务器选择",
+  "smartBudgetDesc": "每日限额仅用于测速下载。达到限额后仍继续连接检查和恢复。设为零可禁用测速下载。",
+  "smartDnsVerificationFailed": "DNS 响应验证失败",
+  "smartSettingsDesc": "支持的订阅无需脚本即可使用。服务选择与仪表盘共用。手动选择服务器会明确暂停自动选择。",
+  "smartSpeedMeasuredAt": "速度测量时间",
+  "smartCountryDiscoveryDesc": "Smart 运行时逐步识别出口。即使当前没有该国家/地区，也会保留已保存的选择。空闲时不额外扫描。",
+  "smartDnsNetworkChanged": "网络已更改，之前的检查已失效",
+  "smartCountryConflict": "首选国家已被排除，将使用其他允许的国家。",
+  "smartUnavailable": "没有合适的连接",
+  "smartCountryDiscovery": "已验证的出口国家/地区",
+  "smartCountryVerified": "已验证 {count} 个国家/地区",
+  "smartDnsOriginalRestored": "已恢复原始 DNS",
+  "smartSearching": "正在检查服务器",
+  "smartCountryNotVerified": "已保存的选择；当前没有已验证的出口。",
+  "smartPoolSavedDesc": "列表在重启后保留。历史响应不能证明当前可用性，需要重新检查。",
+  "smartDnsDirect": "直连 DNS",
+  "smartPool": "已保存服务器",
+  "smartResumeAuto": "恢复自动选择",
+  "smartExcludedCountries": "排除的国家/地区",
+  "smartDnsRecovered": "DNS 已恢复",
+  "smartManual": "手动模式",
+  "smartRestore": "恢复连接",
+  "smartDnsNode": "VPN 服务器 DNS",
+  "smartRoutingUpdateFailed": "规则更新失败，使用上一个有效版本。",
+  "smartRoutingSubscription": "订阅规则",
+  "smartDnsStatus": "DNS 恢复状态",
+  "smartWifiBudget": "Wi-Fi 测速限额（MiB/天）",
+  "smartDnsTimeout": "DNS 多次超时",
+  "smartBudgetInvalid": "请输入 0 到 10000 之间的数字。",
+  "smartNoGroup": "没有受管理的服务器组",
+  "smartDnsSourceRecovery": "来源：自动恢复",
+  "smartCountryExcluded": "出口国家/地区已被排除。",
+  "smartJournal": "导出智能选择日志",
+  "smartRoutingBuiltin": "内置俄罗斯直连",
+  "smartDnsPolicyPreserved": "已保留显式 DNS 策略",
+  "smartCountryUnknown": "{count} 个服务器尚未确定",
+  "smartDiagnosticDesc": "仅统计收到的诊断数据，不含协议开销，与测速下载分开统计。",
+  "smartDnsSourceProfile": "来源：配置文件和 DNS 设置",
+  "smartRoutingSource": "路由规则来源",
+  "smartDnsExpired": "恢复已过期，已还原原始 DNS",
+  "smartDnsDestination": "网站 DNS",
+  "smartLastCheck": "上次检查",
+  "smartPreferredCountry": "首选国家/地区",
+  "smartRoutingCustom": "个人规则",
+  "smartDnsObserving": "等待真实 DNS 错误",
+  "smartCountryUnavailable": "首选国家/地区没有合适的服务器。",
+  "smartPoolWifi": "Wi-Fi 服务器池",
+  "smartPartial": "部分服务不可用",
+  "smartCountryAny": "任意",
+  "smartMobileBudget": "移动网络测速限额（MiB/天）",
+  "smartDnsRecovery": "智能 DNS 恢复",
+  "smartHistory": "历史记录",
+  "smartSubscriptionWelcome": "添加订阅",
+  "smartSubscriptionWelcomeDesc": "通过链接、二维码或文件导入订阅。Smart 随后将检查国家并为当前网络建立服务器池。",
+  "later": "稍后",
+  "smartImportScan": "国家和服务器池",
+  "smartImportScanPreparing": "正在准备检查订阅",
+  "smartImportScanProgress": "已检查 {checked}/{total} · 响应 {responded} · 国家 {countries}",
+  "smartImportScanComplete": "检查完成",
+  "smartImportScanPartial": "本轮检查已达到限制。使用此订阅时，Smart 将逐步检查其余服务器。",
+  "smartImportScanCancelled": "检查已取消",
+  "smartImportScanFailed": "检查未能完成，订阅已保存。",
+  "smartImportScanUnsupported": "{count} 个服务器需要在配置启用后检查。",
+  "smartImportScanQueued": "排队中的订阅：{count}",
+  "@smartImportScanProgress": {
+    "placeholders": {
+      "checked": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      },
+      "responded": {
+        "type": "int"
+      },
+      "countries": {
+        "type": "int"
+      }
+    }
+  },
+  "@smartImportScanUnsupported": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@smartImportScanQueued": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  }
 }

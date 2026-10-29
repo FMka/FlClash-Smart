@@ -54,6 +54,10 @@ enum CoreMethod {
   updateDns,
   watchRoute,
   checkRoutes,
+  getSmartStatus,
+  smartReconnectCheck,
+  getSmartJournal,
+  scanSmartProfile,
 }
 
 class CoreMethodCall {

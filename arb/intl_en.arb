@@ -963,5 +963,108 @@
   "preferred": "Preferred",
   "addToLocalProxies": "Add to local proxies",
   "addedToLocalProxies": "Added {name} to local proxies",
-  "alreadyInLocalProxies": "{name} is already in local proxies"
+  "alreadyInLocalProxies": "{name} is already in local proxies",
+  "smartRepairFailed": "Recovery could not start. Check VPN and automatic mode.",
+  "smartDnsRecoveryDesc": "Recover real DNS failures automatically, including bypass traffic. Preserves routing and explicit DNS policies. No periodic DNS polling or extra wakeups.",
+  "smartCountryEmpty": "No verified countries yet. Start Smart to discover exits.",
+  "smartDnsDiagnosing": "Checking alternatives",
+  "smartDiagnosticTraffic": "Diagnostic traffic (estimated)",
+  "smartPoolMobile": "LTE / mobile pool",
+  "smartSpeed": "Last measured speed",
+  "smartDnsUnavailable": "DNS recovery unavailable",
+  "smartCountryStrict": "Try this country first, use another allowed country if needed, and return when a preferred node recovers. Exclusions always apply.",
+  "smartReconnect": "Smart server selection",
+  "smartBudgetDesc": "Daily limit for speed-test downloads only. Connection checks and recovery continue when the limit is reached. Zero disables speed downloads.",
+  "smartDnsVerificationFailed": "DNS response verification failed",
+  "smartSettingsDesc": "Works with supported subscriptions without scripts. Service selection is shared with the dashboard. Selecting a server manually pauses automatic selection visibly.",
+  "smartSpeedMeasuredAt": "Speed measured at",
+  "smartCountryDiscoveryDesc": "Countries are discovered gradually while Smart is running. Saved choices remain when a country is absent. No extra idle scans.",
+  "smartDnsNetworkChanged": "Network changed; earlier checks invalidated",
+  "smartCountryConflict": "The preferred country is excluded. Other allowed countries will be used.",
+  "smartUnavailable": "No suitable connection",
+  "smartCountryDiscovery": "Verified exit countries",
+  "smartCountryVerified": "{count} countries verified",
+  "smartDnsOriginalRestored": "Original DNS restored",
+  "smartSearching": "Checking servers",
+  "smartCountryNotVerified": "Saved selection; no currently verified exit.",
+  "smartPoolSavedDesc": "Saved replies are historical. Both lists survive restarts; current checks decide availability.",
+  "smartDnsDirect": "Bypass DNS",
+  "smartPool": "Saved servers",
+  "smartResumeAuto": "Resume automatic selection",
+  "smartExcludedCountries": "Excluded countries",
+  "smartDnsRecovered": "DNS recovered",
+  "smartManual": "Manual mode",
+  "smartRestore": "Restore connection",
+  "smartDnsNode": "VPN server DNS",
+  "smartRoutingUpdateFailed": "Rule update failed; using the last valid version.",
+  "smartRoutingSubscription": "Subscription rules",
+  "smartDnsStatus": "DNS recovery status",
+  "smartWifiBudget": "Wi-Fi test budget (MiB/day)",
+  "smartDnsTimeout": "Repeated DNS timeouts",
+  "smartBudgetInvalid": "Enter a number from 0 to 10000.",
+  "smartNoGroup": "No managed server group",
+  "smartDnsSourceRecovery": "Source: automatic recovery",
+  "smartCountryExcluded": "The exit country is excluded.",
+  "smartJournal": "Export smart selection journal",
+  "smartRoutingBuiltin": "Built-in Russian bypass",
+  "smartDnsPolicyPreserved": "Explicit DNS policy preserved",
+  "smartCountryUnknown": "{count} servers unresolved",
+  "smartDiagnosticDesc": "Received diagnostic payload only; protocol overhead is not included. Separate from speed-test downloads.",
+  "smartDnsSourceProfile": "Source: profile and DNS settings",
+  "smartRoutingSource": "Routing rule source",
+  "smartDnsExpired": "Recovery expired; original DNS restored",
+  "smartDnsDestination": "Website DNS",
+  "smartLastCheck": "Last check",
+  "smartPreferredCountry": "Preferred country",
+  "smartRoutingCustom": "Personal rules",
+  "smartDnsObserving": "Waiting for real DNS errors",
+  "smartCountryUnavailable": "No suitable server in the preferred country.",
+  "smartPoolWifi": "Wi-Fi pool",
+  "smartPartial": "Some services unavailable",
+  "smartCountryAny": "Any",
+  "smartMobileBudget": "Mobile test budget (MiB/day)",
+  "smartDnsRecovery": "Smart DNS recovery",
+  "smartHistory": "History",
+  "smartSubscriptionWelcome": "Add a subscription",
+  "smartSubscriptionWelcomeDesc": "Import your subscription by link, QR code, or file. Smart will then check countries and build a server pool for this network.",
+  "later": "Later",
+  "smartImportScan": "Countries and server pool",
+  "smartImportScanPreparing": "Preparing the subscription check",
+  "smartImportScanProgress": "Checked {checked}/{total} · replies {responded} · countries {countries}",
+  "smartImportScanComplete": "Check completed",
+  "smartImportScanPartial": "This pass has reached its limit. Smart will check the remaining servers gradually when this subscription is used.",
+  "smartImportScanCancelled": "Check cancelled",
+  "smartImportScanFailed": "The check could not finish. Your subscription is saved.",
+  "smartImportScanUnsupported": "{count} servers need the active profile for checking.",
+  "smartImportScanQueued": "Queued subscriptions: {count}",
+  "@smartImportScanProgress": {
+    "placeholders": {
+      "checked": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      },
+      "responded": {
+        "type": "int"
+      },
+      "countries": {
+        "type": "int"
+      }
+    }
+  },
+  "@smartImportScanUnsupported": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@smartImportScanQueued": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  }
 }

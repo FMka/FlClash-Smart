@@ -17,6 +17,7 @@ import 'package:fl_clash/providers/providers.dart';
 import 'package:fl_clash/state.dart';
 import 'package:fl_clash/views/disclaimer.dart';
 import 'package:fl_clash/views/navigation.dart';
+import 'package:fl_clash/views/profiles/onboarding.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -139,6 +140,16 @@ class Bootstrap {
         );
     final profiles = await database.profilesDao.query().get();
     container.read(profilesProvider.notifier).reorder(profiles);
+    if (profiles.any(
+      (profile) =>
+          profile.id == config.currentProfileId &&
+          profile.isRetiredBuiltinProfile,
+    )) {
+      container.read(currentProfileIdProvider.notifier).value = container
+          .read(profilesProvider)
+          .firstOrNull
+          ?.id;
+    }
     await AppLocalizations.load(
       getLocaleForString(config.appSettingProps.locale) ??
           WidgetsBinding.instance.platformDispatcher.locale,
@@ -165,7 +176,6 @@ class Bootstrap {
     unawaited(
       _container.read(profilesActionProvider.notifier).autoUpdateProfiles(),
     );
-    unawaited(_container.read(commonActionProvider.notifier).autoCheckUpdate());
     unawaited(
       autoLaunch?.updateStatus(_container.read(appSettingProvider).autoLaunch),
     );
@@ -175,6 +185,11 @@ class Bootstrap {
       unawaited(window?.hide());
     }
     await _handleFailedPreference();
+    final offerSubscription =
+        !_isDisclaimerAcceptedByEnvironment &&
+        _container.read(appSettingProvider).acceptedDisclaimerVersion <
+            disclaimerVersion &&
+        _container.read(profilesProvider).isEmpty;
     if (!await _handlerDisclaimer()) {
       return;
     }
@@ -187,6 +202,9 @@ class Bootstrap {
     unawaited(_container.read(resourcesActionProvider.notifier).autoUpdate());
     await bootGuard.markRunning();
     unawaited(_container.read(locationPermissionsProvider.notifier).refresh());
+    if (offerSubscription && _container.read(profilesProvider).isEmpty) {
+      await offerFirstSubscription();
+    }
   }
 
   Future<void> _showCrashRecoveryTip() async {

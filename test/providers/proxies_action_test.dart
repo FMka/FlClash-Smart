@@ -309,6 +309,8 @@ void main() {
         container,
       ).changeProxy(groupName: 'Proxy', proxyName: 'HK-01');
 
+      expect(container.read(appSettingProvider).smartReconnect, isFalse);
+
       expect(container.read(currentProfileProvider)?.selectedMap, {
         'Proxy': 'HK-01',
       });

@@ -963,5 +963,108 @@
   "preferred": "Préféré",
   "addToLocalProxies": "Ajouter aux proxys locaux",
   "addedToLocalProxies": "{name} ajouté aux proxys locaux",
-  "alreadyInLocalProxies": "{name} est déjà dans les proxys locaux"
+  "alreadyInLocalProxies": "{name} est déjà dans les proxys locaux",
+  "smartRepairFailed": "Impossible de lancer le rétablissement. Vérifiez le VPN et le mode automatique.",
+  "smartDnsRecoveryDesc": "Récupère les véritables erreurs DNS, y compris le trafic direct. Préserve le routage et les politiques DNS explicites. Aucun sondage DNS périodique ni réveil supplémentaire.",
+  "smartCountryEmpty": "Aucun pays vérifié. Démarrez Smart pour identifier les sorties.",
+  "smartDnsDiagnosing": "Vérification des DNS de secours",
+  "smartDiagnosticTraffic": "Trafic de diagnostic (estimation)",
+  "smartPoolMobile": "Pool LTE / mobile",
+  "smartSpeed": "Dernier débit mesuré",
+  "smartDnsUnavailable": "Récupération DNS indisponible",
+  "smartCountryStrict": "Essayer ce pays en priorité, utiliser un autre pays autorisé si nécessaire, puis revenir après rétablissement. Les exclusions restent appliquées.",
+  "smartReconnect": "Sélection intelligente du serveur",
+  "smartBudgetDesc": "Limite quotidienne des téléchargements de mesure de débit uniquement. Les contrôles et le rétablissement continuent au-delà. Zéro désactive ces téléchargements.",
+  "smartDnsVerificationFailed": "Échec de vérification de la réponse DNS",
+  "smartSettingsDesc": "Les abonnements compatibles fonctionnent sans script. Le choix des services est partagé avec le tableau de bord. Un choix manuel active un mode manuel visible.",
+  "smartSpeedMeasuredAt": "Date de mesure du débit",
+  "smartCountryDiscoveryDesc": "Les pays sont identifiés progressivement pendant que Smart fonctionne. Les choix enregistrés restent conservés même en leur absence. Aucune analyse supplémentaire au repos.",
+  "smartDnsNetworkChanged": "Réseau modifié ; vérifications précédentes invalidées",
+  "smartCountryConflict": "Le pays préféré est exclu. Les autres pays autorisés seront utilisés.",
+  "smartUnavailable": "Aucune connexion adaptée",
+  "smartCountryDiscovery": "Pays de sortie vérifiés",
+  "smartCountryVerified": "{count} pays vérifiés",
+  "smartDnsOriginalRestored": "DNS initial rétabli",
+  "smartSearching": "Vérification des serveurs",
+  "smartCountryNotVerified": "Choix enregistré ; aucune sortie actuellement vérifiée.",
+  "smartPoolSavedDesc": "Les listes persistent après redémarrage. Les réponses enregistrées sont historiques ; la disponibilité est revérifiée.",
+  "smartDnsDirect": "DNS du trafic direct",
+  "smartPool": "Serveurs enregistrés",
+  "smartResumeAuto": "Reprendre la sélection automatique",
+  "smartExcludedCountries": "Pays exclus",
+  "smartDnsRecovered": "DNS rétabli",
+  "smartManual": "Mode manuel",
+  "smartRestore": "Rétablir la connexion",
+  "smartDnsNode": "DNS du serveur VPN",
+  "smartRoutingUpdateFailed": "Échec de mise à jour des règles ; dernière version valide utilisée.",
+  "smartRoutingSubscription": "Règles de l’abonnement",
+  "smartDnsStatus": "État de récupération DNS",
+  "smartWifiBudget": "Budget de test Wi-Fi (Mio/jour)",
+  "smartDnsTimeout": "Délais DNS dépassés à plusieurs reprises",
+  "smartBudgetInvalid": "Saisissez un nombre de 0 à 10000.",
+  "smartNoGroup": "Aucun groupe de serveurs géré",
+  "smartDnsSourceRecovery": "Source : récupération automatique",
+  "smartCountryExcluded": "Le pays de sortie est exclu.",
+  "smartJournal": "Exporter le journal de sélection",
+  "smartRoutingBuiltin": "Trafic direct russe intégré",
+  "smartDnsPolicyPreserved": "Politique DNS explicite préservée",
+  "smartCountryUnknown": "{count} serveurs non identifiés",
+  "smartDiagnosticDesc": "Données de diagnostic reçues uniquement, hors surcoût des protocoles. Séparé des tests de débit.",
+  "smartDnsSourceProfile": "Source : profil et paramètres DNS",
+  "smartRoutingSource": "Source des règles de routage",
+  "smartDnsExpired": "Récupération expirée ; DNS initial rétabli",
+  "smartDnsDestination": "DNS des sites",
+  "smartLastCheck": "Dernier contrôle",
+  "smartPreferredCountry": "Pays préféré",
+  "smartRoutingCustom": "Règles personnelles",
+  "smartDnsObserving": "En attente de véritables erreurs DNS",
+  "smartCountryUnavailable": "Aucun serveur adapté dans le pays préféré.",
+  "smartPoolWifi": "Pool Wi-Fi",
+  "smartPartial": "Certains services indisponibles",
+  "smartCountryAny": "Tous",
+  "smartMobileBudget": "Budget de test mobile (Mio/jour)",
+  "smartDnsRecovery": "Récupération DNS intelligente",
+  "smartHistory": "Historique",
+  "smartSubscriptionWelcome": "Ajouter un abonnement",
+  "smartSubscriptionWelcomeDesc": "Importez votre abonnement par lien, code QR ou fichier. Smart vérifiera les pays et créera un groupe de serveurs pour ce réseau.",
+  "later": "Plus tard",
+  "smartImportScan": "Pays et groupe de serveurs",
+  "smartImportScanPreparing": "Préparation de la vérification",
+  "smartImportScanProgress": "Vérifiés {checked}/{total} · réponses {responded} · pays {countries}",
+  "smartImportScanComplete": "Vérification terminée",
+  "smartImportScanPartial": "Cette passe a atteint sa limite. Smart vérifiera progressivement les serveurs restants lors de l’utilisation de cet abonnement.",
+  "smartImportScanCancelled": "Vérification annulée",
+  "smartImportScanFailed": "La vérification a échoué. Votre abonnement est enregistré.",
+  "smartImportScanUnsupported": "{count} serveurs nécessitent le profil actif pour être vérifiés.",
+  "smartImportScanQueued": "Abonnements en attente : {count}",
+  "@smartImportScanProgress": {
+    "placeholders": {
+      "checked": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      },
+      "responded": {
+        "type": "int"
+      },
+      "countries": {
+        "type": "int"
+      }
+    }
+  },
+  "@smartImportScanUnsupported": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@smartImportScanQueued": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  }
 }

@@ -4,6 +4,7 @@ import 'package:fl_clash/common/common.dart';
 import 'package:fl_clash/enum/enum.dart';
 import 'package:fl_clash/models/models.dart';
 import 'package:fl_clash/providers/providers.dart';
+import 'package:fl_clash/providers/smart_profile_scan.dart';
 import 'package:fl_clash/state.dart';
 import 'package:fl_clash/ui/icons/icons.dart';
 import 'package:fl_clash/views/profiles/custom/custom.dart';
@@ -16,6 +17,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'add.dart';
 import 'edit.dart';
 import 'preview.dart';
+import 'scan_progress.dart';
 
 const _infoGap = 4.0;
 
@@ -101,6 +103,8 @@ class _ProfilesViewState extends ConsumerState<ProfilesView> {
         final state = ref.watch(profilesStateProvider);
         final spacing = cardSpacingOf(context, ref.watch(viewModeProvider));
         final picker = widget.picker;
+        final showScan =
+            !picker && ref.watch(smartProfileScanProvider).phase != 'idle';
         return CommonScaffold(
           isLoading: isLoading,
           title: appLocalizations.profiles,
@@ -116,27 +120,43 @@ class _ProfilesViewState extends ConsumerState<ProfilesView> {
                     ),
                   ),
                 ],
-          body: NullStatusSwitcher(
-            isEmpty: state.profiles.isEmpty,
-            nullStatus: NullStatus(
-              label: appLocalizations.nullTip(appLocalizations.profiles),
-              description: appLocalizations.nullProfileDesc,
-              illustration: NullStatusIllustration.profile,
-              action: AddProfileMenu(
-                builder: (open) => TonalButton(
-                  size: TonalButtonSize.bar,
-                  glyph: AppGlyphs.addCircle,
-                  label: appLocalizations.addProfile,
-                  onPressed: open,
+          body: Column(
+            children: [
+              if (showScan)
+                Padding(
+                  padding: EdgeInsets.only(
+                    top: context.contentTopPadding,
+                    left: 16,
+                    right: 16,
+                  ),
+                  child: const SmartProfileScanProgress(),
+                ),
+              Expanded(
+                child: NullStatusSwitcher(
+                  isEmpty: state.profiles.isEmpty,
+                  nullStatus: NullStatus(
+                    label: appLocalizations.nullTip(appLocalizations.profiles),
+                    description: appLocalizations.nullProfileDesc,
+                    illustration: NullStatusIllustration.profile,
+                    action: AddProfileMenu(
+                      builder: (open) => TonalButton(
+                        size: TonalButtonSize.bar,
+                        glyph: AppGlyphs.addCircle,
+                        label: appLocalizations.addProfile,
+                        onPressed: open,
+                      ),
+                    ),
+                  ),
+                  child: _ProfilesGrid(
+                    profiles: state.profiles,
+                    currentProfileId: state.currentProfileId,
+                    spacing: spacing,
+                    revealsSelected: !picker,
+                    hasScanHeader: showScan,
+                  ),
                 ),
               ),
-            ),
-            child: _ProfilesGrid(
-              profiles: state.profiles,
-              currentProfileId: state.currentProfileId,
-              spacing: spacing,
-              revealsSelected: !picker,
-            ),
+            ],
           ),
         );
       },
@@ -150,12 +170,14 @@ class _ProfilesGrid extends ConsumerStatefulWidget {
     required this.currentProfileId,
     required this.spacing,
     required this.revealsSelected,
+    required this.hasScanHeader,
   });
 
   final List<Profile> profiles;
   final int? currentProfileId;
   final double spacing;
   final bool revealsSelected;
+  final bool hasScanHeader;
 
   @override
   ConsumerState<_ProfilesGrid> createState() => _ProfilesGridState();
@@ -194,7 +216,7 @@ class _ProfilesGridState extends ConsumerState<_ProfilesGrid> {
   EdgeInsets get _padding => EdgeInsets.only(
     left: _horizontalPadding,
     right: _horizontalPadding,
-    top: context.contentTopPadding,
+    top: widget.hasScanHeader ? 16 : context.contentTopPadding,
     bottom: 16 + context.bottomInset,
   );
 

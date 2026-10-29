@@ -13,6 +13,7 @@ import (
 	"sync"
 	"sync/atomic"
 	"syscall"
+	"time"
 
 	"github.com/metacubex/mihomo/component/dialer"
 	"github.com/metacubex/mihomo/component/process"
@@ -244,14 +245,6 @@ func init() {
 	}))
 }
 
-// gobind runs an export on the caller's thread and turns no panic into a Java
-// exception, so a panic that leaves one ends the whole application.
-func recoverExport(name string) {
-	if r := recover(); r != nil {
-		logError("panic in %s: %v\n%s", name, r, stackTrace())
-	}
-}
-
 func InvokeMethod(data string, reply func([]byte)) {
 	defer recoverExport("invokeMethod")
 	call := &MethodCall{}
@@ -398,4 +391,32 @@ func UpdateDns(value string) {
 func ResetNetwork() {
 	defer recoverExport("resetNetwork")
 	safeGo("resetNetwork", handleResetNetwork)
+}
+
+var networkChangeRevision atomic.Uint64
+
+func NetworkChanged(key string) {
+	defer recoverExport("networkChanged")
+	revision := networkChangeRevision.Add(1)
+	smartDNS.networkChanged(key)
+	smartReconnect.mu.Lock()
+	smartImports.cancelAll()
+	smartReconnect.cancelLocked()
+	smartReconnect.network = key
+	smartReconnect.transportFailure = time.Time{}
+	smartReconnect.resetAttempt = time.Time{}
+	smartReconnect.mu.Unlock()
+	safeGo("networkChanged", func() {
+		networkResetMu.Lock()
+		defer networkResetMu.Unlock()
+		if revision != networkChangeRevision.Load() {
+			return
+		}
+		handleResetNetwork()
+		smartReconnect.mu.Lock()
+		defer smartReconnect.mu.Unlock()
+		if revision == networkChangeRevision.Load() {
+			smartReconnect.startLocked()
+		}
+	})
 }

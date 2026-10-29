@@ -195,17 +195,28 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m79(label) => "${label}は1項目のみ指定できます";
 
-  static String m80(value) => "ピーク ${value}";
+  static String m80(count) => "${count} 台の国が未確認";
 
-  static String m81(value) => "累計 ${value}";
+  static String m81(count) => "${count} か国を確認済み";
 
-  static String m82(transport) => "${transport} リクエストヘッダー";
+  static String m82(checked, total, responded, countries) =>
+      "確認済み ${checked}/${total} · 応答 ${responded} · 国 ${countries}";
 
-  static String m83(label) => "${label}はURLである必要があります";
+  static String m83(count) => "待機中のサブスクリプション: ${count}";
 
-  static String m84(count) => "${count} 年前";
+  static String m84(count) => "${count}台のサーバーは有効なプロファイルでの確認が必要です。";
 
-  static String m85(count) => "${count} 年前";
+  static String m85(value) => "ピーク ${value}";
+
+  static String m86(value) => "累計 ${value}";
+
+  static String m87(transport) => "${transport} リクエストヘッダー";
+
+  static String m88(label) => "${label}はURLである必要があります";
+
+  static String m89(count) => "${count} 年前";
+
+  static String m90(count) => "${count} 年前";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
@@ -927,6 +938,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "language": MessageLookupByLibrary.simpleMessage("言語"),
     "large": MessageLookupByLibrary.simpleMessage("大"),
     "lastUpdated": MessageLookupByLibrary.simpleMessage("最終更新"),
+    "later": MessageLookupByLibrary.simpleMessage("後で"),
     "launchInterrupted": MessageLookupByLibrary.simpleMessage("起動が完了しませんでした"),
     "launchInterruptedTip": MessageLookupByLibrary.simpleMessage(
       "前回、アプリは起動中に予期せず終了しました。今回の自動セットアップはスキップしました。手動で起動して再試行できます。",
@@ -1495,6 +1507,146 @@ class MessageLookup extends MessageLookupByLibrary {
     "skipSrcAddress": MessageLookupByLibrary.simpleMessage("スキップする送信元アドレス"),
     "slide": MessageLookupByLibrary.simpleMessage("スライド"),
     "sliders": MessageLookupByLibrary.simpleMessage("スライダ"),
+    "smartBudgetDesc": MessageLookupByLibrary.simpleMessage(
+      "速度測定のダウンロードにのみ適用される日次上限です。上限後も接続確認と復旧は続きます。0 は速度測定を無効にします。",
+    ),
+    "smartBudgetInvalid": MessageLookupByLibrary.simpleMessage(
+      "0 から 10000 までの数値を入力してください。",
+    ),
+    "smartCountryAny": MessageLookupByLibrary.simpleMessage("すべて"),
+    "smartCountryConflict": MessageLookupByLibrary.simpleMessage(
+      "優先国は除外されています。他の許可された国を使用します。",
+    ),
+    "smartCountryDiscovery": MessageLookupByLibrary.simpleMessage("確認済みの出口国"),
+    "smartCountryDiscoveryDesc": MessageLookupByLibrary.simpleMessage(
+      "Smart の実行中に出口の国を順次確認します。現在存在しない国の選択も保持します。待機中の追加スキャンは行いません。",
+    ),
+    "smartCountryEmpty": MessageLookupByLibrary.simpleMessage(
+      "確認済みの国はありません。Smart を起動して出口を確認してください。",
+    ),
+    "smartCountryExcluded": MessageLookupByLibrary.simpleMessage(
+      "出口の国が除外されています。",
+    ),
+    "smartCountryNotVerified": MessageLookupByLibrary.simpleMessage(
+      "保存済みの選択。現在確認済みの出口はありません。",
+    ),
+    "smartCountryStrict": MessageLookupByLibrary.simpleMessage(
+      "この国を優先し、利用できなければ他の許可された国を使います。復旧後に戻ります。除外国は常に適用されます。",
+    ),
+    "smartCountryUnavailable": MessageLookupByLibrary.simpleMessage(
+      "優先する国に適切なサーバーがありません。",
+    ),
+    "smartCountryUnknown": m80,
+    "smartCountryVerified": m81,
+    "smartDiagnosticDesc": MessageLookupByLibrary.simpleMessage(
+      "受信した診断データのみ。プロトコルの追加通信量は含みません。速度測定とは別です。",
+    ),
+    "smartDiagnosticTraffic": MessageLookupByLibrary.simpleMessage(
+      "診断トラフィック（推定）",
+    ),
+    "smartDnsDestination": MessageLookupByLibrary.simpleMessage("Web サイトの DNS"),
+    "smartDnsDiagnosing": MessageLookupByLibrary.simpleMessage("代替 DNS を確認中"),
+    "smartDnsDirect": MessageLookupByLibrary.simpleMessage("バイパス DNS"),
+    "smartDnsExpired": MessageLookupByLibrary.simpleMessage(
+      "復旧の有効期限が切れたため元の DNS に戻しました",
+    ),
+    "smartDnsNetworkChanged": MessageLookupByLibrary.simpleMessage(
+      "ネットワークが変わったため以前の確認は無効です",
+    ),
+    "smartDnsNode": MessageLookupByLibrary.simpleMessage("VPN サーバーの DNS"),
+    "smartDnsObserving": MessageLookupByLibrary.simpleMessage(
+      "実際の DNS エラーを待機中",
+    ),
+    "smartDnsOriginalRestored": MessageLookupByLibrary.simpleMessage(
+      "元の DNS に戻しました",
+    ),
+    "smartDnsPolicyPreserved": MessageLookupByLibrary.simpleMessage(
+      "明示的な DNS ポリシーを保持しました",
+    ),
+    "smartDnsRecovered": MessageLookupByLibrary.simpleMessage("DNS を復旧しました"),
+    "smartDnsRecovery": MessageLookupByLibrary.simpleMessage("スマート DNS 復旧"),
+    "smartDnsRecoveryDesc": MessageLookupByLibrary.simpleMessage(
+      "バイパス通信を含む実際の DNS エラーを自動復旧します。ルーティングと明示的な DNS ポリシーを保持します。定期的な DNS 確認や追加のスリープ解除は行いません。",
+    ),
+    "smartDnsSourceProfile": MessageLookupByLibrary.simpleMessage(
+      "設定元：プロファイルと DNS 設定",
+    ),
+    "smartDnsSourceRecovery": MessageLookupByLibrary.simpleMessage("設定元：自動復旧"),
+    "smartDnsStatus": MessageLookupByLibrary.simpleMessage("DNS 復旧状態"),
+    "smartDnsTimeout": MessageLookupByLibrary.simpleMessage(
+      "DNS タイムアウトが繰り返されています",
+    ),
+    "smartDnsUnavailable": MessageLookupByLibrary.simpleMessage("DNS を復旧できません"),
+    "smartDnsVerificationFailed": MessageLookupByLibrary.simpleMessage(
+      "DNS 応答の検証に失敗しました",
+    ),
+    "smartExcludedCountries": MessageLookupByLibrary.simpleMessage("除外する国"),
+    "smartHistory": MessageLookupByLibrary.simpleMessage("履歴"),
+    "smartImportScan": MessageLookupByLibrary.simpleMessage("国とサーバープール"),
+    "smartImportScanCancelled": MessageLookupByLibrary.simpleMessage(
+      "確認をキャンセルしました",
+    ),
+    "smartImportScanComplete": MessageLookupByLibrary.simpleMessage(
+      "確認が完了しました",
+    ),
+    "smartImportScanFailed": MessageLookupByLibrary.simpleMessage(
+      "確認を完了できませんでした。サブスクリプションは保存されています。",
+    ),
+    "smartImportScanPartial": MessageLookupByLibrary.simpleMessage(
+      "今回の確認の上限に達しました。このサブスクリプションの使用時に、残りのサーバーをSmartが順次確認します。",
+    ),
+    "smartImportScanPreparing": MessageLookupByLibrary.simpleMessage(
+      "サブスクリプションの確認を準備中",
+    ),
+    "smartImportScanProgress": m82,
+    "smartImportScanQueued": m83,
+    "smartImportScanUnsupported": m84,
+    "smartJournal": MessageLookupByLibrary.simpleMessage("スマート選択ログを書き出す"),
+    "smartLastCheck": MessageLookupByLibrary.simpleMessage("最終確認"),
+    "smartManual": MessageLookupByLibrary.simpleMessage("手動モード"),
+    "smartMobileBudget": MessageLookupByLibrary.simpleMessage(
+      "モバイル速度テスト上限（MiB/日）",
+    ),
+    "smartNoGroup": MessageLookupByLibrary.simpleMessage("管理対象のサーバーグループなし"),
+    "smartPartial": MessageLookupByLibrary.simpleMessage("一部のサービスが利用不可"),
+    "smartPool": MessageLookupByLibrary.simpleMessage("保存済みサーバー"),
+    "smartPoolMobile": MessageLookupByLibrary.simpleMessage("LTE / モバイルプール"),
+    "smartPoolSavedDesc": MessageLookupByLibrary.simpleMessage(
+      "一覧は再起動後も保持されます。過去の応答とは別に、現在の接続を再確認します。",
+    ),
+    "smartPoolWifi": MessageLookupByLibrary.simpleMessage("Wi-Fi プール"),
+    "smartPreferredCountry": MessageLookupByLibrary.simpleMessage("優先する国"),
+    "smartReconnect": MessageLookupByLibrary.simpleMessage("スマートサーバー選択"),
+    "smartRepairFailed": MessageLookupByLibrary.simpleMessage(
+      "復旧を開始できません。VPN と自動モードを確認してください。",
+    ),
+    "smartRestore": MessageLookupByLibrary.simpleMessage("接続を復元"),
+    "smartResumeAuto": MessageLookupByLibrary.simpleMessage("自動選択を再開"),
+    "smartRoutingBuiltin": MessageLookupByLibrary.simpleMessage("内蔵ロシア向けバイパス"),
+    "smartRoutingCustom": MessageLookupByLibrary.simpleMessage("個人ルール"),
+    "smartRoutingSource": MessageLookupByLibrary.simpleMessage("ルーティングルールの設定元"),
+    "smartRoutingSubscription": MessageLookupByLibrary.simpleMessage(
+      "サブスクリプションのルール",
+    ),
+    "smartRoutingUpdateFailed": MessageLookupByLibrary.simpleMessage(
+      "ルールを更新できません。最後の有効なバージョンを使用します。",
+    ),
+    "smartSearching": MessageLookupByLibrary.simpleMessage("サーバーを確認中"),
+    "smartSettingsDesc": MessageLookupByLibrary.simpleMessage(
+      "対応するサブスクリプションはスクリプト不要です。サービス選択はダッシュボードと共通です。サーバーを手動選択すると手動モードを明示します。",
+    ),
+    "smartSpeed": MessageLookupByLibrary.simpleMessage("最終測定速度"),
+    "smartSpeedMeasuredAt": MessageLookupByLibrary.simpleMessage("速度測定時刻"),
+    "smartSubscriptionWelcome": MessageLookupByLibrary.simpleMessage(
+      "サブスクリプションを追加",
+    ),
+    "smartSubscriptionWelcomeDesc": MessageLookupByLibrary.simpleMessage(
+      "リンク、QRコード、ファイルからサブスクリプションを追加してください。Smartが国を確認し、このネットワークのサーバープールを作成します。",
+    ),
+    "smartUnavailable": MessageLookupByLibrary.simpleMessage("適切な接続がありません"),
+    "smartWifiBudget": MessageLookupByLibrary.simpleMessage(
+      "Wi-Fi 速度テスト上限（MiB/日）",
+    ),
     "sniffProtocols": MessageLookupByLibrary.simpleMessage("プロトコル"),
     "sniffer": MessageLookupByLibrary.simpleMessage("スニッファー"),
     "snifferStatusDesc": MessageLookupByLibrary.simpleMessage(
@@ -1576,11 +1728,11 @@ class MessageLookup extends MessageLookupByLibrary {
     "totalUpload": MessageLookupByLibrary.simpleMessage("アップロード量"),
     "tproxyPort": MessageLookupByLibrary.simpleMessage("TProxyポート"),
     "traffic": MessageLookupByLibrary.simpleMessage("通信量"),
-    "trafficPeak": m80,
-    "trafficTotal": m81,
+    "trafficPeak": m85,
+    "trafficTotal": m86,
     "trafficUsage": MessageLookupByLibrary.simpleMessage("トラフィック統計"),
     "transport": MessageLookupByLibrary.simpleMessage("トランスポート"),
-    "transportHeaders": m82,
+    "transportHeaders": m87,
     "tun": MessageLookupByLibrary.simpleMessage("TUN"),
     "tunAuthorizationFailed": MessageLookupByLibrary.simpleMessage(
       "TUN の権限を取得できなかったため、オフにしました。",
@@ -1608,7 +1760,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "upload": MessageLookupByLibrary.simpleMessage("アップロード"),
     "uploadBandwidth": MessageLookupByLibrary.simpleMessage("アップロード帯域幅"),
     "url": MessageLookupByLibrary.simpleMessage("URL"),
-    "urlTip": m83,
+    "urlTip": m88,
     "useHosts": MessageLookupByLibrary.simpleMessage("Hostsを使用"),
     "useSystemHosts": MessageLookupByLibrary.simpleMessage("システムのHostsを使用"),
     "usedShort": MessageLookupByLibrary.simpleMessage("使用済み"),
@@ -1631,8 +1783,8 @@ class MessageLookup extends MessageLookupByLibrary {
     "writeToSystemDesc": MessageLookupByLibrary.simpleMessage(
       "システムに書き込むを有効にするとシステムクロックも設定します。Android では無視されます。",
     ),
-    "yearsAgo": m84,
-    "yearsAgoShort": m85,
+    "yearsAgo": m89,
+    "yearsAgoShort": m90,
     "yes": MessageLookupByLibrary.simpleMessage("はい"),
     "zhCN": MessageLookupByLibrary.simpleMessage("簡体字中国語"),
   };

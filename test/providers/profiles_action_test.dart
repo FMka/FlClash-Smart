@@ -10,6 +10,7 @@ import 'package:fl_clash/providers/action.dart';
 import 'package:fl_clash/providers/app.dart';
 import 'package:fl_clash/providers/core.dart';
 import 'package:fl_clash/providers/database.dart';
+import 'package:fl_clash/providers/smart_profile_scan.dart';
 import 'package:fl_clash/state.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';
@@ -23,12 +24,23 @@ import '../helpers/test_profiles.dart';
 
 class _MockCoreHandlerInterface extends Mock implements CoreHandlerInterface {}
 
+class _RecordingScan extends SmartProfileScanNotifier {
+  final requested = <int>[];
+
+  @override
+  SmartProfileScanState build() => const SmartProfileScanState();
+
+  @override
+  void request(int profileId) => requested.add(profileId);
+}
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   late Directory home;
   late _MockCoreHandlerInterface core;
   late ProviderContainer container;
+  late _RecordingScan scan;
 
   setUpAll(() async {
     await AppLocalizations.load(const Locale('en'));
@@ -42,11 +54,13 @@ void main() {
 
   setUp(() {
     core = _MockCoreHandlerInterface();
+    scan = _RecordingScan();
     when(() => core.validateConfig(any())).thenAnswer((_) async => '');
     container = ProviderContainer(
       overrides: [
         profilesProvider.overrideWith(TestProfiles.new),
         coreHandlerProvider.overrideWithValue(CoreController.scoped(core)),
+        smartProfileScanProvider.overrideWith(() => scan),
       ],
     );
     addTearDown(container.dispose);
@@ -97,6 +111,7 @@ void main() {
         {'name': 'HK', 'type': 'vless', 'server': 'hk.example.com'},
       ]);
       verify(() => core.validateConfig(any())).called(1);
+      expect(scan.requested, [profile.id]);
     });
 
     test('names an unnamed proxy after its server', () async {
@@ -143,6 +158,7 @@ void main() {
 
       expect(find.text(currentAppLocalizations.shareLinksInvalid), findsOne);
       expect(container.read(profilesProvider), isEmpty);
+      expect(scan.requested, isEmpty);
       verifyNever(() => core.validateConfig(any()));
     });
   });
@@ -184,6 +200,7 @@ void main() {
         ['HK', 'HK-01', 'ss.example.com'],
       );
       verify(() => core.decodeShareLinks(links)).called(1);
+      expect(scan.requested, [profile.id]);
     });
 
     testWidgets('names the link no proxy can be read from and adds nothing', (
@@ -216,6 +233,7 @@ void main() {
         findsOne,
       );
       expect(container.read(profilesProvider), isEmpty);
+      expect(scan.requested, isEmpty);
       verifyNever(() => core.validateConfig(any()));
     });
   });

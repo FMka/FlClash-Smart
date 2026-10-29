@@ -1,5 +1,10 @@
 package com.follow.clash.service
 
+import android.app.Service
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.net.ConnectivityManager
 import android.net.LinkProperties
 import android.net.Network
@@ -10,8 +15,12 @@ import android.net.NetworkRequest
 import android.os.Build
 import android.os.Handler
 import android.os.HandlerThread
+import android.os.PowerManager
+import androidx.core.content.ContextCompat
 import androidx.core.content.getSystemService
+import com.follow.clash.common.BroadcastAction
 import com.follow.clash.common.GlobalState
+import com.follow.clash.common.sendBroadcast
 import com.follow.clash.core.Core
 import java.net.Inet4Address
 import java.net.Inet6Address
@@ -39,7 +48,44 @@ object NetworkObserver {
     }
     private var currentDnsList = listOf<String>()
     private var currentNetwork: Network? = null
+    private var currentNetworkKey = ""
     private var started = false
+    @Volatile
+    private var monitoringService: Service? = null
+    private var receiverRegistered = false
+
+    private val wakeCheckTask = Runnable {
+        synchronized(this) {
+            if (monitoringService != null) {
+                refreshNetworks()
+                updateDns()
+                Core.smartRecheck()
+            }
+        }
+    }
+
+    private val recoveryTask = object : Runnable {
+        override fun run() {
+            synchronized(this@NetworkObserver) {
+                if (monitoringService == null) return
+                if (Core.takeSmartRestartRequest()) {
+                    BroadcastAction.VPN_RECOVERY_REQUESTED.sendBroadcast()
+                }
+                handler.postDelayed(this, RECOVERY_CHECK_INTERVAL_MILLIS)
+            }
+        }
+    }
+
+    private val wakeReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            if (monitoringService == null) return
+            if (intent?.action == PowerManager.ACTION_DEVICE_IDLE_MODE_CHANGED &&
+                GlobalState.application.getSystemService<PowerManager>()?.isDeviceIdleMode == true
+            ) return
+            handler.removeCallbacks(wakeCheckTask)
+            handler.postDelayed(wakeCheckTask, WAKE_CHECK_DELAY_MILLIS)
+        }
+    }
 
     private val request = NetworkRequest.Builder().apply {
         addCapability(NetworkCapabilities.NET_CAPABILITY_NOT_VPN)
@@ -78,9 +124,13 @@ object NetworkObserver {
             networkInfos[network]?.dnsList = linkProperties.dnsServers
             scheduleUpdateDns()
         }
+
+        override fun onCapabilitiesChanged(network: Network, capabilities: NetworkCapabilities) {
+            scheduleUpdateDns()
+        }
     }
 
-    private val updateDnsTask = Runnable(::updateDns)
+    private val updateDnsTask = Runnable { updateDns() }
 
     // A switch arrives as a burst, and a network that just came up has no DNS
     // until its link properties follow; the Core flushes its cache per list.
@@ -93,8 +143,66 @@ object NetworkObserver {
     fun start() {
         if (started) return
         runCatching { requireNotNull(connectivity).registerNetworkCallback(request, callback) }
-            .onSuccess { started = true }
+            .onSuccess {
+                started = true
+                handler.post {
+                    refreshNetworks()
+                    updateDns()
+                }
+            }
             .onFailure { error -> GlobalState.log("Unable to observe networks: $error") }
+    }
+
+    @Synchronized
+    internal fun startSmartMonitoring(service: Service) {
+        if (monitoringService === service) return
+        start()
+        if (!receiverRegistered) {
+            ContextCompat.registerReceiver(
+                GlobalState.application,
+                wakeReceiver,
+                IntentFilter().apply {
+                    addAction(Intent.ACTION_SCREEN_ON)
+                    addAction(Intent.ACTION_USER_PRESENT)
+                    addAction(PowerManager.ACTION_DEVICE_IDLE_MODE_CHANGED)
+                },
+                ContextCompat.RECEIVER_EXPORTED,
+            )
+            receiverRegistered = true
+        }
+        monitoringService = service
+        handler.removeCallbacks(recoveryTask)
+        handler.postDelayed(recoveryTask, RECOVERY_CHECK_INTERVAL_MILLIS)
+    }
+
+    @Synchronized
+    internal fun stopSmartMonitoring(service: Service) {
+        if (monitoringService !== service) return
+        monitoringService = null
+        handler.removeCallbacks(wakeCheckTask)
+        handler.removeCallbacks(recoveryTask)
+        if (receiverRegistered) {
+            receiverRegistered = false
+            runCatching { GlobalState.application.unregisterReceiver(wakeReceiver) }
+                .onFailure { error -> GlobalState.log("Unable to stop Smart wake observation: $error") }
+        }
+    }
+
+    @Suppress("DEPRECATION")
+    private fun refreshNetworks() {
+        val available = connectivity?.allNetworks.orEmpty().filter { network ->
+            val capabilities = connectivity?.getNetworkCapabilities(network)
+            capabilities?.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) == true &&
+                capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_VPN) &&
+                capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_RESTRICTED) &&
+                (Build.VERSION.SDK_INT < Build.VERSION_CODES.P ||
+                    capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_FOREGROUND))
+        }.toSet()
+        networkInfos.keys.retainAll(available)
+        available.forEach { network ->
+            networkInfos.getOrPut(network) { NetworkInfo() }.dnsList =
+                connectivity?.getLinkProperties(network)?.dnsServers.orEmpty()
+        }
     }
 
     private fun networkPriority(entry: Map.Entry<Network, NetworkInfo>): Int {
@@ -129,18 +237,27 @@ object NetworkObserver {
             currentDnsList = dnsList
             Core.updateDNS(dnsList.joinToString(","))
         }
-        val network = preferred?.key ?: return
-        // Sockets protected onto the network we left stay bound to it; closing
-        // them makes apps reconnect now instead of after a TCP timeout.
-        if (currentNetwork != null && currentNetwork != network) {
-            Core.resetNetwork()
+        val network = preferred?.key
+        val capabilities = network?.let { connectivity?.getNetworkCapabilities(it) }
+        val transport = when {
+            capabilities?.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) == true -> "wifi"
+            capabilities?.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) == true -> "cellular"
+            else -> "other"
+        }
+        val interfaceName = network?.let { connectivity?.getLinkProperties(it)?.interfaceName }.orEmpty()
+        val key = if (network == null) "" else "$transport|$interfaceName|${dnsList.sorted().joinToString(",")}"
+        if (currentNetwork != network || currentNetworkKey != key) {
+            Core.networkChanged(key)
         }
         currentNetwork = network
+        currentNetworkKey = key
     }
 }
 
 private const val DNS_PORT = 53
 private const val DNS_UPDATE_DELAY_MILLIS = 200L
+private const val WAKE_CHECK_DELAY_MILLIS = 500L
+private const val RECOVERY_CHECK_INTERVAL_MILLIS = 30_000L
 
 private fun InetAddress.asSocketAddressText(port: Int): String = when (this) {
     is Inet6Address -> "[$hostAddress]:$port"

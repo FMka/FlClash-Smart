@@ -38,7 +38,6 @@ _AppSettingProps _$AppSettingPropsFromJson(
       ) ??
       TabAnimation.fade,
   floatingNavigationBar: json['floatingNavigationBar'] as bool? ?? true,
-  autoCheckUpdate: json['autoCheckUpdate'] as bool? ?? true,
   sidebarExpanded:
       _readSidebarExpanded(json, 'sidebarExpanded') as bool? ?? true,
   acceptedDisclaimerVersion:
@@ -71,12 +70,34 @@ _AppSettingProps _$AppSettingPropsFromJson(
       (json['serviceOrder'] as List<dynamic>?)
           ?.map((e) => e as String)
           .toList() ??
-      const [],
+      const ['youtube', 'google', 'chatgpt', 'telegram'],
   disabledServices:
       (json['disabledServices'] as List<dynamic>?)
           ?.map((e) => e as String)
           .toList() ??
-      const [],
+      const [
+        'github',
+        'claude',
+        'gemini',
+        'netflix',
+        'disney-plus',
+        'prime-video',
+        'spotify',
+        'tiktok',
+        'discord',
+        'bilibili',
+      ],
+  smartReconnect: json['smartReconnect'] as bool? ?? true,
+  smartPreferredCountry: json['smartPreferredCountry'] as String? ?? '',
+  smartExcludedCountries:
+      (_readSmartExcludedCountries(json, 'smartExcludedCountries')
+              as List<dynamic>?)
+          ?.map((e) => e as String)
+          .toList() ??
+      const ['RU'],
+  smartDnsRecovery: json['smartDnsRecovery'] as bool? ?? true,
+  smartMobileBudgetMiB: (json['smartMobileBudgetMiB'] as num?)?.toInt() ?? 20,
+  smartWifiBudgetMiB: (json['smartWifiBudgetMiB'] as num?)?.toInt() ?? 100,
   tableColumnWidths:
       (json['tableColumnWidths'] as Map<String, dynamic>?)?.map(
         (k, e) => MapEntry(
@@ -105,7 +126,6 @@ Map<String, dynamic> _$AppSettingPropsToJson(_AppSettingProps instance) =>
       'delayTestTimeout': instance.delayTestTimeout,
       'tabAnimation': _$TabAnimationEnumMap[instance.tabAnimation]!,
       'floatingNavigationBar': instance.floatingNavigationBar,
-      'autoCheckUpdate': instance.autoCheckUpdate,
       'sidebarExpanded': instance.sidebarExpanded,
       'acceptedDisclaimerVersion': instance.acceptedDisclaimerVersion,
       'minimizeOnExit': instance.minimizeOnExit,
@@ -122,6 +142,12 @@ Map<String, dynamic> _$AppSettingPropsToJson(_AppSettingProps instance) =>
       'editorFontSize': _$EditorFontSizeEnumMap[instance.editorFontSize]!,
       'serviceOrder': instance.serviceOrder,
       'disabledServices': instance.disabledServices,
+      'smartReconnect': instance.smartReconnect,
+      'smartPreferredCountry': instance.smartPreferredCountry,
+      'smartExcludedCountries': instance.smartExcludedCountries,
+      'smartDnsRecovery': instance.smartDnsRecovery,
+      'smartMobileBudgetMiB': instance.smartMobileBudgetMiB,
+      'smartWifiBudgetMiB': instance.smartWifiBudgetMiB,
       'tableColumnWidths': instance.tableColumnWidths,
     };
 

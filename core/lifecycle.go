@@ -30,6 +30,7 @@ func handleInitClash(params *InitParams) bool {
 	defer configMu.Unlock()
 	sdkVersion.Store(int32(params.Version))
 	constant.SetHomeDir(params.HomeDir)
+	smartReconnect.load()
 	initOwnership(params.HomeDir)
 	clearSpilledResponses()
 	isInit.Store(true)
@@ -44,11 +45,13 @@ func handleStartListener() bool {
 	configMu.Lock()
 	defer configMu.Unlock()
 	isRunning.Store(true)
+	setSmartRoutingRunning(true)
 	updateListeners(currentConfig)
 	resolver.ResetConnection()
 	// A probe already out left before the TUN routes and over the DNS
 	// connections just dropped, so its answer must not stand for this route.
 	bumpRouteEpoch()
+	smartReconnect.resume()
 	return true
 }
 
@@ -56,6 +59,9 @@ func handleStopListener() bool {
 	configMu.Lock()
 	defer configMu.Unlock()
 	isRunning.Store(false)
+	smartDNS.invalidate("stopped")
+	setSmartRoutingRunning(false)
+	smartReconnect.stop()
 	listener.StopListener()
 	resolver.ResetConnection()
 	return true
@@ -93,6 +99,9 @@ func handleShutdown() bool {
 
 	configMu.Lock()
 	isRunning.Store(false)
+	smartDNS.invalidate("stopped")
+	setSmartRoutingRunning(false)
+	smartReconnect.stop()
 	listener.StopListener()
 	updater.StopGeoUpdater()
 	executor.Shutdown()

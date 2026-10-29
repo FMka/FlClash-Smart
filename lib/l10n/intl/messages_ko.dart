@@ -196,17 +196,28 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m79(label) => "${label}은(는) 하나만 입력해야 합니다";
 
-  static String m80(value) => "최고 ${value}";
+  static String m80(count) => "${count}개 서버 미확인";
 
-  static String m81(value) => "합계 ${value}";
+  static String m81(count) => "${count}개 국가 확인됨";
 
-  static String m82(transport) => "${transport} 요청 헤더";
+  static String m82(checked, total, responded, countries) =>
+      "검사 ${checked}/${total} · 응답 ${responded} · 국가 ${countries}";
 
-  static String m83(label) => "${label}은(는) URL이어야 합니다";
+  static String m83(count) => "대기 중인 구독: ${count}";
 
-  static String m84(count) => "${Intl.plural(count, other: '${count}년 전')}";
+  static String m84(count) => "${count}개 서버는 활성 프로필에서 검사해야 합니다.";
 
-  static String m85(count) => "${Intl.plural(count, other: '${count}년 전')}";
+  static String m85(value) => "최고 ${value}";
+
+  static String m86(value) => "합계 ${value}";
+
+  static String m87(transport) => "${transport} 요청 헤더";
+
+  static String m88(label) => "${label}은(는) URL이어야 합니다";
+
+  static String m89(count) => "${Intl.plural(count, other: '${count}년 전')}";
+
+  static String m90(count) => "${Intl.plural(count, other: '${count}년 전')}";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
@@ -912,6 +923,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "language": MessageLookupByLibrary.simpleMessage("언어"),
     "large": MessageLookupByLibrary.simpleMessage("크게"),
     "lastUpdated": MessageLookupByLibrary.simpleMessage("마지막 업데이트"),
+    "later": MessageLookupByLibrary.simpleMessage("나중에"),
     "launchInterrupted": MessageLookupByLibrary.simpleMessage("시작이 완료되지 않음"),
     "launchInterruptedTip": MessageLookupByLibrary.simpleMessage(
       "지난번 시작하는 중에 앱이 예기치 않게 종료되었습니다. 이번 실행에서는 자동 설정을 건너뛰었으니 직접 시작하여 다시 시도하세요.",
@@ -1466,6 +1478,134 @@ class MessageLookup extends MessageLookupByLibrary {
     "skipSrcAddress": MessageLookupByLibrary.simpleMessage("건너뛸 출발지 주소"),
     "slide": MessageLookupByLibrary.simpleMessage("슬라이드"),
     "sliders": MessageLookupByLibrary.simpleMessage("슬라이더"),
+    "smartBudgetDesc": MessageLookupByLibrary.simpleMessage(
+      "속도 측정 다운로드에만 적용되는 일일 한도입니다. 한도 이후에도 연결 확인과 복구는 계속됩니다. 0으로 설정하면 속도 다운로드가 꺼집니다.",
+    ),
+    "smartBudgetInvalid": MessageLookupByLibrary.simpleMessage(
+      "0에서 10000 사이의 숫자를 입력하세요.",
+    ),
+    "smartCountryAny": MessageLookupByLibrary.simpleMessage("모든 국가"),
+    "smartCountryConflict": MessageLookupByLibrary.simpleMessage(
+      "선호 국가가 제외되어 다른 허용 국가를 사용합니다.",
+    ),
+    "smartCountryDiscovery": MessageLookupByLibrary.simpleMessage("확인된 출구 국가"),
+    "smartCountryDiscoveryDesc": MessageLookupByLibrary.simpleMessage(
+      "Smart가 실행되는 동안 출구 국가를 점진적으로 확인합니다. 현재 없는 국가도 저장된 선택을 유지합니다. 유휴 상태에서 추가 검사하지 않습니다.",
+    ),
+    "smartCountryEmpty": MessageLookupByLibrary.simpleMessage(
+      "확인된 국가가 없습니다. Smart를 시작하여 출구를 확인하세요.",
+    ),
+    "smartCountryExcluded": MessageLookupByLibrary.simpleMessage(
+      "출구 국가가 제외되어 있습니다.",
+    ),
+    "smartCountryNotVerified": MessageLookupByLibrary.simpleMessage(
+      "저장된 선택이며 현재 확인된 출구가 없습니다.",
+    ),
+    "smartCountryStrict": MessageLookupByLibrary.simpleMessage(
+      "이 국가를 먼저 확인하고 필요하면 다른 허용 국가를 사용합니다. 복구되면 돌아옵니다. 제외 목록은 항상 적용됩니다.",
+    ),
+    "smartCountryUnavailable": MessageLookupByLibrary.simpleMessage(
+      "선호 국가에 적합한 서버가 없습니다.",
+    ),
+    "smartCountryUnknown": m80,
+    "smartCountryVerified": m81,
+    "smartDiagnosticDesc": MessageLookupByLibrary.simpleMessage(
+      "수신한 진단 데이터만 포함하며 프로토콜 오버헤드는 제외합니다. 속도 테스트와 별도로 계산합니다.",
+    ),
+    "smartDiagnosticTraffic": MessageLookupByLibrary.simpleMessage(
+      "진단 트래픽(추정)",
+    ),
+    "smartDnsDestination": MessageLookupByLibrary.simpleMessage("웹사이트 DNS"),
+    "smartDnsDiagnosing": MessageLookupByLibrary.simpleMessage("대체 DNS 확인 중"),
+    "smartDnsDirect": MessageLookupByLibrary.simpleMessage("우회 DNS"),
+    "smartDnsExpired": MessageLookupByLibrary.simpleMessage(
+      "복구 만료로 원래 DNS 복원됨",
+    ),
+    "smartDnsNetworkChanged": MessageLookupByLibrary.simpleMessage(
+      "네트워크 변경으로 이전 검사 무효화됨",
+    ),
+    "smartDnsNode": MessageLookupByLibrary.simpleMessage("VPN 서버 DNS"),
+    "smartDnsObserving": MessageLookupByLibrary.simpleMessage("실제 DNS 오류 대기 중"),
+    "smartDnsOriginalRestored": MessageLookupByLibrary.simpleMessage(
+      "원래 DNS 복원됨",
+    ),
+    "smartDnsPolicyPreserved": MessageLookupByLibrary.simpleMessage(
+      "명시적 DNS 정책 유지됨",
+    ),
+    "smartDnsRecovered": MessageLookupByLibrary.simpleMessage("DNS 복구됨"),
+    "smartDnsRecovery": MessageLookupByLibrary.simpleMessage("스마트 DNS 복구"),
+    "smartDnsRecoveryDesc": MessageLookupByLibrary.simpleMessage(
+      "우회 트래픽을 포함한 실제 DNS 오류를 자동으로 복구합니다. 라우팅과 명시적 DNS 정책을 유지합니다. 주기적 DNS 검사나 추가 기기 깨우기를 수행하지 않습니다.",
+    ),
+    "smartDnsSourceProfile": MessageLookupByLibrary.simpleMessage(
+      "출처: 프로필 및 DNS 설정",
+    ),
+    "smartDnsSourceRecovery": MessageLookupByLibrary.simpleMessage("출처: 자동 복구"),
+    "smartDnsStatus": MessageLookupByLibrary.simpleMessage("DNS 복구 상태"),
+    "smartDnsTimeout": MessageLookupByLibrary.simpleMessage("반복된 DNS 시간 초과"),
+    "smartDnsUnavailable": MessageLookupByLibrary.simpleMessage("DNS 복구 불가"),
+    "smartDnsVerificationFailed": MessageLookupByLibrary.simpleMessage(
+      "DNS 응답 검증 실패",
+    ),
+    "smartExcludedCountries": MessageLookupByLibrary.simpleMessage("제외 국가"),
+    "smartHistory": MessageLookupByLibrary.simpleMessage("기록"),
+    "smartImportScan": MessageLookupByLibrary.simpleMessage("국가 및 서버 풀"),
+    "smartImportScanCancelled": MessageLookupByLibrary.simpleMessage("검사 취소됨"),
+    "smartImportScanComplete": MessageLookupByLibrary.simpleMessage("검사 완료"),
+    "smartImportScanFailed": MessageLookupByLibrary.simpleMessage(
+      "검사를 완료하지 못했습니다. 구독은 저장되었습니다.",
+    ),
+    "smartImportScanPartial": MessageLookupByLibrary.simpleMessage(
+      "이번 검사의 한도에 도달했습니다. 이 구독을 사용하는 동안 Smart가 나머지 서버를 순차적으로 검사합니다.",
+    ),
+    "smartImportScanPreparing": MessageLookupByLibrary.simpleMessage(
+      "구독 검사 준비 중",
+    ),
+    "smartImportScanProgress": m82,
+    "smartImportScanQueued": m83,
+    "smartImportScanUnsupported": m84,
+    "smartJournal": MessageLookupByLibrary.simpleMessage("스마트 선택 로그 내보내기"),
+    "smartLastCheck": MessageLookupByLibrary.simpleMessage("마지막 확인"),
+    "smartManual": MessageLookupByLibrary.simpleMessage("수동 모드"),
+    "smartMobileBudget": MessageLookupByLibrary.simpleMessage(
+      "모바일 속도 테스트 한도(MiB/일)",
+    ),
+    "smartNoGroup": MessageLookupByLibrary.simpleMessage("관리되는 서버 그룹 없음"),
+    "smartPartial": MessageLookupByLibrary.simpleMessage("일부 서비스 사용 불가"),
+    "smartPool": MessageLookupByLibrary.simpleMessage("저장된 서버"),
+    "smartPoolMobile": MessageLookupByLibrary.simpleMessage("LTE / 모바일 풀"),
+    "smartPoolSavedDesc": MessageLookupByLibrary.simpleMessage(
+      "목록은 재시작 후에도 유지됩니다. 이전 응답과 별도로 현재 연결을 다시 확인합니다.",
+    ),
+    "smartPoolWifi": MessageLookupByLibrary.simpleMessage("Wi-Fi 풀"),
+    "smartPreferredCountry": MessageLookupByLibrary.simpleMessage("선호 국가"),
+    "smartReconnect": MessageLookupByLibrary.simpleMessage("스마트 서버 선택"),
+    "smartRepairFailed": MessageLookupByLibrary.simpleMessage(
+      "복구를 시작할 수 없습니다. VPN과 자동 모드를 확인하세요.",
+    ),
+    "smartRestore": MessageLookupByLibrary.simpleMessage("연결 복구"),
+    "smartResumeAuto": MessageLookupByLibrary.simpleMessage("자동 선택 재개"),
+    "smartRoutingBuiltin": MessageLookupByLibrary.simpleMessage("내장 러시아 우회"),
+    "smartRoutingCustom": MessageLookupByLibrary.simpleMessage("개인 규칙"),
+    "smartRoutingSource": MessageLookupByLibrary.simpleMessage("라우팅 규칙 출처"),
+    "smartRoutingSubscription": MessageLookupByLibrary.simpleMessage("구독 규칙"),
+    "smartRoutingUpdateFailed": MessageLookupByLibrary.simpleMessage(
+      "규칙 업데이트 실패. 마지막 유효 버전을 사용합니다.",
+    ),
+    "smartSearching": MessageLookupByLibrary.simpleMessage("서버 확인 중"),
+    "smartSettingsDesc": MessageLookupByLibrary.simpleMessage(
+      "지원되는 구독은 스크립트 없이 작동합니다. 서비스 선택은 대시보드와 공유됩니다. 서버를 직접 고르면 수동 모드가 명확히 표시됩니다.",
+    ),
+    "smartSpeed": MessageLookupByLibrary.simpleMessage("마지막 측정 속도"),
+    "smartSpeedMeasuredAt": MessageLookupByLibrary.simpleMessage("속도 측정 시각"),
+    "smartSubscriptionWelcome": MessageLookupByLibrary.simpleMessage("구독 추가"),
+    "smartSubscriptionWelcomeDesc": MessageLookupByLibrary.simpleMessage(
+      "링크, QR 코드 또는 파일로 구독을 가져오세요. Smart가 국가를 확인하고 현재 네트워크의 서버 풀을 만듭니다.",
+    ),
+    "smartUnavailable": MessageLookupByLibrary.simpleMessage("적합한 연결 없음"),
+    "smartWifiBudget": MessageLookupByLibrary.simpleMessage(
+      "Wi-Fi 속도 테스트 한도(MiB/일)",
+    ),
     "sniffProtocols": MessageLookupByLibrary.simpleMessage("프로토콜"),
     "sniffer": MessageLookupByLibrary.simpleMessage("스니퍼"),
     "snifferStatusDesc": MessageLookupByLibrary.simpleMessage(
@@ -1549,11 +1689,11 @@ class MessageLookup extends MessageLookupByLibrary {
     "totalUpload": MessageLookupByLibrary.simpleMessage("업로드량"),
     "tproxyPort": MessageLookupByLibrary.simpleMessage("TProxy 포트"),
     "traffic": MessageLookupByLibrary.simpleMessage("트래픽"),
-    "trafficPeak": m80,
-    "trafficTotal": m81,
+    "trafficPeak": m85,
+    "trafficTotal": m86,
     "trafficUsage": MessageLookupByLibrary.simpleMessage("트래픽 사용량"),
     "transport": MessageLookupByLibrary.simpleMessage("전송"),
-    "transportHeaders": m82,
+    "transportHeaders": m87,
     "tun": MessageLookupByLibrary.simpleMessage("TUN"),
     "tunAuthorizationFailed": MessageLookupByLibrary.simpleMessage(
       "TUN 권한을 얻지 못해 끄기로 되돌렸습니다.",
@@ -1583,7 +1723,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "upload": MessageLookupByLibrary.simpleMessage("업로드"),
     "uploadBandwidth": MessageLookupByLibrary.simpleMessage("업로드 대역폭"),
     "url": MessageLookupByLibrary.simpleMessage("URL"),
-    "urlTip": m83,
+    "urlTip": m88,
     "useHosts": MessageLookupByLibrary.simpleMessage("hosts 사용"),
     "useSystemHosts": MessageLookupByLibrary.simpleMessage("시스템 hosts 사용"),
     "usedShort": MessageLookupByLibrary.simpleMessage("사용"),
@@ -1606,8 +1746,8 @@ class MessageLookup extends MessageLookupByLibrary {
     "writeToSystemDesc": MessageLookupByLibrary.simpleMessage(
       "시스템에 기록하면 시스템 시계도 설정합니다. Android에서는 무시됩니다.",
     ),
-    "yearsAgo": m84,
-    "yearsAgoShort": m85,
+    "yearsAgo": m89,
+    "yearsAgoShort": m90,
     "yes": MessageLookupByLibrary.simpleMessage("예"),
     "zhCN": MessageLookupByLibrary.simpleMessage("중국어 간체"),
   };

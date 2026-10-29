@@ -1,0 +1,8 @@
+- [x] Back up and restore the V3 baseline; remove V4/V5 free-server code.
+- [x] Record complete pools, preferred fallback/return and handoff continuity.
+- [x] Implement persistent complete transport pools, ordering and reconciliation.
+- [x] Preserve a common current node during handoff; verify asynchronously.
+- [x] Add both pool lists and update country wording; bulk reads only on demand.
+- [x] Remove automatic app updating and startup prompts; hide the retired placeholder.
+- [x] Run covering Go/Flutter checks and generate an upgrade-compatible ARM64 APK.
+- [x] Record source/artifact verification and device acceptance limits.

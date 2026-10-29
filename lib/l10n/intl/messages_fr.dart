@@ -229,18 +229,30 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m79(label) => "${label} doit être un seul élément";
 
-  static String m80(value) => "Pic ${value}";
+  static String m80(count) => "${count} serveurs non identifiés";
 
-  static String m81(value) => "Total ${value}";
+  static String m81(count) => "${count} pays vérifiés";
 
-  static String m82(transport) => "En-têtes ${transport}";
+  static String m82(checked, total, responded, countries) =>
+      "Vérifiés ${checked}/${total} · réponses ${responded} · pays ${countries}";
 
-  static String m83(label) => "${label} doit être une URL";
+  static String m83(count) => "Abonnements en attente : ${count}";
 
   static String m84(count) =>
+      "${count} serveurs nécessitent le profil actif pour être vérifiés.";
+
+  static String m85(value) => "Pic ${value}";
+
+  static String m86(value) => "Total ${value}";
+
+  static String m87(transport) => "En-têtes ${transport}";
+
+  static String m88(label) => "${label} doit être une URL";
+
+  static String m89(count) =>
       "${Intl.plural(count, one: 'il y a 1 an', other: 'il y a ${count} ans')}";
 
-  static String m85(count) =>
+  static String m90(count) =>
       "${Intl.plural(count, other: 'il y a ${count} a')}";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
@@ -1156,6 +1168,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "language": MessageLookupByLibrary.simpleMessage("Langue"),
     "large": MessageLookupByLibrary.simpleMessage("Grande"),
     "lastUpdated": MessageLookupByLibrary.simpleMessage("Dernière mise à jour"),
+    "later": MessageLookupByLibrary.simpleMessage("Plus tard"),
     "launchInterrupted": MessageLookupByLibrary.simpleMessage(
       "Démarrage inachevé",
     ),
@@ -1880,6 +1893,194 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "slide": MessageLookupByLibrary.simpleMessage("Glissement"),
     "sliders": MessageLookupByLibrary.simpleMessage("Curseurs"),
+    "smartBudgetDesc": MessageLookupByLibrary.simpleMessage(
+      "Limite quotidienne des téléchargements de mesure de débit uniquement. Les contrôles et le rétablissement continuent au-delà. Zéro désactive ces téléchargements.",
+    ),
+    "smartBudgetInvalid": MessageLookupByLibrary.simpleMessage(
+      "Saisissez un nombre de 0 à 10000.",
+    ),
+    "smartCountryAny": MessageLookupByLibrary.simpleMessage("Tous"),
+    "smartCountryConflict": MessageLookupByLibrary.simpleMessage(
+      "Le pays préféré est exclu. Les autres pays autorisés seront utilisés.",
+    ),
+    "smartCountryDiscovery": MessageLookupByLibrary.simpleMessage(
+      "Pays de sortie vérifiés",
+    ),
+    "smartCountryDiscoveryDesc": MessageLookupByLibrary.simpleMessage(
+      "Les pays sont identifiés progressivement pendant que Smart fonctionne. Les choix enregistrés restent conservés même en leur absence. Aucune analyse supplémentaire au repos.",
+    ),
+    "smartCountryEmpty": MessageLookupByLibrary.simpleMessage(
+      "Aucun pays vérifié. Démarrez Smart pour identifier les sorties.",
+    ),
+    "smartCountryExcluded": MessageLookupByLibrary.simpleMessage(
+      "Le pays de sortie est exclu.",
+    ),
+    "smartCountryNotVerified": MessageLookupByLibrary.simpleMessage(
+      "Choix enregistré ; aucune sortie actuellement vérifiée.",
+    ),
+    "smartCountryStrict": MessageLookupByLibrary.simpleMessage(
+      "Essayer ce pays en priorité, utiliser un autre pays autorisé si nécessaire, puis revenir après rétablissement. Les exclusions restent appliquées.",
+    ),
+    "smartCountryUnavailable": MessageLookupByLibrary.simpleMessage(
+      "Aucun serveur adapté dans le pays préféré.",
+    ),
+    "smartCountryUnknown": m80,
+    "smartCountryVerified": m81,
+    "smartDiagnosticDesc": MessageLookupByLibrary.simpleMessage(
+      "Données de diagnostic reçues uniquement, hors surcoût des protocoles. Séparé des tests de débit.",
+    ),
+    "smartDiagnosticTraffic": MessageLookupByLibrary.simpleMessage(
+      "Trafic de diagnostic (estimation)",
+    ),
+    "smartDnsDestination": MessageLookupByLibrary.simpleMessage(
+      "DNS des sites",
+    ),
+    "smartDnsDiagnosing": MessageLookupByLibrary.simpleMessage(
+      "Vérification des DNS de secours",
+    ),
+    "smartDnsDirect": MessageLookupByLibrary.simpleMessage(
+      "DNS du trafic direct",
+    ),
+    "smartDnsExpired": MessageLookupByLibrary.simpleMessage(
+      "Récupération expirée ; DNS initial rétabli",
+    ),
+    "smartDnsNetworkChanged": MessageLookupByLibrary.simpleMessage(
+      "Réseau modifié ; vérifications précédentes invalidées",
+    ),
+    "smartDnsNode": MessageLookupByLibrary.simpleMessage("DNS du serveur VPN"),
+    "smartDnsObserving": MessageLookupByLibrary.simpleMessage(
+      "En attente de véritables erreurs DNS",
+    ),
+    "smartDnsOriginalRestored": MessageLookupByLibrary.simpleMessage(
+      "DNS initial rétabli",
+    ),
+    "smartDnsPolicyPreserved": MessageLookupByLibrary.simpleMessage(
+      "Politique DNS explicite préservée",
+    ),
+    "smartDnsRecovered": MessageLookupByLibrary.simpleMessage("DNS rétabli"),
+    "smartDnsRecovery": MessageLookupByLibrary.simpleMessage(
+      "Récupération DNS intelligente",
+    ),
+    "smartDnsRecoveryDesc": MessageLookupByLibrary.simpleMessage(
+      "Récupère les véritables erreurs DNS, y compris le trafic direct. Préserve le routage et les politiques DNS explicites. Aucun sondage DNS périodique ni réveil supplémentaire.",
+    ),
+    "smartDnsSourceProfile": MessageLookupByLibrary.simpleMessage(
+      "Source : profil et paramètres DNS",
+    ),
+    "smartDnsSourceRecovery": MessageLookupByLibrary.simpleMessage(
+      "Source : récupération automatique",
+    ),
+    "smartDnsStatus": MessageLookupByLibrary.simpleMessage(
+      "État de récupération DNS",
+    ),
+    "smartDnsTimeout": MessageLookupByLibrary.simpleMessage(
+      "Délais DNS dépassés à plusieurs reprises",
+    ),
+    "smartDnsUnavailable": MessageLookupByLibrary.simpleMessage(
+      "Récupération DNS indisponible",
+    ),
+    "smartDnsVerificationFailed": MessageLookupByLibrary.simpleMessage(
+      "Échec de vérification de la réponse DNS",
+    ),
+    "smartExcludedCountries": MessageLookupByLibrary.simpleMessage(
+      "Pays exclus",
+    ),
+    "smartHistory": MessageLookupByLibrary.simpleMessage("Historique"),
+    "smartImportScan": MessageLookupByLibrary.simpleMessage(
+      "Pays et groupe de serveurs",
+    ),
+    "smartImportScanCancelled": MessageLookupByLibrary.simpleMessage(
+      "Vérification annulée",
+    ),
+    "smartImportScanComplete": MessageLookupByLibrary.simpleMessage(
+      "Vérification terminée",
+    ),
+    "smartImportScanFailed": MessageLookupByLibrary.simpleMessage(
+      "La vérification a échoué. Votre abonnement est enregistré.",
+    ),
+    "smartImportScanPartial": MessageLookupByLibrary.simpleMessage(
+      "Cette passe a atteint sa limite. Smart vérifiera progressivement les serveurs restants lors de l’utilisation de cet abonnement.",
+    ),
+    "smartImportScanPreparing": MessageLookupByLibrary.simpleMessage(
+      "Préparation de la vérification",
+    ),
+    "smartImportScanProgress": m82,
+    "smartImportScanQueued": m83,
+    "smartImportScanUnsupported": m84,
+    "smartJournal": MessageLookupByLibrary.simpleMessage(
+      "Exporter le journal de sélection",
+    ),
+    "smartLastCheck": MessageLookupByLibrary.simpleMessage("Dernier contrôle"),
+    "smartManual": MessageLookupByLibrary.simpleMessage("Mode manuel"),
+    "smartMobileBudget": MessageLookupByLibrary.simpleMessage(
+      "Budget de test mobile (Mio/jour)",
+    ),
+    "smartNoGroup": MessageLookupByLibrary.simpleMessage(
+      "Aucun groupe de serveurs géré",
+    ),
+    "smartPartial": MessageLookupByLibrary.simpleMessage(
+      "Certains services indisponibles",
+    ),
+    "smartPool": MessageLookupByLibrary.simpleMessage("Serveurs enregistrés"),
+    "smartPoolMobile": MessageLookupByLibrary.simpleMessage(
+      "Pool LTE / mobile",
+    ),
+    "smartPoolSavedDesc": MessageLookupByLibrary.simpleMessage(
+      "Les listes persistent après redémarrage. Les réponses enregistrées sont historiques ; la disponibilité est revérifiée.",
+    ),
+    "smartPoolWifi": MessageLookupByLibrary.simpleMessage("Pool Wi-Fi"),
+    "smartPreferredCountry": MessageLookupByLibrary.simpleMessage(
+      "Pays préféré",
+    ),
+    "smartReconnect": MessageLookupByLibrary.simpleMessage(
+      "Sélection intelligente du serveur",
+    ),
+    "smartRepairFailed": MessageLookupByLibrary.simpleMessage(
+      "Impossible de lancer le rétablissement. Vérifiez le VPN et le mode automatique.",
+    ),
+    "smartRestore": MessageLookupByLibrary.simpleMessage(
+      "Rétablir la connexion",
+    ),
+    "smartResumeAuto": MessageLookupByLibrary.simpleMessage(
+      "Reprendre la sélection automatique",
+    ),
+    "smartRoutingBuiltin": MessageLookupByLibrary.simpleMessage(
+      "Trafic direct russe intégré",
+    ),
+    "smartRoutingCustom": MessageLookupByLibrary.simpleMessage(
+      "Règles personnelles",
+    ),
+    "smartRoutingSource": MessageLookupByLibrary.simpleMessage(
+      "Source des règles de routage",
+    ),
+    "smartRoutingSubscription": MessageLookupByLibrary.simpleMessage(
+      "Règles de l’abonnement",
+    ),
+    "smartRoutingUpdateFailed": MessageLookupByLibrary.simpleMessage(
+      "Échec de mise à jour des règles ; dernière version valide utilisée.",
+    ),
+    "smartSearching": MessageLookupByLibrary.simpleMessage(
+      "Vérification des serveurs",
+    ),
+    "smartSettingsDesc": MessageLookupByLibrary.simpleMessage(
+      "Les abonnements compatibles fonctionnent sans script. Le choix des services est partagé avec le tableau de bord. Un choix manuel active un mode manuel visible.",
+    ),
+    "smartSpeed": MessageLookupByLibrary.simpleMessage("Dernier débit mesuré"),
+    "smartSpeedMeasuredAt": MessageLookupByLibrary.simpleMessage(
+      "Date de mesure du débit",
+    ),
+    "smartSubscriptionWelcome": MessageLookupByLibrary.simpleMessage(
+      "Ajouter un abonnement",
+    ),
+    "smartSubscriptionWelcomeDesc": MessageLookupByLibrary.simpleMessage(
+      "Importez votre abonnement par lien, code QR ou fichier. Smart vérifiera les pays et créera un groupe de serveurs pour ce réseau.",
+    ),
+    "smartUnavailable": MessageLookupByLibrary.simpleMessage(
+      "Aucune connexion adaptée",
+    ),
+    "smartWifiBudget": MessageLookupByLibrary.simpleMessage(
+      "Budget de test Wi-Fi (Mio/jour)",
+    ),
     "sniffProtocols": MessageLookupByLibrary.simpleMessage("Protocoles"),
     "sniffer": MessageLookupByLibrary.simpleMessage("Sniffer"),
     "snifferStatusDesc": MessageLookupByLibrary.simpleMessage(
@@ -1979,11 +2180,11 @@ class MessageLookup extends MessageLookupByLibrary {
     "totalUpload": MessageLookupByLibrary.simpleMessage("Envoyé"),
     "tproxyPort": MessageLookupByLibrary.simpleMessage("Port TProxy"),
     "traffic": MessageLookupByLibrary.simpleMessage("Trafic"),
-    "trafficPeak": m80,
-    "trafficTotal": m81,
+    "trafficPeak": m85,
+    "trafficTotal": m86,
     "trafficUsage": MessageLookupByLibrary.simpleMessage("Trafic utilisé"),
     "transport": MessageLookupByLibrary.simpleMessage("Transport"),
-    "transportHeaders": m82,
+    "transportHeaders": m87,
     "tun": MessageLookupByLibrary.simpleMessage("TUN"),
     "tunAuthorizationFailed": MessageLookupByLibrary.simpleMessage(
       "TUN n’a pas pu être autorisé et a donc été désactivé.",
@@ -2019,7 +2220,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "Bande passante d’envoi",
     ),
     "url": MessageLookupByLibrary.simpleMessage("URL"),
-    "urlTip": m83,
+    "urlTip": m88,
     "useHosts": MessageLookupByLibrary.simpleMessage("Utiliser hosts"),
     "useSystemHosts": MessageLookupByLibrary.simpleMessage(
       "Utiliser les hosts du système",
@@ -2048,8 +2249,8 @@ class MessageLookup extends MessageLookupByLibrary {
     "writeToSystemDesc": MessageLookupByLibrary.simpleMessage(
       "Écrire dans le système règle aussi l’horloge système ; Android l’ignore.",
     ),
-    "yearsAgo": m84,
-    "yearsAgoShort": m85,
+    "yearsAgo": m89,
+    "yearsAgoShort": m90,
     "yes": MessageLookupByLibrary.simpleMessage("Oui"),
     "zhCN": MessageLookupByLibrary.simpleMessage("Chinois simplifié"),
   };

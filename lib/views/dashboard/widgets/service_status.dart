@@ -117,9 +117,10 @@ class _ServiceView {
 }
 
 class ServiceStatusCard extends ConsumerStatefulWidget {
-  const ServiceStatusCard({super.key, this.columns = 2});
+  const ServiceStatusCard({super.key, this.columns = 2, this.rows});
 
   final int columns;
+  final int? rows;
 
   @override
   ConsumerState<ServiceStatusCard> createState() => _ServiceStatusCardState();
@@ -174,7 +175,7 @@ class _ServiceStatusCardState extends ConsumerState<ServiceStatusCard>
     final mobile = !density.isDesktop;
     final appLocalizations = context.appLocalizations;
     // At most four: what the Core checks at once (serviceCheckConcurrency).
-    final shownCount = (mobile ? 1 : 2) * widget.columns;
+    final shownCount = (widget.rows ?? (mobile ? 1 : 2)) * widget.columns;
     final stacked = widget.columns == 1;
     final shown = ref
         .watch(enabledServiceTargetsProvider)

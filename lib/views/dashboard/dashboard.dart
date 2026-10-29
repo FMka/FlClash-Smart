@@ -16,6 +16,7 @@ import 'style.dart';
 import 'widget_registry.dart';
 import 'widgets/core_status_button.dart';
 import 'widgets/widgets.dart';
+import 'package:fl_clash/views/config/smart_reconnect.dart';
 
 // Narrower columns leave a pair of service cells too tight for a status, so
 // the grid stacks them in one.
@@ -341,6 +342,7 @@ class _MobileDashboard extends ConsumerWidget {
                 child: Column(
                   spacing: gap,
                   children: [
+                    const SmartConnectionCard(),
                     for (final widget in widgets)
                       RepaintBoundary(
                         key: cardKeyOf(widget),

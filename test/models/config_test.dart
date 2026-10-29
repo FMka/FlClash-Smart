@@ -117,6 +117,10 @@ void main() {
   });
 
   group('AppSettingProps JSON round-trip', () {
+    test('legacy automatic-update preferences are ignored', () {
+      final props = AppSettingProps.fromJson({'autoCheckUpdate': true});
+      expect(props.toJson(), isNot(contains('autoCheckUpdate')));
+    });
     test('default values survive round-trip', () {
       const props = AppSettingProps();
       final restored = roundTrip(
@@ -130,7 +134,7 @@ void main() {
       expect(restored.openLogs, false);
       expect(restored.closeConnections, true);
       expect(restored.tabAnimation, TabAnimation.fade);
-      expect(restored.autoCheckUpdate, true);
+      expect(restored.toJson(), isNot(contains('autoCheckUpdate')));
       expect(restored.sidebarExpanded, true);
       expect(restored.minimizeOnExit, true);
       expect(restored.restoreStrategy, RestoreStrategy.compatible);

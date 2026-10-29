@@ -963,5 +963,108 @@
   "preferred": "우선",
   "addToLocalProxies": "로컬 프록시에 추가",
   "addedToLocalProxies": "{name}을(를) 로컬 프록시에 추가했습니다",
-  "alreadyInLocalProxies": "{name}은(는) 이미 로컬 프록시에 있습니다"
+  "alreadyInLocalProxies": "{name}은(는) 이미 로컬 프록시에 있습니다",
+  "smartRepairFailed": "복구를 시작할 수 없습니다. VPN과 자동 모드를 확인하세요.",
+  "smartDnsRecoveryDesc": "우회 트래픽을 포함한 실제 DNS 오류를 자동으로 복구합니다. 라우팅과 명시적 DNS 정책을 유지합니다. 주기적 DNS 검사나 추가 기기 깨우기를 수행하지 않습니다.",
+  "smartCountryEmpty": "확인된 국가가 없습니다. Smart를 시작하여 출구를 확인하세요.",
+  "smartDnsDiagnosing": "대체 DNS 확인 중",
+  "smartDiagnosticTraffic": "진단 트래픽(추정)",
+  "smartPoolMobile": "LTE / 모바일 풀",
+  "smartSpeed": "마지막 측정 속도",
+  "smartDnsUnavailable": "DNS 복구 불가",
+  "smartCountryStrict": "이 국가를 먼저 확인하고 필요하면 다른 허용 국가를 사용합니다. 복구되면 돌아옵니다. 제외 목록은 항상 적용됩니다.",
+  "smartReconnect": "스마트 서버 선택",
+  "smartBudgetDesc": "속도 측정 다운로드에만 적용되는 일일 한도입니다. 한도 이후에도 연결 확인과 복구는 계속됩니다. 0으로 설정하면 속도 다운로드가 꺼집니다.",
+  "smartDnsVerificationFailed": "DNS 응답 검증 실패",
+  "smartSettingsDesc": "지원되는 구독은 스크립트 없이 작동합니다. 서비스 선택은 대시보드와 공유됩니다. 서버를 직접 고르면 수동 모드가 명확히 표시됩니다.",
+  "smartSpeedMeasuredAt": "속도 측정 시각",
+  "smartCountryDiscoveryDesc": "Smart가 실행되는 동안 출구 국가를 점진적으로 확인합니다. 현재 없는 국가도 저장된 선택을 유지합니다. 유휴 상태에서 추가 검사하지 않습니다.",
+  "smartDnsNetworkChanged": "네트워크 변경으로 이전 검사 무효화됨",
+  "smartCountryConflict": "선호 국가가 제외되어 다른 허용 국가를 사용합니다.",
+  "smartUnavailable": "적합한 연결 없음",
+  "smartCountryDiscovery": "확인된 출구 국가",
+  "smartCountryVerified": "{count}개 국가 확인됨",
+  "smartDnsOriginalRestored": "원래 DNS 복원됨",
+  "smartSearching": "서버 확인 중",
+  "smartCountryNotVerified": "저장된 선택이며 현재 확인된 출구가 없습니다.",
+  "smartPoolSavedDesc": "목록은 재시작 후에도 유지됩니다. 이전 응답과 별도로 현재 연결을 다시 확인합니다.",
+  "smartDnsDirect": "우회 DNS",
+  "smartPool": "저장된 서버",
+  "smartResumeAuto": "자동 선택 재개",
+  "smartExcludedCountries": "제외 국가",
+  "smartDnsRecovered": "DNS 복구됨",
+  "smartManual": "수동 모드",
+  "smartRestore": "연결 복구",
+  "smartDnsNode": "VPN 서버 DNS",
+  "smartRoutingUpdateFailed": "규칙 업데이트 실패. 마지막 유효 버전을 사용합니다.",
+  "smartRoutingSubscription": "구독 규칙",
+  "smartDnsStatus": "DNS 복구 상태",
+  "smartWifiBudget": "Wi-Fi 속도 테스트 한도(MiB/일)",
+  "smartDnsTimeout": "반복된 DNS 시간 초과",
+  "smartBudgetInvalid": "0에서 10000 사이의 숫자를 입력하세요.",
+  "smartNoGroup": "관리되는 서버 그룹 없음",
+  "smartDnsSourceRecovery": "출처: 자동 복구",
+  "smartCountryExcluded": "출구 국가가 제외되어 있습니다.",
+  "smartJournal": "스마트 선택 로그 내보내기",
+  "smartRoutingBuiltin": "내장 러시아 우회",
+  "smartDnsPolicyPreserved": "명시적 DNS 정책 유지됨",
+  "smartCountryUnknown": "{count}개 서버 미확인",
+  "smartDiagnosticDesc": "수신한 진단 데이터만 포함하며 프로토콜 오버헤드는 제외합니다. 속도 테스트와 별도로 계산합니다.",
+  "smartDnsSourceProfile": "출처: 프로필 및 DNS 설정",
+  "smartRoutingSource": "라우팅 규칙 출처",
+  "smartDnsExpired": "복구 만료로 원래 DNS 복원됨",
+  "smartDnsDestination": "웹사이트 DNS",
+  "smartLastCheck": "마지막 확인",
+  "smartPreferredCountry": "선호 국가",
+  "smartRoutingCustom": "개인 규칙",
+  "smartDnsObserving": "실제 DNS 오류 대기 중",
+  "smartCountryUnavailable": "선호 국가에 적합한 서버가 없습니다.",
+  "smartPoolWifi": "Wi-Fi 풀",
+  "smartPartial": "일부 서비스 사용 불가",
+  "smartCountryAny": "모든 국가",
+  "smartMobileBudget": "모바일 속도 테스트 한도(MiB/일)",
+  "smartDnsRecovery": "스마트 DNS 복구",
+  "smartHistory": "기록",
+  "smartSubscriptionWelcome": "구독 추가",
+  "smartSubscriptionWelcomeDesc": "링크, QR 코드 또는 파일로 구독을 가져오세요. Smart가 국가를 확인하고 현재 네트워크의 서버 풀을 만듭니다.",
+  "later": "나중에",
+  "smartImportScan": "국가 및 서버 풀",
+  "smartImportScanPreparing": "구독 검사 준비 중",
+  "smartImportScanProgress": "검사 {checked}/{total} · 응답 {responded} · 국가 {countries}",
+  "smartImportScanComplete": "검사 완료",
+  "smartImportScanPartial": "이번 검사의 한도에 도달했습니다. 이 구독을 사용하는 동안 Smart가 나머지 서버를 순차적으로 검사합니다.",
+  "smartImportScanCancelled": "검사 취소됨",
+  "smartImportScanFailed": "검사를 완료하지 못했습니다. 구독은 저장되었습니다.",
+  "smartImportScanUnsupported": "{count}개 서버는 활성 프로필에서 검사해야 합니다.",
+  "smartImportScanQueued": "대기 중인 구독: {count}",
+  "@smartImportScanProgress": {
+    "placeholders": {
+      "checked": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      },
+      "responded": {
+        "type": "int"
+      },
+      "countries": {
+        "type": "int"
+      }
+    }
+  },
+  "@smartImportScanUnsupported": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@smartImportScanQueued": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  }
 }

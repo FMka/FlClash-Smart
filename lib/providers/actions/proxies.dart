@@ -92,6 +92,7 @@ class ProxiesAction extends _$ProxiesAction {
   }
 
   void changeProxyDebounce(String groupName, String proxyName) {
+    _enterManualMode();
     _pendingSelectedRollback.putIfAbsent(
       groupName,
       () => _currentSelectedName(groupName),
@@ -179,6 +180,7 @@ class ProxiesAction extends _$ProxiesAction {
     required String groupName,
     required String proxyName,
   }) async {
+    _enterManualMode();
     final profilesAction = ref.read(profilesActionProvider.notifier);
     final rollbackName =
         _pendingSelectedRollback.remove(groupName) ??
@@ -204,6 +206,11 @@ class ProxiesAction extends _$ProxiesAction {
       );
       return;
     }
+    try {
+      await ref.read(smartStatusProvider.notifier).refresh();
+    } catch (error) {
+      commonPrint.log('Smart status: $error', logLevel: LogLevel.debug);
+    }
     if (!result.changed) {
       return;
     }
@@ -219,6 +226,13 @@ class ProxiesAction extends _$ProxiesAction {
         logLevel: coreFailureLogLevel(error),
       );
     }
+  }
+
+  void _enterManualMode() {
+    if (!ref.read(appSettingProvider).smartReconnect) return;
+    ref
+        .read(appSettingProvider.notifier)
+        .update((settings) => settings.copyWith(smartReconnect: false));
   }
 
   Future<String> updateProvider(

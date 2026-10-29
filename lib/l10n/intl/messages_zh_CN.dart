@@ -192,17 +192,28 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m79(label) => "${label}只能是一项";
 
-  static String m80(value) => "峰值 ${value}";
+  static String m80(count) => "${count} 个服务器尚未确定";
 
-  static String m81(value) => "累计 ${value}";
+  static String m81(count) => "已验证 ${count} 个国家/地区";
 
-  static String m82(transport) => "${transport} 请求头";
+  static String m82(checked, total, responded, countries) =>
+      "已检查 ${checked}/${total} · 响应 ${responded} · 国家 ${countries}";
 
-  static String m83(label) => "${label}必须为URL";
+  static String m83(count) => "排队中的订阅：${count}";
 
-  static String m84(count) => "${count} 年前";
+  static String m84(count) => "${count} 个服务器需要在配置启用后检查。";
 
-  static String m85(count) => "${count} 年前";
+  static String m85(value) => "峰值 ${value}";
+
+  static String m86(value) => "累计 ${value}";
+
+  static String m87(transport) => "${transport} 请求头";
+
+  static String m88(label) => "${label}必须为URL";
+
+  static String m89(count) => "${count} 年前";
+
+  static String m90(count) => "${count} 年前";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
@@ -842,6 +853,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "language": MessageLookupByLibrary.simpleMessage("语言"),
     "large": MessageLookupByLibrary.simpleMessage("大"),
     "lastUpdated": MessageLookupByLibrary.simpleMessage("上次更新"),
+    "later": MessageLookupByLibrary.simpleMessage("稍后"),
     "launchInterrupted": MessageLookupByLibrary.simpleMessage("启动未完成"),
     "launchInterruptedTip": MessageLookupByLibrary.simpleMessage(
       "应用上次在启动过程中意外退出。已跳过本次自动配置，你可以手动启动重试。",
@@ -1354,6 +1366,132 @@ class MessageLookup extends MessageLookupByLibrary {
     "skipSrcAddress": MessageLookupByLibrary.simpleMessage("跳过来源地址"),
     "slide": MessageLookupByLibrary.simpleMessage("滑动"),
     "sliders": MessageLookupByLibrary.simpleMessage("滑块"),
+    "smartBudgetDesc": MessageLookupByLibrary.simpleMessage(
+      "每日限额仅用于测速下载。达到限额后仍继续连接检查和恢复。设为零可禁用测速下载。",
+    ),
+    "smartBudgetInvalid": MessageLookupByLibrary.simpleMessage(
+      "请输入 0 到 10000 之间的数字。",
+    ),
+    "smartCountryAny": MessageLookupByLibrary.simpleMessage("任意"),
+    "smartCountryConflict": MessageLookupByLibrary.simpleMessage(
+      "首选国家已被排除，将使用其他允许的国家。",
+    ),
+    "smartCountryDiscovery": MessageLookupByLibrary.simpleMessage(
+      "已验证的出口国家/地区",
+    ),
+    "smartCountryDiscoveryDesc": MessageLookupByLibrary.simpleMessage(
+      "Smart 运行时逐步识别出口。即使当前没有该国家/地区，也会保留已保存的选择。空闲时不额外扫描。",
+    ),
+    "smartCountryEmpty": MessageLookupByLibrary.simpleMessage(
+      "尚无已验证的国家/地区。启动 Smart 以识别出口。",
+    ),
+    "smartCountryExcluded": MessageLookupByLibrary.simpleMessage(
+      "出口国家/地区已被排除。",
+    ),
+    "smartCountryNotVerified": MessageLookupByLibrary.simpleMessage(
+      "已保存的选择；当前没有已验证的出口。",
+    ),
+    "smartCountryStrict": MessageLookupByLibrary.simpleMessage(
+      "优先尝试此国家；不可用时使用其他允许的国家，恢复后返回。始终遵守排除列表。",
+    ),
+    "smartCountryUnavailable": MessageLookupByLibrary.simpleMessage(
+      "首选国家/地区没有合适的服务器。",
+    ),
+    "smartCountryUnknown": m80,
+    "smartCountryVerified": m81,
+    "smartDiagnosticDesc": MessageLookupByLibrary.simpleMessage(
+      "仅统计收到的诊断数据，不含协议开销，与测速下载分开统计。",
+    ),
+    "smartDiagnosticTraffic": MessageLookupByLibrary.simpleMessage("诊断流量（估计）"),
+    "smartDnsDestination": MessageLookupByLibrary.simpleMessage("网站 DNS"),
+    "smartDnsDiagnosing": MessageLookupByLibrary.simpleMessage("正在检查备用 DNS"),
+    "smartDnsDirect": MessageLookupByLibrary.simpleMessage("直连 DNS"),
+    "smartDnsExpired": MessageLookupByLibrary.simpleMessage("恢复已过期，已还原原始 DNS"),
+    "smartDnsNetworkChanged": MessageLookupByLibrary.simpleMessage(
+      "网络已更改，之前的检查已失效",
+    ),
+    "smartDnsNode": MessageLookupByLibrary.simpleMessage("VPN 服务器 DNS"),
+    "smartDnsObserving": MessageLookupByLibrary.simpleMessage("等待真实 DNS 错误"),
+    "smartDnsOriginalRestored": MessageLookupByLibrary.simpleMessage(
+      "已恢复原始 DNS",
+    ),
+    "smartDnsPolicyPreserved": MessageLookupByLibrary.simpleMessage(
+      "已保留显式 DNS 策略",
+    ),
+    "smartDnsRecovered": MessageLookupByLibrary.simpleMessage("DNS 已恢复"),
+    "smartDnsRecovery": MessageLookupByLibrary.simpleMessage("智能 DNS 恢复"),
+    "smartDnsRecoveryDesc": MessageLookupByLibrary.simpleMessage(
+      "在真实 DNS 错误发生时自动恢复，包括直连流量。保留路由和显式 DNS 策略。不定期轮询 DNS，也不额外唤醒设备。",
+    ),
+    "smartDnsSourceProfile": MessageLookupByLibrary.simpleMessage(
+      "来源：配置文件和 DNS 设置",
+    ),
+    "smartDnsSourceRecovery": MessageLookupByLibrary.simpleMessage("来源：自动恢复"),
+    "smartDnsStatus": MessageLookupByLibrary.simpleMessage("DNS 恢复状态"),
+    "smartDnsTimeout": MessageLookupByLibrary.simpleMessage("DNS 多次超时"),
+    "smartDnsUnavailable": MessageLookupByLibrary.simpleMessage("DNS 无法恢复"),
+    "smartDnsVerificationFailed": MessageLookupByLibrary.simpleMessage(
+      "DNS 响应验证失败",
+    ),
+    "smartExcludedCountries": MessageLookupByLibrary.simpleMessage("排除的国家/地区"),
+    "smartHistory": MessageLookupByLibrary.simpleMessage("历史记录"),
+    "smartImportScan": MessageLookupByLibrary.simpleMessage("国家和服务器池"),
+    "smartImportScanCancelled": MessageLookupByLibrary.simpleMessage("检查已取消"),
+    "smartImportScanComplete": MessageLookupByLibrary.simpleMessage("检查完成"),
+    "smartImportScanFailed": MessageLookupByLibrary.simpleMessage(
+      "检查未能完成，订阅已保存。",
+    ),
+    "smartImportScanPartial": MessageLookupByLibrary.simpleMessage(
+      "本轮检查已达到限制。使用此订阅时，Smart 将逐步检查其余服务器。",
+    ),
+    "smartImportScanPreparing": MessageLookupByLibrary.simpleMessage(
+      "正在准备检查订阅",
+    ),
+    "smartImportScanProgress": m82,
+    "smartImportScanQueued": m83,
+    "smartImportScanUnsupported": m84,
+    "smartJournal": MessageLookupByLibrary.simpleMessage("导出智能选择日志"),
+    "smartLastCheck": MessageLookupByLibrary.simpleMessage("上次检查"),
+    "smartManual": MessageLookupByLibrary.simpleMessage("手动模式"),
+    "smartMobileBudget": MessageLookupByLibrary.simpleMessage(
+      "移动网络测速限额（MiB/天）",
+    ),
+    "smartNoGroup": MessageLookupByLibrary.simpleMessage("没有受管理的服务器组"),
+    "smartPartial": MessageLookupByLibrary.simpleMessage("部分服务不可用"),
+    "smartPool": MessageLookupByLibrary.simpleMessage("已保存服务器"),
+    "smartPoolMobile": MessageLookupByLibrary.simpleMessage("LTE / 移动网络池"),
+    "smartPoolSavedDesc": MessageLookupByLibrary.simpleMessage(
+      "列表在重启后保留。历史响应不能证明当前可用性，需要重新检查。",
+    ),
+    "smartPoolWifi": MessageLookupByLibrary.simpleMessage("Wi-Fi 服务器池"),
+    "smartPreferredCountry": MessageLookupByLibrary.simpleMessage("首选国家/地区"),
+    "smartReconnect": MessageLookupByLibrary.simpleMessage("智能服务器选择"),
+    "smartRepairFailed": MessageLookupByLibrary.simpleMessage(
+      "无法开始恢复。请检查 VPN 和自动模式。",
+    ),
+    "smartRestore": MessageLookupByLibrary.simpleMessage("恢复连接"),
+    "smartResumeAuto": MessageLookupByLibrary.simpleMessage("恢复自动选择"),
+    "smartRoutingBuiltin": MessageLookupByLibrary.simpleMessage("内置俄罗斯直连"),
+    "smartRoutingCustom": MessageLookupByLibrary.simpleMessage("个人规则"),
+    "smartRoutingSource": MessageLookupByLibrary.simpleMessage("路由规则来源"),
+    "smartRoutingSubscription": MessageLookupByLibrary.simpleMessage("订阅规则"),
+    "smartRoutingUpdateFailed": MessageLookupByLibrary.simpleMessage(
+      "规则更新失败，使用上一个有效版本。",
+    ),
+    "smartSearching": MessageLookupByLibrary.simpleMessage("正在检查服务器"),
+    "smartSettingsDesc": MessageLookupByLibrary.simpleMessage(
+      "支持的订阅无需脚本即可使用。服务选择与仪表盘共用。手动选择服务器会明确暂停自动选择。",
+    ),
+    "smartSpeed": MessageLookupByLibrary.simpleMessage("上次测得速度"),
+    "smartSpeedMeasuredAt": MessageLookupByLibrary.simpleMessage("速度测量时间"),
+    "smartSubscriptionWelcome": MessageLookupByLibrary.simpleMessage("添加订阅"),
+    "smartSubscriptionWelcomeDesc": MessageLookupByLibrary.simpleMessage(
+      "通过链接、二维码或文件导入订阅。Smart 随后将检查国家并为当前网络建立服务器池。",
+    ),
+    "smartUnavailable": MessageLookupByLibrary.simpleMessage("没有合适的连接"),
+    "smartWifiBudget": MessageLookupByLibrary.simpleMessage(
+      "Wi-Fi 测速限额（MiB/天）",
+    ),
     "sniffProtocols": MessageLookupByLibrary.simpleMessage("协议"),
     "sniffer": MessageLookupByLibrary.simpleMessage("域名嗅探"),
     "snifferStatusDesc": MessageLookupByLibrary.simpleMessage(
@@ -1429,11 +1567,11 @@ class MessageLookup extends MessageLookupByLibrary {
     "totalUpload": MessageLookupByLibrary.simpleMessage("上传总量"),
     "tproxyPort": MessageLookupByLibrary.simpleMessage("Tproxy端口"),
     "traffic": MessageLookupByLibrary.simpleMessage("流量"),
-    "trafficPeak": m80,
-    "trafficTotal": m81,
+    "trafficPeak": m85,
+    "trafficTotal": m86,
     "trafficUsage": MessageLookupByLibrary.simpleMessage("流量统计"),
     "transport": MessageLookupByLibrary.simpleMessage("传输协议"),
-    "transportHeaders": m82,
+    "transportHeaders": m87,
     "tun": MessageLookupByLibrary.simpleMessage("虚拟网卡"),
     "tunAuthorizationFailed": MessageLookupByLibrary.simpleMessage(
       "虚拟网卡授权失败，已关闭。",
@@ -1461,7 +1599,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "upload": MessageLookupByLibrary.simpleMessage("上传"),
     "uploadBandwidth": MessageLookupByLibrary.simpleMessage("上行带宽"),
     "url": MessageLookupByLibrary.simpleMessage("URL"),
-    "urlTip": m83,
+    "urlTip": m88,
     "useHosts": MessageLookupByLibrary.simpleMessage("使用Hosts"),
     "useSystemHosts": MessageLookupByLibrary.simpleMessage("使用系统Hosts"),
     "usedShort": MessageLookupByLibrary.simpleMessage("已用"),
@@ -1484,8 +1622,8 @@ class MessageLookup extends MessageLookupByLibrary {
     "writeToSystemDesc": MessageLookupByLibrary.simpleMessage(
       "写入系统会同时设置系统时钟，Android 上不生效。",
     ),
-    "yearsAgo": m84,
-    "yearsAgoShort": m85,
+    "yearsAgo": m89,
+    "yearsAgoShort": m90,
     "yes": MessageLookupByLibrary.simpleMessage("是"),
     "zhCN": MessageLookupByLibrary.simpleMessage("中文简体"),
   };

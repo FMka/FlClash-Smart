@@ -117,6 +117,27 @@ void main() {
 
     List<Profile> read() => container.read(profilesProvider);
 
+    test(
+      'retired built-in free placeholder stays inactive without deleting user data',
+      () async {
+        final retired = profile(
+          99,
+          label: 'Old built-in',
+        ).copyWith(url: 'builtin://igareck');
+        await testDatabase.profiles.put(retired.toCompanion());
+        await pumpEventQueue();
+        expect(read(), isEmpty);
+        notifier.put(profile(1, label: 'My subscription'));
+        await pumpEventQueue();
+        final rows = await testDatabase.profilesDao.query().get();
+        expect(rows.map((item) => item.id), containsAll([1, 99]));
+        notifier.reorder(rows);
+        await pumpEventQueue();
+        expect(read().map((item) => item.id), [1]);
+        expect(await testDatabase.profilesDao.get(99), isNotNull);
+      },
+    );
+
     test('put persists the row and the stream echoes it back', () async {
       notifier.put(profile(1, label: 'First'));
 

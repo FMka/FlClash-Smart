@@ -65,6 +65,10 @@ class ProfilesAction extends _$ProfilesAction {
     ref.read(currentProfileIdProvider.notifier).value = profile.id;
   }
 
+  void _scanImportedProfile(int profileId) {
+    ref.read(smartProfileScanProvider.notifier).request(profileId);
+  }
+
   Future<List<Profile>> providerUsers(Profile profile) async {
     if (profile.type == ProfileType.custom) {
       return const [];
@@ -204,6 +208,7 @@ class ProfilesAction extends _$ProfilesAction {
     );
     if (profile != null) {
       putProfile(profile);
+      _scanImportedProfile(profile.id);
     }
   }
 
@@ -273,10 +278,14 @@ class ProfilesAction extends _$ProfilesAction {
   /// [config] replaces what [profileId] holds. The providers it adds are saved
   /// before the groups and rules naming them, and loaded afterwards; the
   /// future completes once they have loaded.
-  Future<void> importCustomProfile(int profileId, CustomProfileImport config) {
+  Future<void> importCustomProfile(
+    int profileId,
+    CustomProfileImport config,
+  ) async {
     final profiles = ref.read(profilesProvider.notifier);
     final clashProviders = ref.read(clashProvidersProvider.notifier);
-    final loads = <({String label, Future<void> Function() load})>[];
+    final loads =
+        <({String label, int? profileId, Future<void> Function() load})>[];
     for (final (:label, :url, :ageSecretKey, :content)
         in config.proxyProviders) {
       final profile = Profile.normal(
@@ -286,6 +295,7 @@ class ProfilesAction extends _$ProfilesAction {
       profiles.put(profile);
       loads.add((
         label: label,
+        profileId: profile.id,
         load: url.isNotEmpty
             ? () => updateProfile(profile, showLoading: true)
             : () async => profiles.put(
@@ -302,6 +312,7 @@ class ProfilesAction extends _$ProfilesAction {
       clashProviders.put(provider);
       loads.add((
         label: label,
+        profileId: null,
         load: url.isNotEmpty
             ? () => ref
                   .read(resourcesActionProvider.notifier)
@@ -333,13 +344,19 @@ class ProfilesAction extends _$ProfilesAction {
       profileId,
       (profile) => profile.copyWith(overrides: config.overrides),
     );
-    return globalState.batchRun(
+    await globalState.batchRun(
       loads,
-      (item) => item.load(),
+      (item) async {
+        await item.load();
+        if (item.profileId case final importedId?) {
+          _scanImportedProfile(importedId);
+        }
+      },
       label: (item) => item.label,
       concurrency: maxConcurrentImports,
       tag: null,
     );
+    _scanImportedProfile(profileId);
   }
 
   void _showProfiles() {
@@ -370,6 +387,7 @@ class ProfilesAction extends _$ProfilesAction {
     );
     if (profile != null) {
       putProfile(profile);
+      _scanImportedProfile(profile.id);
     }
   }
 
@@ -389,11 +407,13 @@ class ProfilesAction extends _$ProfilesAction {
           else if (link == shareLinks.first)
             (profile: Profile.normal(), shareLinks: shareLinks),
       ],
-      (item) async => putProfile(
-        await (item.shareLinks.isEmpty
+      (item) async {
+        final profile = await (item.shareLinks.isEmpty
             ? _download(item.profile)
-            : _fromShareLinks(item.profile, item.shareLinks)),
-      ),
+            : _fromShareLinks(item.profile, item.shareLinks));
+        putProfile(profile);
+        _scanImportedProfile(profile.id);
+      },
       label: (item) => item.shareLinks.firstOrNull ?? item.profile.url,
       concurrency: maxConcurrentImports,
       tag: LoadingTag.profiles,

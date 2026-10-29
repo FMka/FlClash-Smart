@@ -155,18 +155,4 @@ void main() {
       },
     );
   });
-
-  group('CommonAction.autoCheckUpdate', () {
-    test('returns without a network call when the setting is off', () async {
-      final container = buildContainer();
-      container
-          .read(appSettingProvider.notifier)
-          .update((state) => state.copyWith(autoCheckUpdate: false));
-
-      await expectLater(
-        container.read(commonActionProvider.notifier).autoCheckUpdate(),
-        completion(isFalse),
-      );
-    });
-  });
 }

@@ -963,5 +963,108 @@
   "preferred": "Preferido",
   "addToLocalProxies": "Añadir a proxies locales",
   "addedToLocalProxies": "{name} añadido a proxies locales",
-  "alreadyInLocalProxies": "{name} ya está en proxies locales"
+  "alreadyInLocalProxies": "{name} ya está en proxies locales",
+  "smartRepairFailed": "No se pudo iniciar la recuperación. Comprueba el VPN y el modo automático.",
+  "smartDnsRecoveryDesc": "Recupera errores DNS reales, incluido el tráfico directo. Conserva el enrutamiento y las políticas DNS explícitas. Sin sondeos DNS periódicos ni activaciones adicionales.",
+  "smartCountryEmpty": "Todavía no hay países verificados. Inicia Smart para identificar las salidas.",
+  "smartDnsDiagnosing": "Comprobando DNS alternativos",
+  "smartDiagnosticTraffic": "Tráfico de diagnóstico (estimado)",
+  "smartPoolMobile": "Grupo LTE / móvil",
+  "smartSpeed": "Última velocidad medida",
+  "smartDnsUnavailable": "Recuperación DNS no disponible",
+  "smartCountryStrict": "Probar este país primero, usar otro permitido si es necesario y volver cuando se recupere. Las exclusiones siempre se aplican.",
+  "smartReconnect": "Selección inteligente del servidor",
+  "smartBudgetDesc": "Límite diario solo para descargas de pruebas de velocidad. Las comprobaciones y la recuperación continúan al agotarlo. Cero desactiva las descargas de prueba.",
+  "smartDnsVerificationFailed": "Error al verificar la respuesta DNS",
+  "smartSettingsDesc": "Las suscripciones compatibles funcionan sin scripts. Los servicios se comparten con el panel. Elegir un servidor manualmente activa un modo manual visible.",
+  "smartSpeedMeasuredAt": "Hora de medición de velocidad",
+  "smartCountryDiscoveryDesc": "Los países se identifican gradualmente mientras Smart funciona. Las selecciones guardadas se conservan aunque un país no esté disponible. Sin análisis adicionales en reposo.",
+  "smartDnsNetworkChanged": "Red cambiada; verificaciones anteriores invalidadas",
+  "smartCountryConflict": "El país preferido está excluido. Se usarán otros países permitidos.",
+  "smartUnavailable": "No hay una conexión adecuada",
+  "smartCountryDiscovery": "Países de salida verificados",
+  "smartCountryVerified": "{count} países verificados",
+  "smartDnsOriginalRestored": "DNS original restaurado",
+  "smartSearching": "Comprobando servidores",
+  "smartCountryNotVerified": "Selección guardada; sin salida verificada actualmente.",
+  "smartPoolSavedDesc": "Las listas se conservan tras reiniciar. Las respuestas guardadas son históricas; se comprueba la disponibilidad actual.",
+  "smartDnsDirect": "DNS de tráfico directo",
+  "smartPool": "Servidores guardados",
+  "smartResumeAuto": "Reanudar selección automática",
+  "smartExcludedCountries": "Países excluidos",
+  "smartDnsRecovered": "DNS recuperado",
+  "smartManual": "Modo manual",
+  "smartRestore": "Restablecer conexión",
+  "smartDnsNode": "DNS del servidor VPN",
+  "smartRoutingUpdateFailed": "Error al actualizar las reglas; se usa la última versión válida.",
+  "smartRoutingSubscription": "Reglas de la suscripción",
+  "smartDnsStatus": "Estado de recuperación DNS",
+  "smartWifiBudget": "Límite de pruebas Wi-Fi (MiB/día)",
+  "smartDnsTimeout": "Tiempos de espera DNS agotados repetidamente",
+  "smartBudgetInvalid": "Introduce un número entre 0 y 10000.",
+  "smartNoGroup": "No hay un grupo de servidores gestionado",
+  "smartDnsSourceRecovery": "Origen: recuperación automática",
+  "smartCountryExcluded": "El país de salida está excluido.",
+  "smartJournal": "Exportar registro de selección",
+  "smartRoutingBuiltin": "Bypass ruso integrado",
+  "smartDnsPolicyPreserved": "Política DNS explícita conservada",
+  "smartCountryUnknown": "{count} servidores sin identificar",
+  "smartDiagnosticDesc": "Solo datos de diagnóstico recibidos, sin sobrecarga de protocolos. Separado de las pruebas de velocidad.",
+  "smartDnsSourceProfile": "Origen: perfil y ajustes DNS",
+  "smartRoutingSource": "Origen de las reglas de enrutamiento",
+  "smartDnsExpired": "Recuperación caducada; DNS original restaurado",
+  "smartDnsDestination": "DNS de sitios",
+  "smartLastCheck": "Última comprobación",
+  "smartPreferredCountry": "País preferido",
+  "smartRoutingCustom": "Reglas personales",
+  "smartDnsObserving": "Esperando errores DNS reales",
+  "smartCountryUnavailable": "No hay servidores adecuados en el país preferido.",
+  "smartPoolWifi": "Grupo Wi-Fi",
+  "smartPartial": "Algunos servicios no disponibles",
+  "smartCountryAny": "Cualquiera",
+  "smartMobileBudget": "Límite de pruebas móviles (MiB/día)",
+  "smartDnsRecovery": "Recuperación DNS inteligente",
+  "smartHistory": "Historial",
+  "smartSubscriptionWelcome": "Añadir una suscripción",
+  "smartSubscriptionWelcomeDesc": "Importa tu suscripción mediante enlace, código QR o archivo. Smart comprobará los países y creará un grupo de servidores para esta red.",
+  "later": "Más tarde",
+  "smartImportScan": "Países y grupo de servidores",
+  "smartImportScanPreparing": "Preparando la comprobación de la suscripción",
+  "smartImportScanProgress": "Comprobados {checked}/{total} · respuestas {responded} · países {countries}",
+  "smartImportScanComplete": "Comprobación completada",
+  "smartImportScanPartial": "Esta pasada ha alcanzado su límite. Smart comprobará los servidores restantes gradualmente al usar esta suscripción.",
+  "smartImportScanCancelled": "Comprobación cancelada",
+  "smartImportScanFailed": "No se pudo completar la comprobación. Tu suscripción está guardada.",
+  "smartImportScanUnsupported": "{count} servidores requieren el perfil activo para comprobarse.",
+  "smartImportScanQueued": "Suscripciones en cola: {count}",
+  "@smartImportScanProgress": {
+    "placeholders": {
+      "checked": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      },
+      "responded": {
+        "type": "int"
+      },
+      "countries": {
+        "type": "int"
+      }
+    }
+  },
+  "@smartImportScanUnsupported": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@smartImportScanQueued": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  }
 }

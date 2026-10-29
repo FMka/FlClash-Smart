@@ -325,6 +325,11 @@ Future<RealProfile> _makeRealProfileTask(MakeRealProfileState data) async {
       };
     }
   }
+  rawConfig['smart-routing-source'] = data.rules.isNotEmpty
+      ? 'custom'
+      : rawConfig['rules'] is List && (rawConfig['rules'] as List).isNotEmpty
+      ? 'subscription'
+      : 'none';
   List<String> rules = [];
   if (data.rules.isEmpty) {
     if (rawConfig['rules'] != null) {

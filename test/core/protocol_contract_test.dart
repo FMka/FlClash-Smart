@@ -36,6 +36,12 @@ class _RecordingCoreHandler extends CoreHandlerInterface {
     calls[method] = arguments;
     final result = switch (method) {
       CoreMethod.initClash => true as T,
+      CoreMethod.getSmartStatus => {'enabled': true},
+      CoreMethod.scanSmartProfile => {
+        'profile-id': '7',
+        'scan-id': 'scan-1',
+        'phase': 'scanning',
+      },
       CoreMethod.getTraffic ||
       CoreMethod.getTotalTraffic => {'up': 12, 'down': 34},
       CoreMethod.asyncTestDelay => {
@@ -171,6 +177,41 @@ class _EmptyConfigCoreHandler extends _RecordingCoreHandler {
 }
 
 void main() {
+  test(
+    'isolated subscription scan keeps identity and prepared config',
+    () async {
+      final handler = _RecordingCoreHandler();
+      final params = {
+        'operation': 'start',
+        'profile-id': '7',
+        'config': 'proxies: []',
+        'params': const SetupParams(selectedMap: {}, testUrl: '').toJson(),
+      };
+      final result = await handler.scanSmartProfile(params);
+      expect(handler.calls[CoreMethod.scanSmartProfile], params);
+      expect(result, containsPair('scan-id', 'scan-1'));
+      await handler.scanSmartProfile({
+        'operation': 'cancel',
+        'profile-id': '7',
+        'scan-id': 'scan-1',
+      });
+      expect(handler.calls[CoreMethod.scanSmartProfile], {
+        'operation': 'cancel',
+        'profile-id': '7',
+        'scan-id': 'scan-1',
+      });
+    },
+  );
+  test(
+    'regular smart polling omits bulk pools and explicit reads request them',
+    () async {
+      final handler = _RecordingCoreHandler();
+      await handler.getSmartStatus();
+      expect(handler.calls[CoreMethod.getSmartStatus], isNull);
+      await handler.getSmartStatus(includePools: true);
+      expect(handler.calls[CoreMethod.getSmartStatus], isTrue);
+    },
+  );
   test('method call keeps structured arguments', () async {
     final fixture =
         json.decode(

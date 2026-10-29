@@ -55,6 +55,7 @@ docs/
 /android/app/profile
 /android/app/release
 /android/**/.cxx
+/android/.kotlin/
 /android/**/build
 /android/common/**/.**/
 /android/common/local.*

@@ -7,6 +7,7 @@ import 'package:fl_clash/providers/providers.dart';
 import 'package:fl_clash/views/config/on_demand.dart';
 import 'package:fl_clash/views/config/override.dart';
 import 'package:fl_clash/views/config/user_agents.dart';
+import 'package:fl_clash/views/config/smart_reconnect.dart';
 import 'package:fl_clash/widgets/widgets.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -347,11 +348,6 @@ class GeneralView extends ConsumerWidget {
         select: (state) => state.checkCertificate,
         update: (state, value) => state.copyWith(checkCertificate: value),
       ),
-      _appSettingToggle(
-        title: (l) => l.autoCheckUpdate,
-        select: (state) => state.autoCheckUpdate,
-        update: (state, value) => state.copyWith(autoCheckUpdate: value),
-      ),
     ];
   }
 
@@ -401,6 +397,14 @@ class GeneralView extends ConsumerWidget {
           bottom: 16 + context.bottomInset,
         ),
         children: [
+          generateSection(
+            items: [
+              ListItem.open(
+                title: Text(appLocalizations.smartReconnect),
+                widget: const SmartReconnectView(),
+              ),
+            ],
+          ),
           generateSection(
             title: appLocalizations.startupAndBackground,
             items: _startupItems(appLocalizations),

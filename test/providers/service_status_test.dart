@@ -317,6 +317,9 @@ void main() {
       disabledServices: [for (final target in ServiceTarget.values) target.id],
     );
 
-    expect(scope.read(enabledServiceTargetsProvider), ServiceTarget.values);
+    expect(
+      scope.read(enabledServiceTargetsProvider),
+      orderServiceTargets(scope.read(appSettingProvider).serviceOrder),
+    );
   });
 }

@@ -105,6 +105,12 @@ func stackTrace() []byte {
 	return buf[:runtime.Stack(buf, false)]
 }
 
+func recoverExport(name string) {
+	if r := recover(); r != nil {
+		logError("panic in %s: %v\n%s", name, r, stackTrace())
+	}
+}
+
 func safeGo(name string, run func()) {
 	go func() {
 		defer func() {
@@ -178,37 +184,53 @@ func acknowledged(run func()) methodHandler {
 }
 
 var methodHandlers = map[CoreMethod]methodHandler{
-	initClashMethod:                withArguments(handleInitClash),
-	getIsInitMethod:                withoutArguments(handleGetIsInit),
-	forceGcMethod:                  acknowledged(handleForceGC),
-	shutdownMethod:                 withoutArguments(handleShutdown),
-	startListenerMethod:            withoutArguments(handleStartListener),
-	stopListenerMethod:             withoutArguments(handleStopListener),
-	getMemoryStatsMethod:           withoutArguments(handleGetMemoryStats),
-	startLogMethod:                 acknowledged(handleStartLog),
-	stopLogMethod:                  acknowledged(handleStopLog),
-	validateConfigMethod:           withMessage(handleValidateConfig),
-	decryptConfigMethod:            withFallible(handleDecryptConfig),
-	getConfigMethod:                withFallible(handleGetConfig),
-	getProfileBaseMethod:           withFallible(handleGetProfileBase),
-	getProfileOutboundsMethod:      withFallible(handleGetProfileOutbounds),
-	getProxyDefinitionMethod:       withFallible(handleGetProxyDefinition),
-	buildProfileMethod:             withFallible(handleBuildProfile),
-	setupConfigMethod:              withMessage(handleSetupConfig),
-	updateConfigMethod:             withMessage(updateConfig),
-	validateProxiesMethod:          withArguments(handleValidateProxies),
-	validateFiltersMethod:          withArguments(handleValidateFilters),
-	convertProxiesMethod:           withFallible(handleConvertProxies),
-	encodeShareLinksMethod:         withArguments(handleEncodeShareLinks),
-	decodeShareLinksMethod:         withArguments(handleDecodeShareLinks),
-	getProxiesMethod:               withoutArguments(handleGetProxies),
-	changeProxyMethod:              withArguments(handleChangeProxy),
-	asyncTestDelayMethod:           withArguments(handleTestDelay),
-	watchRouteMethod:               watchRouteHandler,
-	checkRoutesMethod:              withArguments(handleCheckRoutes),
-	probeMethod:                    withArguments(handleProbe),
-	outboundIpMethod:               withArguments(handleOutboundIp),
-	serviceCheckMethod:             withArguments(handleServiceCheck),
+
+	initClashMethod:           withArguments(handleInitClash),
+	getIsInitMethod:           withoutArguments(handleGetIsInit),
+	forceGcMethod:             acknowledged(handleForceGC),
+	shutdownMethod:            withoutArguments(handleShutdown),
+	startListenerMethod:       withoutArguments(handleStartListener),
+	stopListenerMethod:        withoutArguments(handleStopListener),
+	getMemoryStatsMethod:      withoutArguments(handleGetMemoryStats),
+	startLogMethod:            acknowledged(handleStartLog),
+	stopLogMethod:             acknowledged(handleStopLog),
+	validateConfigMethod:      withMessage(handleValidateConfig),
+	decryptConfigMethod:       withFallible(handleDecryptConfig),
+	getConfigMethod:           withFallible(handleGetConfig),
+	getProfileBaseMethod:      withFallible(handleGetProfileBase),
+	getProfileOutboundsMethod: withFallible(handleGetProfileOutbounds),
+	getProxyDefinitionMethod:  withFallible(handleGetProxyDefinition),
+	buildProfileMethod:        withFallible(handleBuildProfile),
+	setupConfigMethod:         withMessage(handleSetupConfig),
+	updateConfigMethod:        withMessage(updateConfig),
+	validateProxiesMethod:     withArguments(handleValidateProxies),
+	validateFiltersMethod:     withArguments(handleValidateFilters),
+	convertProxiesMethod:      withFallible(handleConvertProxies),
+	encodeShareLinksMethod:    withArguments(handleEncodeShareLinks),
+	decodeShareLinksMethod:    withArguments(handleDecodeShareLinks),
+	getProxiesMethod:          withoutArguments(handleGetProxies),
+	changeProxyMethod:         withArguments(handleChangeProxy),
+	asyncTestDelayMethod:      withArguments(handleTestDelay),
+	watchRouteMethod:          watchRouteHandler,
+	checkRoutesMethod:         withArguments(handleCheckRoutes),
+	probeMethod:               withArguments(handleProbe),
+	outboundIpMethod:          withArguments(handleOutboundIp),
+	serviceCheckMethod:        withArguments(handleServiceCheck),
+
+	getSmartStatusMethod: func(call *MethodCall) (any, error) {
+		if len(call.Arguments) == 0 || string(call.Arguments) == "null" {
+			return handleGetSmartStatus(), nil
+		}
+		include, err := decodeArguments[bool](call)
+		if err != nil {
+			return nil, err
+		}
+		return handleGetSmartStatus(include), nil
+	},
+	smartReconnectCheckMethod: withoutArguments(handleSmartReconnectCheck),
+	getSmartJournalMethod:     withoutArguments(handleGetSmartJournal),
+	scanSmartProfileMethod:    withFallible(handleScanSmartProfile),
+
 	getTrafficMethod:               withArguments(handleGetTraffic),
 	getTotalTrafficMethod:          withArguments(handleGetTotalTraffic),
 	resetTrafficMethod:             acknowledged(handleResetTraffic),

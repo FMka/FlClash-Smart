@@ -217,18 +217,30 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m79(label) => "«${label}» — только одно значение";
 
-  static String m80(value) => "Пик ${value}";
+  static String m80(count) => "Не определено серверов: ${count}";
 
-  static String m81(value) => "Всего ${value}";
+  static String m81(count) => "Проверено стран: ${count}";
 
-  static String m82(transport) => "Заголовки ${transport}";
+  static String m82(checked, total, responded, countries) =>
+      "Проверено ${checked}/${total} · ответили ${responded} · стран ${countries}";
 
-  static String m83(label) => "Значение «${label}» должно быть URL";
+  static String m83(count) => "Подписок в очереди: ${count}";
 
   static String m84(count) =>
+      "Серверов для проверки в активном профиле: ${count}";
+
+  static String m85(value) => "Пик ${value}";
+
+  static String m86(value) => "Всего ${value}";
+
+  static String m87(transport) => "Заголовки ${transport}";
+
+  static String m88(label) => "Значение «${label}» должно быть URL";
+
+  static String m89(count) =>
       "${Intl.plural(count, one: '${count} год назад', few: '${count} года назад', many: '${count} лет назад', other: '${count} года назад')}";
 
-  static String m85(count) =>
+  static String m90(count) =>
       "${Intl.plural(count, one: '${count} г. назад', few: '${count} г. назад', many: '${count} л. назад', other: '${count} г. назад')}";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
@@ -1116,6 +1128,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "language": MessageLookupByLibrary.simpleMessage("Язык"),
     "large": MessageLookupByLibrary.simpleMessage("Крупный"),
     "lastUpdated": MessageLookupByLibrary.simpleMessage("Последнее обновление"),
+    "later": MessageLookupByLibrary.simpleMessage("Позже"),
     "launchInterrupted": MessageLookupByLibrary.simpleMessage(
       "Запуск не завершён",
     ),
@@ -1820,6 +1833,192 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "slide": MessageLookupByLibrary.simpleMessage("Сдвиг"),
     "sliders": MessageLookupByLibrary.simpleMessage("Ползунки"),
+    "smartBudgetDesc": MessageLookupByLibrary.simpleMessage(
+      "Суточный лимит только загрузок для измерения скорости. Проверки связи и восстановление продолжаются после исчерпания. Ноль отключает скоростные загрузки.",
+    ),
+    "smartBudgetInvalid": MessageLookupByLibrary.simpleMessage(
+      "Введите число от 0 до 10000.",
+    ),
+    "smartCountryAny": MessageLookupByLibrary.simpleMessage("Любая"),
+    "smartCountryConflict": MessageLookupByLibrary.simpleMessage(
+      "Предпочитаемая страна исключена. Используются другие разрешённые страны.",
+    ),
+    "smartCountryDiscovery": MessageLookupByLibrary.simpleMessage(
+      "Проверенные страны выхода",
+    ),
+    "smartCountryDiscoveryDesc": MessageLookupByLibrary.simpleMessage(
+      "Страны определяются постепенно при работающем Smart. Выбор сохраняется, даже если страны сейчас нет. Дополнительных проверок при простое нет.",
+    ),
+    "smartCountryEmpty": MessageLookupByLibrary.simpleMessage(
+      "Проверенных стран пока нет. Запустите Smart для определения выходов.",
+    ),
+    "smartCountryExcluded": MessageLookupByLibrary.simpleMessage(
+      "Страна выхода исключена.",
+    ),
+    "smartCountryNotVerified": MessageLookupByLibrary.simpleMessage(
+      "Сохранённый выбор; сейчас нет проверенного выхода.",
+    ),
+    "smartCountryStrict": MessageLookupByLibrary.simpleMessage(
+      "Сначала проверяем эту страну, при недоступности используем другую разрешённую и возвращаемся после восстановления. Исключения действуют всегда.",
+    ),
+    "smartCountryUnavailable": MessageLookupByLibrary.simpleMessage(
+      "Нет подходящего сервера в предпочитаемой стране.",
+    ),
+    "smartCountryUnknown": m80,
+    "smartCountryVerified": m81,
+    "smartDiagnosticDesc": MessageLookupByLibrary.simpleMessage(
+      "Только полученные диагностические данные, без накладных расходов протоколов. Учитываются отдельно от скоростных загрузок.",
+    ),
+    "smartDiagnosticTraffic": MessageLookupByLibrary.simpleMessage(
+      "Диагностический трафик (оценка)",
+    ),
+    "smartDnsDestination": MessageLookupByLibrary.simpleMessage("DNS сайтов"),
+    "smartDnsDiagnosing": MessageLookupByLibrary.simpleMessage(
+      "Проверка резервных DNS",
+    ),
+    "smartDnsDirect": MessageLookupByLibrary.simpleMessage("DNS байпаса"),
+    "smartDnsExpired": MessageLookupByLibrary.simpleMessage(
+      "Время восстановления истекло; исходный DNS восстановлен",
+    ),
+    "smartDnsNetworkChanged": MessageLookupByLibrary.simpleMessage(
+      "Сеть изменилась; прежние проверки сброшены",
+    ),
+    "smartDnsNode": MessageLookupByLibrary.simpleMessage("DNS VPN-сервера"),
+    "smartDnsObserving": MessageLookupByLibrary.simpleMessage(
+      "Ожидание реальных ошибок DNS",
+    ),
+    "smartDnsOriginalRestored": MessageLookupByLibrary.simpleMessage(
+      "Исходный DNS восстановлен",
+    ),
+    "smartDnsPolicyPreserved": MessageLookupByLibrary.simpleMessage(
+      "Явное правило DNS сохранено",
+    ),
+    "smartDnsRecovered": MessageLookupByLibrary.simpleMessage(
+      "DNS восстановлен",
+    ),
+    "smartDnsRecovery": MessageLookupByLibrary.simpleMessage(
+      "Умное восстановление DNS",
+    ),
+    "smartDnsRecoveryDesc": MessageLookupByLibrary.simpleMessage(
+      "Автоматически устраняет реальные ошибки DNS, включая байпас. Сохраняет маршрутизацию и явные правила DNS. Без постоянного опроса DNS и дополнительных пробуждений.",
+    ),
+    "smartDnsSourceProfile": MessageLookupByLibrary.simpleMessage(
+      "Источник: профиль и настройки DNS",
+    ),
+    "smartDnsSourceRecovery": MessageLookupByLibrary.simpleMessage(
+      "Источник: автоматическое восстановление",
+    ),
+    "smartDnsStatus": MessageLookupByLibrary.simpleMessage(
+      "Состояние восстановления DNS",
+    ),
+    "smartDnsTimeout": MessageLookupByLibrary.simpleMessage(
+      "Повторные тайм-ауты DNS",
+    ),
+    "smartDnsUnavailable": MessageLookupByLibrary.simpleMessage(
+      "Не удалось восстановить DNS",
+    ),
+    "smartDnsVerificationFailed": MessageLookupByLibrary.simpleMessage(
+      "Проверка ответа DNS не пройдена",
+    ),
+    "smartExcludedCountries": MessageLookupByLibrary.simpleMessage(
+      "Исключённые страны",
+    ),
+    "smartHistory": MessageLookupByLibrary.simpleMessage("История"),
+    "smartImportScan": MessageLookupByLibrary.simpleMessage(
+      "Страны и пул серверов",
+    ),
+    "smartImportScanCancelled": MessageLookupByLibrary.simpleMessage(
+      "Проверка отменена",
+    ),
+    "smartImportScanComplete": MessageLookupByLibrary.simpleMessage(
+      "Проверка завершена",
+    ),
+    "smartImportScanFailed": MessageLookupByLibrary.simpleMessage(
+      "Не удалось завершить проверку. Подписка сохранена.",
+    ),
+    "smartImportScanPartial": MessageLookupByLibrary.simpleMessage(
+      "Достигнут лимит этого прохода. При использовании этой подписки Smart проверит оставшиеся серверы постепенно.",
+    ),
+    "smartImportScanPreparing": MessageLookupByLibrary.simpleMessage(
+      "Подготовка проверки подписки",
+    ),
+    "smartImportScanProgress": m82,
+    "smartImportScanQueued": m83,
+    "smartImportScanUnsupported": m84,
+    "smartJournal": MessageLookupByLibrary.simpleMessage(
+      "Экспорт журнала автовыбора",
+    ),
+    "smartLastCheck": MessageLookupByLibrary.simpleMessage(
+      "Последняя проверка",
+    ),
+    "smartManual": MessageLookupByLibrary.simpleMessage("Ручной режим"),
+    "smartMobileBudget": MessageLookupByLibrary.simpleMessage(
+      "Лимит тестов LTE (МиБ/сутки)",
+    ),
+    "smartNoGroup": MessageLookupByLibrary.simpleMessage(
+      "Нет управляемой группы серверов",
+    ),
+    "smartPartial": MessageLookupByLibrary.simpleMessage(
+      "Часть сервисов недоступна",
+    ),
+    "smartPool": MessageLookupByLibrary.simpleMessage("Сохранённые серверы"),
+    "smartPoolMobile": MessageLookupByLibrary.simpleMessage(
+      "Пул LTE / мобильной сети",
+    ),
+    "smartPoolSavedDesc": MessageLookupByLibrary.simpleMessage(
+      "Списки сохраняются после перезапуска. Старый ответ — история; доступность проверяется заново.",
+    ),
+    "smartPoolWifi": MessageLookupByLibrary.simpleMessage("Пул Wi-Fi"),
+    "smartPreferredCountry": MessageLookupByLibrary.simpleMessage(
+      "Предпочитаемая страна",
+    ),
+    "smartReconnect": MessageLookupByLibrary.simpleMessage(
+      "Смарт-автовыбор сервера",
+    ),
+    "smartRepairFailed": MessageLookupByLibrary.simpleMessage(
+      "Не удалось начать восстановление. Проверьте VPN и автоматический режим.",
+    ),
+    "smartRestore": MessageLookupByLibrary.simpleMessage("Восстановить связь"),
+    "smartResumeAuto": MessageLookupByLibrary.simpleMessage(
+      "Вернуться в автовыбор",
+    ),
+    "smartRoutingBuiltin": MessageLookupByLibrary.simpleMessage(
+      "Встроенный байпас для России",
+    ),
+    "smartRoutingCustom": MessageLookupByLibrary.simpleMessage(
+      "Личные правила",
+    ),
+    "smartRoutingSource": MessageLookupByLibrary.simpleMessage(
+      "Источник правил маршрутизации",
+    ),
+    "smartRoutingSubscription": MessageLookupByLibrary.simpleMessage(
+      "Правила подписки",
+    ),
+    "smartRoutingUpdateFailed": MessageLookupByLibrary.simpleMessage(
+      "Не удалось обновить правила; используется последняя рабочая версия.",
+    ),
+    "smartSearching": MessageLookupByLibrary.simpleMessage("Проверка серверов"),
+    "smartSettingsDesc": MessageLookupByLibrary.simpleMessage(
+      "Работает с совместимыми подписками без скриптов. Выбор сервисов общий с главным экраном. Ручной выбор сервера переводит автоматику в видимый ручной режим.",
+    ),
+    "smartSpeed": MessageLookupByLibrary.simpleMessage(
+      "Последний замер скорости",
+    ),
+    "smartSpeedMeasuredAt": MessageLookupByLibrary.simpleMessage(
+      "Время замера скорости",
+    ),
+    "smartSubscriptionWelcome": MessageLookupByLibrary.simpleMessage(
+      "Добавьте подписку",
+    ),
+    "smartSubscriptionWelcomeDesc": MessageLookupByLibrary.simpleMessage(
+      "Добавьте подписку по ссылке, QR-коду или из файла. Затем Smart проверит страны и сформирует пул серверов для текущей сети.",
+    ),
+    "smartUnavailable": MessageLookupByLibrary.simpleMessage(
+      "Нет подходящего соединения",
+    ),
+    "smartWifiBudget": MessageLookupByLibrary.simpleMessage(
+      "Лимит тестов Wi-Fi (МиБ/сутки)",
+    ),
     "sniffProtocols": MessageLookupByLibrary.simpleMessage("Протоколы"),
     "sniffer": MessageLookupByLibrary.simpleMessage("Сниффер"),
     "snifferStatusDesc": MessageLookupByLibrary.simpleMessage(
@@ -1921,11 +2120,11 @@ class MessageLookup extends MessageLookupByLibrary {
     "totalUpload": MessageLookupByLibrary.simpleMessage("Отдано"),
     "tproxyPort": MessageLookupByLibrary.simpleMessage("Порт TProxy"),
     "traffic": MessageLookupByLibrary.simpleMessage("Трафик"),
-    "trafficPeak": m80,
-    "trafficTotal": m81,
+    "trafficPeak": m85,
+    "trafficTotal": m86,
     "trafficUsage": MessageLookupByLibrary.simpleMessage("Статистика трафика"),
     "transport": MessageLookupByLibrary.simpleMessage("Транспорт"),
-    "transportHeaders": m82,
+    "transportHeaders": m87,
     "tun": MessageLookupByLibrary.simpleMessage("TUN"),
     "tunAuthorizationFailed": MessageLookupByLibrary.simpleMessage(
       "Не удалось получить права для TUN, поэтому он выключен.",
@@ -1959,7 +2158,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "upload": MessageLookupByLibrary.simpleMessage("Отдача"),
     "uploadBandwidth": MessageLookupByLibrary.simpleMessage("Скорость отдачи"),
     "url": MessageLookupByLibrary.simpleMessage("URL"),
-    "urlTip": m83,
+    "urlTip": m88,
     "useHosts": MessageLookupByLibrary.simpleMessage("Использовать hosts"),
     "useSystemHosts": MessageLookupByLibrary.simpleMessage(
       "Использовать системный hosts",
@@ -1992,8 +2191,8 @@ class MessageLookup extends MessageLookupByLibrary {
     "writeToSystemDesc": MessageLookupByLibrary.simpleMessage(
       "«Записывать в систему» также устанавливает системные часы; Android это игнорирует.",
     ),
-    "yearsAgo": m84,
-    "yearsAgoShort": m85,
+    "yearsAgo": m89,
+    "yearsAgoShort": m90,
     "yes": MessageLookupByLibrary.simpleMessage("Да"),
     "zhCN": MessageLookupByLibrary.simpleMessage("Упрощённый китайский"),
   };

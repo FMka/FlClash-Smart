@@ -963,5 +963,108 @@
   "preferred": "Предпочтительный",
   "addToLocalProxies": "Добавить в локальные прокси",
   "addedToLocalProxies": "«{name}» добавлен в локальные прокси",
-  "alreadyInLocalProxies": "«{name}» уже есть в локальных прокси"
+  "alreadyInLocalProxies": "«{name}» уже есть в локальных прокси",
+  "smartRepairFailed": "Не удалось начать восстановление. Проверьте VPN и автоматический режим.",
+  "smartDnsRecoveryDesc": "Автоматически устраняет реальные ошибки DNS, включая байпас. Сохраняет маршрутизацию и явные правила DNS. Без постоянного опроса DNS и дополнительных пробуждений.",
+  "smartCountryEmpty": "Проверенных стран пока нет. Запустите Smart для определения выходов.",
+  "smartDnsDiagnosing": "Проверка резервных DNS",
+  "smartDiagnosticTraffic": "Диагностический трафик (оценка)",
+  "smartPoolMobile": "Пул LTE / мобильной сети",
+  "smartSpeed": "Последний замер скорости",
+  "smartDnsUnavailable": "Не удалось восстановить DNS",
+  "smartCountryStrict": "Сначала проверяем эту страну, при недоступности используем другую разрешённую и возвращаемся после восстановления. Исключения действуют всегда.",
+  "smartReconnect": "Смарт-автовыбор сервера",
+  "smartBudgetDesc": "Суточный лимит только загрузок для измерения скорости. Проверки связи и восстановление продолжаются после исчерпания. Ноль отключает скоростные загрузки.",
+  "smartDnsVerificationFailed": "Проверка ответа DNS не пройдена",
+  "smartSettingsDesc": "Работает с совместимыми подписками без скриптов. Выбор сервисов общий с главным экраном. Ручной выбор сервера переводит автоматику в видимый ручной режим.",
+  "smartSpeedMeasuredAt": "Время замера скорости",
+  "smartCountryDiscoveryDesc": "Страны определяются постепенно при работающем Smart. Выбор сохраняется, даже если страны сейчас нет. Дополнительных проверок при простое нет.",
+  "smartDnsNetworkChanged": "Сеть изменилась; прежние проверки сброшены",
+  "smartCountryConflict": "Предпочитаемая страна исключена. Используются другие разрешённые страны.",
+  "smartUnavailable": "Нет подходящего соединения",
+  "smartCountryDiscovery": "Проверенные страны выхода",
+  "smartCountryVerified": "Проверено стран: {count}",
+  "smartDnsOriginalRestored": "Исходный DNS восстановлен",
+  "smartSearching": "Проверка серверов",
+  "smartCountryNotVerified": "Сохранённый выбор; сейчас нет проверенного выхода.",
+  "smartPoolSavedDesc": "Списки сохраняются после перезапуска. Старый ответ — история; доступность проверяется заново.",
+  "smartDnsDirect": "DNS байпаса",
+  "smartPool": "Сохранённые серверы",
+  "smartResumeAuto": "Вернуться в автовыбор",
+  "smartExcludedCountries": "Исключённые страны",
+  "smartDnsRecovered": "DNS восстановлен",
+  "smartManual": "Ручной режим",
+  "smartRestore": "Восстановить связь",
+  "smartDnsNode": "DNS VPN-сервера",
+  "smartRoutingUpdateFailed": "Не удалось обновить правила; используется последняя рабочая версия.",
+  "smartRoutingSubscription": "Правила подписки",
+  "smartDnsStatus": "Состояние восстановления DNS",
+  "smartWifiBudget": "Лимит тестов Wi-Fi (МиБ/сутки)",
+  "smartDnsTimeout": "Повторные тайм-ауты DNS",
+  "smartBudgetInvalid": "Введите число от 0 до 10000.",
+  "smartNoGroup": "Нет управляемой группы серверов",
+  "smartDnsSourceRecovery": "Источник: автоматическое восстановление",
+  "smartCountryExcluded": "Страна выхода исключена.",
+  "smartJournal": "Экспорт журнала автовыбора",
+  "smartRoutingBuiltin": "Встроенный байпас для России",
+  "smartDnsPolicyPreserved": "Явное правило DNS сохранено",
+  "smartCountryUnknown": "Не определено серверов: {count}",
+  "smartDiagnosticDesc": "Только полученные диагностические данные, без накладных расходов протоколов. Учитываются отдельно от скоростных загрузок.",
+  "smartDnsSourceProfile": "Источник: профиль и настройки DNS",
+  "smartRoutingSource": "Источник правил маршрутизации",
+  "smartDnsExpired": "Время восстановления истекло; исходный DNS восстановлен",
+  "smartDnsDestination": "DNS сайтов",
+  "smartLastCheck": "Последняя проверка",
+  "smartPreferredCountry": "Предпочитаемая страна",
+  "smartRoutingCustom": "Личные правила",
+  "smartDnsObserving": "Ожидание реальных ошибок DNS",
+  "smartCountryUnavailable": "Нет подходящего сервера в предпочитаемой стране.",
+  "smartPoolWifi": "Пул Wi-Fi",
+  "smartPartial": "Часть сервисов недоступна",
+  "smartCountryAny": "Любая",
+  "smartMobileBudget": "Лимит тестов LTE (МиБ/сутки)",
+  "smartDnsRecovery": "Умное восстановление DNS",
+  "smartHistory": "История",
+  "smartSubscriptionWelcome": "Добавьте подписку",
+  "smartSubscriptionWelcomeDesc": "Добавьте подписку по ссылке, QR-коду или из файла. Затем Smart проверит страны и сформирует пул серверов для текущей сети.",
+  "later": "Позже",
+  "smartImportScan": "Страны и пул серверов",
+  "smartImportScanPreparing": "Подготовка проверки подписки",
+  "smartImportScanProgress": "Проверено {checked}/{total} · ответили {responded} · стран {countries}",
+  "smartImportScanComplete": "Проверка завершена",
+  "smartImportScanPartial": "Достигнут лимит этого прохода. При использовании этой подписки Smart проверит оставшиеся серверы постепенно.",
+  "smartImportScanCancelled": "Проверка отменена",
+  "smartImportScanFailed": "Не удалось завершить проверку. Подписка сохранена.",
+  "smartImportScanUnsupported": "Серверов для проверки в активном профиле: {count}",
+  "smartImportScanQueued": "Подписок в очереди: {count}",
+  "@smartImportScanProgress": {
+    "placeholders": {
+      "checked": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      },
+      "responded": {
+        "type": "int"
+      },
+      "countries": {
+        "type": "int"
+      }
+    }
+  },
+  "@smartImportScanUnsupported": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@smartImportScanQueued": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  }
 }

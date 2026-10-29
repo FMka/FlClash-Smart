@@ -1,3 +1,19 @@
+# FlClash Smart
+
+Experimental fork of [chen08209/FlClash](https://github.com/chen08209/FlClash)
+with Android smart VPN server selection and Wi-Fi/LTE recovery. Development lives
+in [FMka/FlClash-Smart](https://github.com/FMka/FlClash-Smart).
+
+- [Current implementation, setup and build instructions](SMART_RECONNECT.md)
+- [Next build requirements and known limitations](SMART_ROADMAP.md)
+
+The current test version may require a profile script to enable smart selection
+for a manual proxy group. Built-in activation and Russian exit filtering are
+planned, not implemented. Upstream download links below install upstream FlClash;
+they do not include this fork's changes. The original GPL-3.0 license applies.
+
+---
+
 <div align="center">
 
 <img src="assets/images/icon.png" alt="FlClash" width="88">

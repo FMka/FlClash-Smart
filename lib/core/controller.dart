@@ -43,6 +43,16 @@ class CoreController {
 
   Future<CoreLifecycleResult> start() => _interface.start();
 
+  Future<Map<String, dynamic>> getSmartStatus({bool includePools = false}) =>
+      _interface.getSmartStatus(includePools: includePools);
+
+  Future<bool> smartReconnectCheck() => _interface.smartReconnectCheck();
+
+  Future<String> getSmartJournal() => _interface.getSmartJournal();
+
+  Future<Map<String, dynamic>> scanSmartProfile(Map<String, dynamic> params) =>
+      _interface.scanSmartProfile(params);
+
   Future<CoreLifecycleResult> restart() => _interface.restart();
 
   Future<CoreLifecycleResult> stop() => _interface.stop();

@@ -102,7 +102,8 @@ type serviceChecker struct {
 var serviceCheckers = []serviceChecker{
 	{name: "google", check: checkReachable("https://www.google.com/generate_204")},
 	{name: "github", check: checkReachable("https://github.com/")},
-	{name: "youtube", check: checkYouTubePremium},
+	{name: "youtube", check: checkYouTube},
+	{name: "telegram", check: checkTelegram},
 	{name: "chatgpt", check: checkChatGpt},
 	{name: "claude", check: checkClaude},
 	{name: "gemini", check: checkGemini},

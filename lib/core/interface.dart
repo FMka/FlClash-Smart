@@ -69,6 +69,13 @@ mixin CoreInterface {
   Future<RouteSnapshot?> watchRoute(bool watch);
 
   Future<RouteCheck?> checkRoutes(CheckRoutesParams params);
+  Future<Map<String, dynamic>> getSmartStatus({bool includePools = false});
+
+  Future<bool> smartReconnectCheck();
+
+  Future<String> getSmartJournal();
+
+  Future<Map<String, dynamic>> scanSmartProfile(Map<String, dynamic> params);
 
   Future<bool> startListener();
 
@@ -125,7 +132,7 @@ abstract class CoreHandlerInterface with CoreInterface {
     return await handleWatch(
       onStart: () {
         commonPrint.log(
-          'Invoke method ${method.name} ${DateTime.now()} $arguments',
+          'Invoke method ${method.name} ${DateTime.now()} ${method == CoreMethod.scanSmartProfile ? '<subscription scan>' : arguments}',
         );
       },
       function: () async {
@@ -650,4 +657,37 @@ abstract class CoreHandlerInterface with CoreInterface {
     );
     return data == null ? null : CoreMemoryStats.fromJson(data);
   }
+
+  @override
+  Future<Map<String, dynamic>> getSmartStatus({
+    bool includePools = false,
+  }) async =>
+      await _invokeMethod<Map<String, dynamic>>(
+        method: CoreMethod.getSmartStatus,
+        arguments: includePools ? true : null,
+      ) ??
+      {};
+
+  @override
+  Future<bool> smartReconnectCheck() async =>
+      await _invokeMethod<bool>(
+        method: CoreMethod.smartReconnectCheck,
+        arguments: const {},
+      ) ??
+      false;
+
+  @override
+  Future<String> getSmartJournal() async =>
+      await _invokeMethod<String>(method: CoreMethod.getSmartJournal) ?? '';
+
+  @override
+  Future<Map<String, dynamic>> scanSmartProfile(
+    Map<String, dynamic> params,
+  ) async =>
+      await _invokeMethod<Map<String, dynamic>>(
+        method: CoreMethod.scanSmartProfile,
+        arguments: params,
+        timeout: const Duration(seconds: 30),
+      ) ??
+      {};
 }

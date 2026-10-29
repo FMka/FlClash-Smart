@@ -9,6 +9,43 @@ import 'package:path/path.dart';
 import 'package:yaml/yaml.dart';
 
 void main() {
+  test('profile routing provenance precedes personal rule injection', () async {
+    Future<YamlMap> build(
+      Map<String, dynamic> rawConfig,
+      List<Rule> addedRules,
+    ) async {
+      final result = await makeRealProfileTask(
+        MakeRealProfileState(
+          profilesPath: '/profiles',
+          profileId: 19,
+          rawConfig: rawConfig,
+          realPatchConfig: const PatchClashConfig(),
+          appendSystemDns: false,
+          proxyGroups: const [],
+          rules: const [],
+          addedRules: addedRules,
+          defaultUA: 'FlClash-Test',
+        ),
+      );
+      return loadYaml(result.yaml) as YamlMap;
+    }
+
+    final exception = Rule.parse('DOMAIN,vk.com,DIRECT');
+    final serversOnly = await build({}, [exception]);
+    expect(serversOnly['smart-routing-source'], 'none');
+    expect(serversOnly['rules'], ['DOMAIN,vk.com,DIRECT']);
+
+    final supplied = await build(
+      {
+        'rules': ['MATCH,VPN'],
+        'smart-routing-source': 'none',
+      },
+      [exception],
+    );
+    expect(supplied['smart-routing-source'], 'subscription');
+    expect(supplied['rules'], ['DOMAIN,vk.com,DIRECT', 'MATCH,VPN']);
+  });
+
   test('encoding helpers round-trip structured data', () async {
     final encoded = jsonEncode({
       'name': 'FlClash',
@@ -214,11 +251,13 @@ void main() {
       expect(config['sniffer']['sniff']['HTTP']['ports'], ['80', '443']);
       expect(
         config['proxy-providers']['remote']['path'],
-        startsWith('/profiles/providers/7/proxies/'),
+        startsWith(
+          '${join('/profiles', 'providers', '7', 'proxies')}$separator',
+        ),
       );
       expect(
         config['rule-providers']['remote']['path'],
-        startsWith('/profiles/providers/7/rules/'),
+        startsWith('${join('/profiles', 'providers', '7', 'rules')}$separator'),
       );
       expect(config['rules'], [
         'DOMAIN-SUFFIX,added.example,Original',
