@@ -222,6 +222,9 @@ func (r *smartRuntime) startLocked() {
 	if !isRunning.Load() || r.configuring || r.network == "" || !r.settings.Enabled {
 		return
 	}
+	if r.history == nil {
+		r.history = &smart.History{}
+	}
 	if r.workers == nil {
 		r.workers = map[string]context.CancelFunc{}
 	}
@@ -231,8 +234,16 @@ func (r *smartRuntime) startLocked() {
 		}
 		selectMu.Lock()
 		group, err := selectableGroup(spec.Name)
+		backend := &smartBackend{spec: spec, group: group, expected: "REJECT", network: r.network, runtime: r, generation: r.generation}
+		keep := false
 		if err == nil {
-			err = group.Set("REJECT")
+			r.history.Import(smartHash(r.network)+":"+smartHash(spec.Name), smartPoolKey(r.network, spec.Name))
+			keep = backend.keepCommonCurrent()
+			if keep {
+				backend.expected = group.Now()
+			} else {
+				err = group.Set("REJECT")
+			}
 		}
 		selectMu.Unlock()
 		if err != nil {
@@ -242,7 +253,6 @@ func (r *smartRuntime) startLocked() {
 		ctx, cancel := context.WithCancel(context.Background())
 		r.workers[spec.Name] = cancel
 		refreshRouteLockedSafe()
-		backend := &smartBackend{spec: spec, group: group, expected: "REJECT", network: r.network, runtime: r, generation: r.generation}
 		if r.backends == nil {
 			r.backends = map[string]*smartBackend{}
 		}
@@ -253,6 +263,9 @@ func (r *smartRuntime) startLocked() {
 		} else {
 			spec.Options.SpeedTTL = 10 * time.Minute
 		}
+		spec.Options.KeepCurrent = keep
+		spec.Options.NetworkContext = smartHash(r.network)
+		spec.Options.PreferredCountry = spec.Settings.PreferredCountry
 		engine := smart.New(spec.Options, r.history)
 		if r.engines == nil {
 			r.engines = map[string]*smart.Engine{}
@@ -277,7 +290,7 @@ func (r *smartRuntime) startLocked() {
 			}
 		}
 		engine.Save = r.save
-		network := smartHash(r.network) + ":" + smartHash(spec.Name)
+		network := smartPoolKey(r.network, spec.Name)
 		safeGo("smartReconnect", func() {
 			defer func() {
 				r.mu.Lock()
@@ -308,7 +321,7 @@ func (r *smartRuntime) load() {
 	r.cancelLocked()
 	r.history = &smart.History{}
 	data, err := os.ReadFile(filepath.Join(constant.Path.HomeDir(), "smart-history.json"))
-	if err == nil && len(data) <= 4*1024*1024 {
+	if err == nil && len(data) <= 64*1024*1024 {
 		_ = json.Unmarshal(data, r.history)
 	}
 }
@@ -390,6 +403,14 @@ func (b *smartBackend) Candidates() []smart.Candidate {
 		}
 	}
 	var candidates []smart.Candidate
+	saved := map[string]smart.Record{}
+	if b.runtime != nil && b.runtime.history != nil {
+		for _, kind := range []string{"mobile", "wifi"} {
+			for name, record := range b.runtime.history.SavedPool(kind + ":" + smartHash(b.spec.Name)) {
+				saved[name] = record
+			}
+		}
+	}
 	for _, proxy := range b.group.Proxies() {
 		if proxy.Type() < constant.Shadowsocks || isProxyGroupType(proxy.Type()) {
 			continue
@@ -415,7 +436,16 @@ func (b *smartBackend) Candidates() []smart.Candidate {
 			}
 			b.countries[proxy.Name()] = cached
 		}
-		candidates = append(candidates, smart.Candidate{ID: proxy.Name(), Fingerprint: identity})
+		country := cached.Country
+		if country == "" && saved[proxy.Name()].Fingerprint == identity {
+			country = saved[proxy.Name()].Country
+		}
+		candidates = append(candidates, smart.Candidate{ID: proxy.Name(), Fingerprint: identity, Country: country})
+	}
+	if b.runtime != nil && b.runtime.history != nil {
+		for _, kind := range []string{"wifi", "mobile"} {
+			b.runtime.history.Reconcile(kind+":"+smartHash(b.spec.Name), candidates)
+		}
 	}
 	return candidates
 }

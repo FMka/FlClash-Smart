@@ -73,6 +73,11 @@ class SmartGroupStatus {
     this.speedAt = 0,
     this.speedSource = '',
     this.pool = const [],
+    this.wifiPool = const [],
+    this.mobilePool = const [],
+    this.poolCount = 0,
+    this.wifiPoolCount = 0,
+    this.mobilePoolCount = 0,
     this.reason = '',
   });
 
@@ -90,6 +95,26 @@ class SmartGroupStatus {
           for (final entry in json['pool'] as List? ?? const [])
             if (entry is Map<String, dynamic>) entry,
         ],
+        wifiPool: [
+          for (final entry in json['wifi-pool'] as List? ?? const [])
+            if (entry is Map<String, dynamic>) entry,
+        ],
+        mobilePool: [
+          for (final entry in json['mobile-pool'] as List? ?? const [])
+            if (entry is Map<String, dynamic>) entry,
+        ],
+        poolCount:
+            (json['pool-count'] as num?)?.toInt() ??
+            (json['pool'] as List?)?.length ??
+            0,
+        wifiPoolCount:
+            (json['wifi-pool-count'] as num?)?.toInt() ??
+            (json['wifi-pool'] as List?)?.length ??
+            0,
+        mobilePoolCount:
+            (json['mobile-pool-count'] as num?)?.toInt() ??
+            (json['mobile-pool'] as List?)?.length ??
+            0,
         reason: json['reason'] as String? ?? '',
         lastSpeed:
             (json['last-speed-bytes-per-second'] as num?)?.toDouble() ?? 0,
@@ -105,6 +130,11 @@ class SmartGroupStatus {
   final int speedAt;
   final String speedSource;
   final List<Map<String, dynamic>> pool;
+  final List<Map<String, dynamic>> wifiPool;
+  final List<Map<String, dynamic>> mobilePool;
+  final int poolCount;
+  final int wifiPoolCount;
+  final int mobilePoolCount;
   final String reason;
 }
 
@@ -176,6 +206,14 @@ class SmartStatus {
 final smartStatusProvider = NotifierProvider<SmartStatusNotifier, SmartStatus>(
   SmartStatusNotifier.new,
 );
+
+final smartPoolSnapshotProvider = FutureProvider.autoDispose<SmartStatus>((
+  ref,
+) async {
+  return SmartStatus.fromJson(
+    await ref.read(coreHandlerProvider).getSmartStatus(includePools: true),
+  );
+});
 
 class SmartStatusNotifier extends Notifier<SmartStatus> {
   bool _reading = false;

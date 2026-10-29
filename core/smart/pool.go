@@ -3,21 +3,32 @@ package smart
 import (
 	"context"
 	"sort"
+	"sync"
 	"time"
 )
 
 func Order(candidates []Candidate, history map[string]Record, round int) []Candidate {
-	return orderCandidates(candidates, history, round, 20)
+	return orderCandidates(candidates, history, round, "")
 }
 
-func orderCandidates(candidates []Candidate, history map[string]Record, round, poolSize int) []Candidate {
+func countryPriority(country, preferred string) int {
+	if preferred == "" || country == preferred {
+		return 0
+	}
+	if country == "" {
+		return 1
+	}
+	return 2
+}
+
+func orderCandidates(candidates []Candidate, history map[string]Record, round int, preferred string) []Candidate {
 	matching := make(map[string]Record)
 	for _, candidate := range candidates {
 		if record, ok := history[candidate.ID]; ok && record.Fingerprint == candidate.Fingerprint {
 			matching[candidate.ID] = record
 		}
 	}
-	pool := activePool(matching, poolSize)
+	pool := activePool(matching)
 	var known []Candidate
 	for _, candidate := range candidates {
 		if _, ok := pool[candidate.ID]; ok {
@@ -25,7 +36,7 @@ func orderCandidates(candidates []Candidate, history map[string]Record, round, p
 		}
 	}
 	sort.SliceStable(known, func(i, j int) bool {
-		return history[known[i].ID].Checked.After(history[known[j].ID].Checked)
+		return history[known[i].ID].Latency < history[known[j].ID].Latency
 	})
 	seen := make(map[string]bool, len(candidates))
 	ordered := make([]Candidate, 0, len(candidates))
@@ -38,9 +49,6 @@ func orderCandidates(candidates []Candidate, history map[string]Record, round, p
 			ordered, seen[candidate.ID] = append(ordered, candidate), true
 		}
 	}
-	for _, candidate := range known[:min(4, len(known))] {
-		add(candidate)
-	}
 	var discovery []Candidate
 	knownIDs := make(map[string]bool, len(known))
 	for _, candidate := range known {
@@ -51,15 +59,15 @@ func orderCandidates(candidates []Candidate, history map[string]Record, round, p
 			discovery = append(discovery, candidate)
 		}
 	}
-	for _, candidate := range discovery[:min(4, len(discovery))] {
-		add(candidate)
-	}
 	for _, candidate := range known {
 		add(candidate)
 	}
 	for _, candidate := range discovery {
 		add(candidate)
 	}
+	sort.SliceStable(ordered, func(i, j int) bool {
+		return countryPriority(ordered[i].Country, preferred) < countryPriority(ordered[j].Country, preferred)
+	})
 	return ordered
 }
 
@@ -102,6 +110,10 @@ func (e *Engine) probeCandidate(ctx context.Context, network string, backend Bac
 	if err == nil && latency < 0 {
 		err = ErrUnavailable
 	}
+	responded := err == nil
+	if responded && ctx.Err() == nil {
+		e.History.Responded(network, candidate, latency)
+	}
 	if err == nil {
 		if qualified, ok := backend.(QualifyingBackend); ok {
 			probeCtx, cancel := context.WithTimeout(ctx, e.Options.QualificationTimeout)
@@ -109,9 +121,16 @@ func (e *Engine) probeCandidate(ctx context.Context, network string, backend Bac
 			cancel()
 		}
 	}
+	if country, ok := backend.(CountryBackend); ok {
+		if known := country.KnownCountry(candidate.ID); known != "" {
+			candidate.Country = known
+		}
+	}
 	if ctx.Err() == nil {
 		if err == nil {
 			e.History.Succeeded(network, candidate, latency)
+		} else if responded {
+			e.History.Unqualified(network, candidate, latency, err, e.Options.FailureCooldown)
 		} else {
 			e.History.Failed(network, candidate, err, e.Options.FailureCooldown)
 		}
@@ -132,20 +151,24 @@ func (e *Engine) RefreshPool(ctx context.Context, network string, backend Backen
 	defer e.persist()
 	history := e.History.Snapshot(network)
 	candidates := backend.Candidates()
+	e.History.Reconcile(network, candidates)
 	matching := make(map[string]Record)
 	for _, candidate := range candidates {
 		if record, ok := history[candidate.ID]; ok && record.Fingerprint == candidate.Fingerprint {
 			matching[candidate.ID] = record
 		}
 	}
-	pool := activePool(matching, e.Options.PoolSize)
+	pool := activePool(matching)
 	var active []Candidate
 	for _, candidate := range candidates {
-		if _, ok := pool[candidate.ID]; ok {
+		if _, ok := pool[candidate.ID]; ok && !time.Now().Before(history[candidate.ID].RetryAt) {
 			active = append(active, candidate)
 		}
 	}
 	sort.SliceStable(active, func(i, j int) bool {
+		if left, right := countryPriority(active[i].Country, e.Options.PreferredCountry), countryPriority(active[j].Country, e.Options.PreferredCountry); left != right {
+			return left < right
+		}
 		return history[active[i].ID].Checked.Before(history[active[j].ID].Checked)
 	})
 	batchSize := max(1, e.Options.Concurrency)
@@ -154,7 +177,11 @@ func (e *Engine) RefreshPool(ctx context.Context, network string, backend Backen
 	for _, candidate := range batch {
 		seen[candidate.ID] = true
 	}
-	for _, candidate := range spread(candidates, e.round) {
+	discovery := spread(candidates, e.round)
+	sort.SliceStable(discovery, func(i, j int) bool {
+		return countryPriority(discovery[i].Country, e.Options.PreferredCountry) < countryPriority(discovery[j].Country, e.Options.PreferredCountry)
+	})
+	for _, candidate := range discovery {
 		record, ok := history[candidate.ID]
 		if seen[candidate.ID] || (ok && record.Fingerprint == candidate.Fingerprint && time.Now().Before(record.RetryAt)) {
 			continue
@@ -168,10 +195,29 @@ func (e *Engine) RefreshPool(ctx context.Context, network string, backend Backen
 	e.round += batchSize
 	probeCtx, cancel := context.WithTimeout(ctx, e.Options.ScanBudget)
 	defer cancel()
+	var found []measurement
+	var mu sync.Mutex
 	e.runWorkers(probeCtx, batch, func(candidate Candidate) {
 		if discovery, ok := backend.(DiscoveryBackend); ok {
 			discovery.Discover(probeCtx, candidate.ID)
 		}
-		e.probeCandidate(probeCtx, network, backend, candidate)
+		result, err := e.probeCandidate(probeCtx, network, backend, candidate)
+		if err == nil {
+			mu.Lock()
+			found = append(found, result)
+			mu.Unlock()
+		}
 	})
+	if ctx.Err() == nil && e.Options.PreferredCountry != "" {
+		current := backend.Current()
+		if history[current].Country != e.Options.PreferredCountry {
+			sort.SliceStable(found, func(i, j int) bool { return found[i].latency < found[j].latency })
+			for _, result := range found {
+				if result.candidate.Country == e.Options.PreferredCountry {
+					_ = e.pick(ctx, backend, result.candidate.ID, "preferred-country-restored")
+					break
+				}
+			}
+		}
+	}
 }

@@ -1319,7 +1319,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "smartCountryAny": MessageLookupByLibrary.simpleMessage("任意"),
     "smartCountryConflict": MessageLookupByLibrary.simpleMessage(
-      "首选国家/地区已被排除。请修改首选项或排除项以恢复自动选择。",
+      "首选国家已被排除，将使用其他允许的国家。",
     ),
     "smartCountryDiscovery": MessageLookupByLibrary.simpleMessage(
       "已验证的出口国家/地区",
@@ -1337,7 +1337,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "已保存的选择；当前没有已验证的出口。",
     ),
     "smartCountryStrict": MessageLookupByLibrary.simpleMessage(
-      "自动选择仅限此国家/地区。排除设置优先。",
+      "优先尝试此国家；不可用时使用其他允许的国家，恢复后返回。始终遵守排除列表。",
     ),
     "smartCountryUnavailable": MessageLookupByLibrary.simpleMessage(
       "首选国家/地区没有合适的服务器。",
@@ -1388,7 +1388,12 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "smartNoGroup": MessageLookupByLibrary.simpleMessage("没有受管理的服务器组"),
     "smartPartial": MessageLookupByLibrary.simpleMessage("部分服务不可用"),
-    "smartPool": MessageLookupByLibrary.simpleMessage("可用服务器池"),
+    "smartPool": MessageLookupByLibrary.simpleMessage("已保存服务器"),
+    "smartPoolMobile": MessageLookupByLibrary.simpleMessage("LTE / 移动网络池"),
+    "smartPoolSavedDesc": MessageLookupByLibrary.simpleMessage(
+      "列表在重启后保留。历史响应不能证明当前可用性，需要重新检查。",
+    ),
+    "smartPoolWifi": MessageLookupByLibrary.simpleMessage("Wi-Fi 服务器池"),
     "smartPreferredCountry": MessageLookupByLibrary.simpleMessage("首选国家/地区"),
     "smartReconnect": MessageLookupByLibrary.simpleMessage("智能服务器选择"),
     "smartRepairFailed": MessageLookupByLibrary.simpleMessage(

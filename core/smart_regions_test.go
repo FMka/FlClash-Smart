@@ -42,11 +42,11 @@ func TestSmartCountrySettingsDefaultsMigrationAndValidation(t *testing.T) {
 	}
 }
 
-func TestSmartCountryAdmissionNeverWidensPreferredOrOverridesExclusion(t *testing.T) {
+func TestSmartPreferredCountryAllowsFallbackButNeverOverridesExclusion(t *testing.T) {
 	settings := defaultSmartSettings()
 	settings.PreferredCountry = "DE"
 	for _, test := range []struct{ country, reason string }{
-		{"DE", ""}, {"RU", "country-excluded:RU"}, {"US", "preferred-country-unavailable:DE"}, {"", "exit-country-unknown"},
+		{"DE", ""}, {"RU", "country-excluded:RU"}, {"US", ""}, {"", "exit-country-unknown"},
 	} {
 		err := smartCountryAdmission(settings, test.country)
 		if test.reason == "" {
@@ -60,10 +60,11 @@ func TestSmartCountryAdmissionNeverWidensPreferredOrOverridesExclusion(t *testin
 		}
 	}
 	settings.PreferredCountry = "RU"
-	for _, country := range []string{"RU", "DE", ""} {
-		if err := smartCountryAdmission(settings, country); err == nil || err.Error() != "country-filter-conflict" {
-			t.Fatalf("conflicting filter widened to %s: %v", country, err)
-		}
+	if err := smartCountryAdmission(settings, "RU"); err == nil {
+		t.Fatal("preferred country bypassed an exclusion")
+	}
+	if err := smartCountryAdmission(settings, "DE"); err != nil {
+		t.Fatalf("excluded preference prevented allowed fallback: %v", err)
 	}
 }
 

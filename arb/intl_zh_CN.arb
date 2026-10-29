@@ -944,12 +944,12 @@
   "smartPreferredCountry": "首选国家/地区",
   "smartExcludedCountries": "排除的国家/地区",
   "smartCountryAny": "任意",
-  "smartCountryStrict": "自动选择仅限此国家/地区。排除设置优先。",
+  "smartCountryStrict": "优先尝试此国家；不可用时使用其他允许的国家，恢复后返回。始终遵守排除列表。",
   "smartCountryDiscovery": "已验证的出口国家/地区",
   "smartCountryVerified": "已验证 {count} 个国家/地区",
   "smartCountryUnknown": "{count} 个服务器尚未确定",
   "smartCountryDiscoveryDesc": "Smart 运行时逐步识别出口。即使当前没有该国家/地区，也会保留已保存的选择。空闲时不额外扫描。",
-  "smartCountryConflict": "首选国家/地区已被排除。请修改首选项或排除项以恢复自动选择。",
+  "smartCountryConflict": "首选国家已被排除，将使用其他允许的国家。",
   "smartCountryExcluded": "出口国家/地区已被排除。",
   "smartCountryUnavailable": "首选国家/地区没有合适的服务器。",
   "smartCountryNotVerified": "已保存的选择；当前没有已验证的出口。",
@@ -997,5 +997,8 @@
   "smartDiagnosticDesc": "仅统计收到的诊断数据，不含协议开销，与测速下载分开统计。",
   "smartSpeedMeasuredAt": "速度测量时间",
   "smartHistory": "历史记录",
-  "smartPool": "可用服务器池"
+  "smartPool": "已保存服务器",
+  "smartPoolWifi": "Wi-Fi 服务器池",
+  "smartPoolMobile": "LTE / 移动网络池",
+  "smartPoolSavedDesc": "列表在重启后保留。历史响应不能证明当前可用性，需要重新检查。"
 }

@@ -1433,7 +1433,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "smartCountryAny": MessageLookupByLibrary.simpleMessage("모든 국가"),
     "smartCountryConflict": MessageLookupByLibrary.simpleMessage(
-      "선호 국가가 제외되어 있습니다. 선호 국가 또는 제외 설정을 변경하여 자동 선택을 복원하세요.",
+      "선호 국가가 제외되어 다른 허용 국가를 사용합니다.",
     ),
     "smartCountryDiscovery": MessageLookupByLibrary.simpleMessage("확인된 출구 국가"),
     "smartCountryDiscoveryDesc": MessageLookupByLibrary.simpleMessage(
@@ -1449,7 +1449,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "저장된 선택이며 현재 확인된 출구가 없습니다.",
     ),
     "smartCountryStrict": MessageLookupByLibrary.simpleMessage(
-      "자동 선택을 이 국가로 제한합니다. 제외 설정이 우선합니다.",
+      "이 국가를 먼저 확인하고 필요하면 다른 허용 국가를 사용합니다. 복구되면 돌아옵니다. 제외 목록은 항상 적용됩니다.",
     ),
     "smartCountryUnavailable": MessageLookupByLibrary.simpleMessage(
       "선호 국가에 적합한 서버가 없습니다.",
@@ -1504,7 +1504,12 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "smartNoGroup": MessageLookupByLibrary.simpleMessage("관리되는 서버 그룹 없음"),
     "smartPartial": MessageLookupByLibrary.simpleMessage("일부 서비스 사용 불가"),
-    "smartPool": MessageLookupByLibrary.simpleMessage("사용 가능한 서버 풀"),
+    "smartPool": MessageLookupByLibrary.simpleMessage("저장된 서버"),
+    "smartPoolMobile": MessageLookupByLibrary.simpleMessage("LTE / 모바일 풀"),
+    "smartPoolSavedDesc": MessageLookupByLibrary.simpleMessage(
+      "목록은 재시작 후에도 유지됩니다. 이전 응답과 별도로 현재 연결을 다시 확인합니다.",
+    ),
+    "smartPoolWifi": MessageLookupByLibrary.simpleMessage("Wi-Fi 풀"),
     "smartPreferredCountry": MessageLookupByLibrary.simpleMessage("선호 국가"),
     "smartReconnect": MessageLookupByLibrary.simpleMessage("스마트 서버 선택"),
     "smartRepairFailed": MessageLookupByLibrary.simpleMessage(

@@ -66,7 +66,7 @@ mixin CoreInterface {
 
   Future<RouteSnapshot?> watchRoute(bool watch);
 
-  Future<Map<String, dynamic>> getSmartStatus();
+  Future<Map<String, dynamic>> getSmartStatus({bool includePools = false});
 
   Future<bool> smartReconnectCheck();
 
@@ -625,9 +625,12 @@ abstract class CoreHandlerInterface with CoreInterface {
   }
 
   @override
-  Future<Map<String, dynamic>> getSmartStatus() async =>
+  Future<Map<String, dynamic>> getSmartStatus({
+    bool includePools = false,
+  }) async =>
       await _invokeMethod<Map<String, dynamic>>(
         method: CoreMethod.getSmartStatus,
+        arguments: includePools ? true : null,
       ) ??
       {};
 

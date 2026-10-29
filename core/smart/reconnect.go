@@ -12,6 +12,7 @@ var ErrUnavailable = errors.New("no reachable VPN candidate")
 type Candidate struct {
 	ID          string
 	Fingerprint string
+	Country     string
 }
 
 type Backend interface {
@@ -46,6 +47,10 @@ type DiscoveryBackend interface {
 	Discover(context.Context, string)
 }
 
+type CountryBackend interface {
+	KnownCountry(string) string
+}
+
 type Options struct {
 	Concurrency          int
 	ProbeTimeout         time.Duration
@@ -61,12 +66,14 @@ type Options struct {
 	SpeedCandidates      int
 	SpeedBytes           int64
 	MinimumSpeedGain     float64
-	PoolSize             int
 	PoolRefreshInterval  time.Duration
 	FailureCooldown      time.Duration
 	ServiceFailureWindow time.Duration
 	ServiceRetryInterval time.Duration
 	IdleInterval         time.Duration
+	PreferredCountry     string
+	NetworkContext       string
+	KeepCurrent          bool
 }
 
 func DefaultOptions() Options {
@@ -78,8 +85,8 @@ func DefaultOptions() Options {
 		OptimizeInterval: 5 * time.Minute, MinimumHold: time.Minute,
 		SpeedTimeout: 3 * time.Second, SpeedTTL: 30 * time.Minute,
 		SpeedCandidates: 3, SpeedBytes: 512 * 1024, MinimumSpeedGain: 0.20,
-		PoolSize: 20, PoolRefreshInterval: 2 * time.Minute,
-		FailureCooldown: time.Minute, ServiceFailureWindow: 15 * time.Second,
+		PoolRefreshInterval: 2 * time.Minute,
+		FailureCooldown:     time.Minute, ServiceFailureWindow: 15 * time.Second,
 		ServiceRetryInterval: 3 * time.Second,
 		IdleInterval:         2 * time.Minute,
 	}
@@ -137,9 +144,12 @@ func (e *Engine) Run(ctx context.Context, network string, backend Backend) {
 	if network == "" {
 		return
 	}
-	optimizeAt, poolAt := time.Time{}, time.Time{}
-	backoff, force := 3*time.Second, true
-	initial, explicit := true, false
+	optimizeAt, poolAt := time.Now(), time.Now()
+	if e.Options.KeepCurrent {
+		poolAt = time.Time{}
+	}
+	backoff, force := 3*time.Second, !e.Options.KeepCurrent
+	initial, explicit := true, e.Options.KeepCurrent
 	for ctx.Err() == nil {
 		if !initial && !explicit && !recentlyActive(backend) {
 			event := e.waitHealthEvent(ctx, e.idleInterval())

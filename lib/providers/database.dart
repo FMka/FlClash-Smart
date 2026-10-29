@@ -144,19 +144,24 @@ class Profiles extends _$Profiles {
   List<Profile> build() {
     ref.listen(profilesStreamProvider, (_, next) {
       if (_writes.admit()) {
-        state = next.value ?? [];
+        state = _active(next.value ?? []);
       }
     });
-    return ref.read(profilesStreamProvider).value ?? [];
+    return _active(ref.read(profilesStreamProvider).value ?? []);
   }
 
   void _reread() {
     database.profilesDao.query().get().then((rows) {
       if (ref.mounted && _writes.admit()) {
-        state = rows;
+        state = _active(rows);
       }
     }, onError: _reportReread);
   }
+
+  List<Profile> _active(List<Profile> profiles) => [
+    for (final profile in profiles)
+      if (!profile.isRetiredBuiltinProfile) profile,
+  ];
 
   void _optimistic(List<Profile> next, FutureOr<void> Function() action) {
     unawaited(
@@ -302,7 +307,7 @@ class Profiles extends _$Profiles {
   }
 
   void reorder(List<Profile> profiles) {
-    final next = List<Profile>.from(profiles);
+    final next = _active(profiles);
     final moved = <int>[];
     next.forEachIndexed((index, item) {
       if (item.order != index) {

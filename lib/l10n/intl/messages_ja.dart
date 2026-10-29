@@ -1462,7 +1462,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "smartCountryAny": MessageLookupByLibrary.simpleMessage("すべて"),
     "smartCountryConflict": MessageLookupByLibrary.simpleMessage(
-      "優先する国が除外されています。国または除外設定を変更して自動選択を再開してください。",
+      "優先国は除外されています。他の許可された国を使用します。",
     ),
     "smartCountryDiscovery": MessageLookupByLibrary.simpleMessage("確認済みの出口国"),
     "smartCountryDiscoveryDesc": MessageLookupByLibrary.simpleMessage(
@@ -1478,7 +1478,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "保存済みの選択。現在確認済みの出口はありません。",
     ),
     "smartCountryStrict": MessageLookupByLibrary.simpleMessage(
-      "自動選択をこの国のみに制限します。除外設定が優先されます。",
+      "この国を優先し、利用できなければ他の許可された国を使います。復旧後に戻ります。除外国は常に適用されます。",
     ),
     "smartCountryUnavailable": MessageLookupByLibrary.simpleMessage(
       "優先する国に適切なサーバーがありません。",
@@ -1537,7 +1537,12 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "smartNoGroup": MessageLookupByLibrary.simpleMessage("管理対象のサーバーグループなし"),
     "smartPartial": MessageLookupByLibrary.simpleMessage("一部のサービスが利用不可"),
-    "smartPool": MessageLookupByLibrary.simpleMessage("利用可能なプール"),
+    "smartPool": MessageLookupByLibrary.simpleMessage("保存済みサーバー"),
+    "smartPoolMobile": MessageLookupByLibrary.simpleMessage("LTE / モバイルプール"),
+    "smartPoolSavedDesc": MessageLookupByLibrary.simpleMessage(
+      "一覧は再起動後も保持されます。過去の応答とは別に、現在の接続を再確認します。",
+    ),
+    "smartPoolWifi": MessageLookupByLibrary.simpleMessage("Wi-Fi プール"),
     "smartPreferredCountry": MessageLookupByLibrary.simpleMessage("優先する国"),
     "smartReconnect": MessageLookupByLibrary.simpleMessage("スマートサーバー選択"),
     "smartRepairFailed": MessageLookupByLibrary.simpleMessage(

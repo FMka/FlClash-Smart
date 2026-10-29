@@ -2,7 +2,7 @@ package smart
 
 import (
 	"encoding/json"
-	"sort"
+	"strings"
 	"sync"
 	"time"
 )
@@ -10,21 +10,29 @@ import (
 const historyTTL = 7 * 24 * time.Hour
 
 type Record struct {
-	Fingerprint string        `json:"fingerprint"`
-	Latency     time.Duration `json:"latency"`
-	Checked     time.Time     `json:"checked"`
-	BytesPerSec float64       `json:"bytes_per_second"`
-	SpeedAt     time.Time     `json:"speed_at"`
-	Alive       bool          `json:"alive"`
-	LastSuccess time.Time     `json:"last_success"`
-	Failure     string        `json:"failure,omitempty"`
-	FailedAt    time.Time     `json:"failed_at,omitempty"`
-	RetryAt     time.Time     `json:"retry_at,omitempty"`
+	Fingerprint  string        `json:"fingerprint"`
+	Latency      time.Duration `json:"latency"`
+	Checked      time.Time     `json:"checked"`
+	BytesPerSec  float64       `json:"bytes_per_second"`
+	SpeedAt      time.Time     `json:"speed_at"`
+	Alive        bool          `json:"alive"`
+	LastSuccess  time.Time     `json:"last_success"`
+	Failure      string        `json:"failure,omitempty"`
+	FailedAt     time.Time     `json:"failed_at,omitempty"`
+	RetryAt      time.Time     `json:"retry_at,omitempty"`
+	Reachable    bool          `json:"reachable,omitempty"`
+	RespondedAt  time.Time     `json:"responded_at,omitempty"`
+	Country      string        `json:"country,omitempty"`
+	SpeedContext string        `json:"speed_context,omitempty"`
 }
 
 func (r Record) available() bool {
 	age := time.Since(r.Checked)
-	return (r.Alive || r.Failure == "") && !r.Checked.IsZero() && age >= 0 && age < 30*time.Minute
+	return (r.Reachable || r.Alive || r.Failure == "") && !r.Checked.IsZero() && age >= 0
+}
+
+func (r Record) responded() bool {
+	return r.available() || !r.RespondedAt.IsZero() || !r.LastSuccess.IsZero()
 }
 
 type History struct {
@@ -49,7 +57,10 @@ func (h *History) UnmarshalJSON(data []byte) error {
 	}
 	for key, records := range decoded.Records {
 		for id, record := range records {
-			if age := time.Since(record.Checked); age >= 0 && age < historyTTL {
+			if record.RespondedAt.IsZero() && record.available() {
+				record.RespondedAt = record.Checked
+			}
+			if age := time.Since(record.Checked); age >= 0 && (record.responded() || age < historyTTL) {
 				h.Put(key, id, record)
 			}
 		}
@@ -73,33 +84,46 @@ func (h *History) Snapshot(key string) map[string]Record {
 	return copy
 }
 
-func (h *History) ActivePool(key string, limit int) map[string]Record {
-	return activePool(h.Snapshot(key), limit)
+func (h *History) ActivePool(key string) map[string]Record {
+	return activePool(h.Snapshot(key))
 }
 
-func activePool(records map[string]Record, limit int) map[string]Record {
-	var ids []string
-	for id, record := range records {
-		if record.available() {
-			ids = append(ids, id)
+func (h *History) SavedPool(key string) map[string]Record {
+	pool := h.Snapshot(key)
+	for id, record := range pool {
+		if !record.responded() {
+			delete(pool, id)
 		}
 	}
-	sort.Slice(ids, func(i, j int) bool {
-		left, right := records[ids[i]], records[ids[j]]
-		if left.Latency == right.Latency {
-			return ids[i] < ids[j]
+	return pool
+}
+
+func (h *History) SavedPoolCount(key string) int {
+	h.mu.Lock()
+	defer h.mu.Unlock()
+	count := 0
+	for _, record := range h.Records[key] {
+		if record.responded() {
+			count++
 		}
-		return left.Latency < right.Latency
-	})
-	pool := make(map[string]Record, min(len(ids), max(0, limit)))
-	for _, id := range ids[:min(len(ids), max(0, limit))] {
-		pool[id] = records[id]
+	}
+	return count
+}
+
+func activePool(records map[string]Record) map[string]Record {
+	pool := make(map[string]Record)
+	for id, record := range records {
+		if record.available() {
+			pool[id] = record
+		}
 	}
 	return pool
 }
 
 func (h *History) record(key string, candidate Candidate) Record {
-	record := h.Snapshot(key)[candidate.ID]
+	h.mu.Lock()
+	record := h.Records[key][candidate.ID]
+	h.mu.Unlock()
 	if record.Fingerprint != candidate.Fingerprint {
 		record = Record{Fingerprint: candidate.Fingerprint}
 	}
@@ -109,15 +133,57 @@ func (h *History) record(key string, candidate Candidate) Record {
 func (h *History) Succeeded(key string, candidate Candidate, latency time.Duration) {
 	record := h.record(key, candidate)
 	record.Latency, record.Checked, record.LastSuccess = latency, time.Now(), time.Now()
-	record.Alive, record.Failure, record.RetryAt = true, "", time.Time{}
+	record.Alive, record.Reachable, record.Failure, record.RetryAt = true, true, "", time.Time{}
+	record.RespondedAt, record.Country = record.Checked, candidate.Country
+	h.Put(key, candidate.ID, record)
+}
+
+func (h *History) Responded(key string, candidate Candidate, latency time.Duration) {
+	record := h.record(key, candidate)
+	record.Latency, record.Checked, record.Reachable = latency, time.Now(), true
+	record.RespondedAt = record.Checked
+	if candidate.Country != "" {
+		record.Country = candidate.Country
+	}
 	h.Put(key, candidate.ID, record)
 }
 
 func (h *History) Failed(key string, candidate Candidate, err error, cooldown time.Duration) {
 	record := h.record(key, candidate)
-	record.Alive, record.Failure = false, err.Error()
+	record.Alive, record.Reachable, record.Failure = false, false, err.Error()
 	record.Checked, record.FailedAt, record.RetryAt = time.Now(), time.Now(), time.Now().Add(cooldown)
 	h.Put(key, candidate.ID, record)
+}
+
+func (h *History) Unqualified(key string, candidate Candidate, latency time.Duration, err error, cooldown time.Duration) {
+	h.Failed(key, candidate, err, cooldown)
+	record := h.record(key, candidate)
+	record.Latency, record.Reachable, record.RespondedAt = latency, true, time.Now()
+	record.Country = candidate.Country
+	h.Put(key, candidate.ID, record)
+}
+
+func (h *History) Reconcile(key string, candidates []Candidate) {
+	valid := make(map[string]string, len(candidates))
+	for _, candidate := range candidates {
+		valid[candidate.ID] = candidate.Fingerprint
+	}
+	h.mu.Lock()
+	defer h.mu.Unlock()
+	for id, record := range h.Records[key] {
+		if identity, ok := valid[id]; !ok || identity != record.Fingerprint {
+			delete(h.Records[key], id)
+		}
+	}
+}
+
+func (h *History) Import(from, to string) {
+	for id, record := range h.Snapshot(from) {
+		current := h.record(to, Candidate{ID: id, Fingerprint: record.Fingerprint})
+		if current.Checked.Before(record.Checked) {
+			h.Put(to, id, record)
+		}
+	}
 }
 
 func (h *History) Put(key, id string, record Record) {
@@ -130,19 +196,25 @@ func (h *History) Put(key, id string, record Record) {
 		h.Records[key] = make(map[string]Record)
 	}
 	h.Records[key][id] = record
-	if len(h.Records[key]) > 128 {
-		oldest := id
+	if !record.responded() && len(h.Records[key]) > 128 {
+		oldest, failures := "", 0
 		for candidate, value := range h.Records[key] {
-			if value.Checked.Before(h.Records[key][oldest].Checked) {
+			if value.responded() {
+				continue
+			}
+			failures++
+			if oldest == "" || value.Checked.Before(h.Records[key][oldest].Checked) {
 				oldest = candidate
 			}
 		}
-		delete(h.Records[key], oldest)
+		if failures > 128 {
+			delete(h.Records[key], oldest)
+		}
 	}
 	if len(h.Records) > 32 {
 		oldest, oldestAt := "", time.Now()
 		for other, records := range h.Records {
-			if other == key {
+			if other == key || strings.HasPrefix(other, "wifi:") || strings.HasPrefix(other, "mobile:") {
 				continue
 			}
 			newest := time.Time{}
@@ -155,6 +227,8 @@ func (h *History) Put(key, id string, record Record) {
 				oldest, oldestAt = other, newest
 			}
 		}
-		delete(h.Records, oldest)
+		if oldest != "" {
+			delete(h.Records, oldest)
+		}
 	}
 }

@@ -80,7 +80,10 @@ void main() {
 
     final shown = container
         .read(commonActionProvider.notifier)
-        .checkUpdateResultHandle(data: release(_bodyWith(_payload)));
+        .checkUpdateResultHandle(
+          data: release(_bodyWith(_payload)),
+          isUser: true,
+        );
     await tester.pumpAndSettle();
 
     expect(find.textContaining('v0.8.96'), findsOneWidget);
@@ -97,7 +100,10 @@ void main() {
 
     final shown = container
         .read(commonActionProvider.notifier)
-        .checkUpdateResultHandle(data: release(_bodyWith(_payload)));
+        .checkUpdateResultHandle(
+          data: release(_bodyWith(_payload)),
+          isUser: true,
+        );
     await tester.pumpAndSettle();
 
     // Entry copy comes from the release payload and is English only; the group
@@ -116,7 +122,7 @@ void main() {
 
     final shown = container
         .read(commonActionProvider.notifier)
-        .checkUpdateResultHandle(data: release(_bulletsOnly));
+        .checkUpdateResultHandle(data: release(_bulletsOnly), isUser: true);
     await tester.pumpAndSettle();
 
     expect(find.textContaining('- Override scripts'), findsOneWidget);
@@ -125,19 +131,14 @@ void main() {
     await shown;
   });
 
-  testWidgets('stops reminding when an automatic check is dismissed', (
-    tester,
-  ) async {
+  testWidgets('unsolicited update results never open a dialog', (tester) async {
     final container = await pumpApp(tester);
-
-    final shown = container
+    await container
         .read(commonActionProvider.notifier)
         .checkUpdateResultHandle(data: release(_bodyWith(_payload)));
     await tester.pumpAndSettle();
-    await tapCancel(tester);
-    await shown;
-
-    expect(container.read(appSettingProvider).autoCheckUpdate, isFalse);
+    expect(find.textContaining('Re-import backups'), findsNothing);
+    expect(find.byType(AlertDialog), findsNothing);
   });
 
   testWidgets('a manual check keeps the setting and reports a failure', (
@@ -154,6 +155,9 @@ void main() {
 
     await tapCancel(tester);
     await shown;
-    expect(container.read(appSettingProvider).autoCheckUpdate, isTrue);
+    expect(
+      container.read(appSettingProvider).toJson(),
+      isNot(contains('autoCheckUpdate')),
+    );
   });
 }

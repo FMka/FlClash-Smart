@@ -1783,7 +1783,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "smartCountryAny": MessageLookupByLibrary.simpleMessage("Любая"),
     "smartCountryConflict": MessageLookupByLibrary.simpleMessage(
-      "Предпочитаемая страна исключена. Измените выбор страны или исключение для восстановления автовыбора.",
+      "Предпочитаемая страна исключена. Используются другие разрешённые страны.",
     ),
     "smartCountryDiscovery": MessageLookupByLibrary.simpleMessage(
       "Проверенные страны выхода",
@@ -1801,7 +1801,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "Сохранённый выбор; сейчас нет проверенного выхода.",
     ),
     "smartCountryStrict": MessageLookupByLibrary.simpleMessage(
-      "Автовыбор ищет только в этой стране. Исключения имеют приоритет.",
+      "Сначала проверяем эту страну, при недоступности используем другую разрешённую и возвращаемся после восстановления. Исключения действуют всегда.",
     ),
     "smartCountryUnavailable": MessageLookupByLibrary.simpleMessage(
       "Нет подходящего сервера в предпочитаемой стране.",
@@ -1882,7 +1882,14 @@ class MessageLookup extends MessageLookupByLibrary {
     "smartPartial": MessageLookupByLibrary.simpleMessage(
       "Часть сервисов недоступна",
     ),
-    "smartPool": MessageLookupByLibrary.simpleMessage("Доступно в пуле"),
+    "smartPool": MessageLookupByLibrary.simpleMessage("Сохранённые серверы"),
+    "smartPoolMobile": MessageLookupByLibrary.simpleMessage(
+      "Пул LTE / мобильной сети",
+    ),
+    "smartPoolSavedDesc": MessageLookupByLibrary.simpleMessage(
+      "Списки сохраняются после перезапуска. Старый ответ — история; доступность проверяется заново.",
+    ),
+    "smartPoolWifi": MessageLookupByLibrary.simpleMessage("Пул Wi-Fi"),
     "smartPreferredCountry": MessageLookupByLibrary.simpleMessage(
       "Предпочитаемая страна",
     ),

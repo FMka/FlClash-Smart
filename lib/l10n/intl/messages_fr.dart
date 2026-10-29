@@ -1836,7 +1836,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "smartCountryAny": MessageLookupByLibrary.simpleMessage("Tous"),
     "smartCountryConflict": MessageLookupByLibrary.simpleMessage(
-      "Le pays préféré est exclu. Modifiez la préférence ou les exclusions pour rétablir la sélection automatique.",
+      "Le pays préféré est exclu. Les autres pays autorisés seront utilisés.",
     ),
     "smartCountryDiscovery": MessageLookupByLibrary.simpleMessage(
       "Pays de sortie vérifiés",
@@ -1854,7 +1854,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "Choix enregistré ; aucune sortie actuellement vérifiée.",
     ),
     "smartCountryStrict": MessageLookupByLibrary.simpleMessage(
-      "La sélection automatique se limite à ce pays. Les exclusions sont prioritaires.",
+      "Essayer ce pays en priorité, utiliser un autre pays autorisé si nécessaire, puis revenir après rétablissement. Les exclusions restent appliquées.",
     ),
     "smartCountryUnavailable": MessageLookupByLibrary.simpleMessage(
       "Aucun serveur adapté dans le pays préféré.",
@@ -1935,7 +1935,14 @@ class MessageLookup extends MessageLookupByLibrary {
     "smartPartial": MessageLookupByLibrary.simpleMessage(
       "Certains services indisponibles",
     ),
-    "smartPool": MessageLookupByLibrary.simpleMessage("Serveurs disponibles"),
+    "smartPool": MessageLookupByLibrary.simpleMessage("Serveurs enregistrés"),
+    "smartPoolMobile": MessageLookupByLibrary.simpleMessage(
+      "Pool LTE / mobile",
+    ),
+    "smartPoolSavedDesc": MessageLookupByLibrary.simpleMessage(
+      "Les listes persistent après redémarrage. Les réponses enregistrées sont historiques ; la disponibilité est revérifiée.",
+    ),
+    "smartPoolWifi": MessageLookupByLibrary.simpleMessage("Pool Wi-Fi"),
     "smartPreferredCountry": MessageLookupByLibrary.simpleMessage(
       "Pays préféré",
     ),

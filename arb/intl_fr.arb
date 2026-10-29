@@ -944,12 +944,12 @@
   "smartPreferredCountry": "Pays préféré",
   "smartExcludedCountries": "Pays exclus",
   "smartCountryAny": "Tous",
-  "smartCountryStrict": "La sélection automatique se limite à ce pays. Les exclusions sont prioritaires.",
+  "smartCountryStrict": "Essayer ce pays en priorité, utiliser un autre pays autorisé si nécessaire, puis revenir après rétablissement. Les exclusions restent appliquées.",
   "smartCountryDiscovery": "Pays de sortie vérifiés",
   "smartCountryVerified": "{count} pays vérifiés",
   "smartCountryUnknown": "{count} serveurs non identifiés",
   "smartCountryDiscoveryDesc": "Les pays sont identifiés progressivement pendant que Smart fonctionne. Les choix enregistrés restent conservés même en leur absence. Aucune analyse supplémentaire au repos.",
-  "smartCountryConflict": "Le pays préféré est exclu. Modifiez la préférence ou les exclusions pour rétablir la sélection automatique.",
+  "smartCountryConflict": "Le pays préféré est exclu. Les autres pays autorisés seront utilisés.",
   "smartCountryExcluded": "Le pays de sortie est exclu.",
   "smartCountryUnavailable": "Aucun serveur adapté dans le pays préféré.",
   "smartCountryNotVerified": "Choix enregistré ; aucune sortie actuellement vérifiée.",
@@ -997,5 +997,8 @@
   "smartDiagnosticDesc": "Données de diagnostic reçues uniquement, hors surcoût des protocoles. Séparé des tests de débit.",
   "smartSpeedMeasuredAt": "Date de mesure du débit",
   "smartHistory": "Historique",
-  "smartPool": "Serveurs disponibles"
+  "smartPool": "Serveurs enregistrés",
+  "smartPoolWifi": "Pool Wi-Fi",
+  "smartPoolMobile": "Pool LTE / mobile",
+  "smartPoolSavedDesc": "Les listes persistent après redémarrage. Les réponses enregistrées sont historiques ; la disponibilité est revérifiée."
 }

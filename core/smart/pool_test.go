@@ -37,19 +37,19 @@ func TestPoolEvictsFailureRetainsSpeedAndReintroducesRecoveredNode(t *testing.T)
 	e := New(testOptions(), h)
 	e.RefreshPool(context.Background(), "lte", b)
 	failed := h.Snapshot("lte")["a"]
-	if len(h.ActivePool("lte", 20)) != 0 || failed.Failure == "" || failed.BytesPerSec != 123 {
+	if len(h.ActivePool("lte")) != 0 || failed.Failure == "" || failed.BytesPerSec != 123 {
 		t.Fatal("failure did not leave the pool while preserving history")
 	}
 	b.latencies = map[string]time.Duration{"a": 20 * time.Millisecond}
 	e.RefreshPool(context.Background(), "lte", b)
-	if len(h.ActivePool("lte", 20)) != 0 {
+	if len(h.ActivePool("lte")) != 0 {
 		t.Fatal("ignored failed-node cooldown")
 	}
 	failed.RetryAt = time.Now().Add(-time.Second)
 	h.Put("lte", "a", failed)
 	e.RefreshPool(context.Background(), "lte", b)
 	recovered := h.Snapshot("lte")["a"]
-	if len(h.ActivePool("lte", 20)) != 1 || recovered.Failure != "" || recovered.BytesPerSec != 123 {
+	if len(h.ActivePool("lte")) != 1 || recovered.Failure != "" || recovered.BytesPerSec != 123 {
 		t.Fatal("recovered node was not restored with its previous measurement")
 	}
 	if len(b.selected) != 0 || b.speedCalls != 0 {
@@ -57,7 +57,7 @@ func TestPoolEvictsFailureRetainsSpeedAndReintroducesRecoveredNode(t *testing.T)
 	}
 }
 
-func TestPoolIsBoundedButRefreshDiscoversBeyondKnownNodes(t *testing.T) {
+func TestFullPoolRefreshDiscoversBeyondKnownNodes(t *testing.T) {
 	h := &History{}
 	b := &fakeBackend{current: "0"}
 	var mu sync.Mutex
@@ -79,8 +79,8 @@ func TestPoolIsBoundedButRefreshDiscoversBeyondKnownNodes(t *testing.T) {
 	for range 20 {
 		e.RefreshPool(context.Background(), "wifi", b)
 	}
-	if len(h.ActivePool("wifi", 20)) != 20 || len(probed) <= 30 || !probed["79"] {
-		t.Fatalf("pool froze on old entries: active=%d discovered=%d", len(h.ActivePool("wifi", 20)), len(probed))
+	if len(h.ActivePool("wifi")) <= 30 || len(probed) <= 30 || !probed["79"] {
+		t.Fatalf("pool froze on old entries: active=%d discovered=%d", len(h.ActivePool("wifi")), len(probed))
 	}
 }
 

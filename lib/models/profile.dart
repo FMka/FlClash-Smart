@@ -136,6 +136,9 @@ extension ProfilesExt on List<Profile> {
 }
 
 extension ProfileExtension on Profile {
+  bool get isRetiredBuiltinProfile =>
+      type == ProfileType.file && url == 'builtin://igareck';
+
   bool get realAutoUpdate => type == ProfileType.url && autoUpdate;
 
   String get realLabel => label.takeFirstValid([defaultLabel]);

@@ -944,12 +944,12 @@
   "smartPreferredCountry": "País preferido",
   "smartExcludedCountries": "Países excluidos",
   "smartCountryAny": "Cualquiera",
-  "smartCountryStrict": "La selección automática usa solo este país. Las exclusiones tienen prioridad.",
+  "smartCountryStrict": "Probar este país primero, usar otro permitido si es necesario y volver cuando se recupere. Las exclusiones siempre se aplican.",
   "smartCountryDiscovery": "Países de salida verificados",
   "smartCountryVerified": "{count} países verificados",
   "smartCountryUnknown": "{count} servidores sin identificar",
   "smartCountryDiscoveryDesc": "Los países se identifican gradualmente mientras Smart funciona. Las selecciones guardadas se conservan aunque un país no esté disponible. Sin análisis adicionales en reposo.",
-  "smartCountryConflict": "El país preferido está excluido. Cambia la preferencia o la exclusión para restaurar la selección automática.",
+  "smartCountryConflict": "El país preferido está excluido. Se usarán otros países permitidos.",
   "smartCountryExcluded": "El país de salida está excluido.",
   "smartCountryUnavailable": "No hay servidores adecuados en el país preferido.",
   "smartCountryNotVerified": "Selección guardada; sin salida verificada actualmente.",
@@ -997,5 +997,8 @@
   "smartDiagnosticDesc": "Solo datos de diagnóstico recibidos, sin sobrecarga de protocolos. Separado de las pruebas de velocidad.",
   "smartSpeedMeasuredAt": "Hora de medición de velocidad",
   "smartHistory": "Historial",
-  "smartPool": "Servidores disponibles"
+  "smartPool": "Servidores guardados",
+  "smartPoolWifi": "Grupo Wi-Fi",
+  "smartPoolMobile": "Grupo LTE / móvil",
+  "smartPoolSavedDesc": "Las listas se conservan tras reiniciar. Las respuestas guardadas son históricas; se comprueba la disponibilidad actual."
 }

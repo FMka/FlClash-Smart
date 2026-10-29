@@ -1,4 +1,58 @@
-# Smart reconnect v3 verification
+# Smart reconnect v3.1 verification
+
+Date: 2026-10-29. Based on published V3 (`733ae26`), Android debug ARM64,
+`0.9.1+2026102901`, package `com.follow.clash.smart.dev`.
+Verified ABI version code: `2026104901`; final APK verification is recorded in
+`output/smart-reconnect/verification-v3.1.json` in the workspace.
+
+## V3.1 changes and checks
+
+- Complete persistent Wi-Fi and mobile pools retain every responding unchanged
+  node, including previous response evidence after a later failure. The former
+  20-node pool cap and age expiry no longer discard working history. Negative-only
+  discovery remains bounded; optional refresh remains batched and activity-aware.
+- Candidate selection still requires a fresh node-pinned response and country/
+  service admission. Pool membership is scheduling evidence, not an admission.
+- Preferred country is a priority: other allowed countries are fallback, with
+  return after a preferred-country node passes. Excluded countries remain strict.
+- An unchanged current node saved in both transport pools remains selected at
+  handoff and is checked immediately. Network sessions may still reconnect.
+- Pool screens fetch complete lists explicitly; routine status carries counts.
+- V4/V5 free-server changes are absent. A stored retired built-in placeholder
+  cannot remain selected; personal subscriptions and stored rows are retained.
+- Automatic application update checks, toggle and startup prompts are removed.
+  Manual About checking and subscription/rule updates remain available.
+- `flutter pub get --offline`, code generation for models/providers/locales and
+  `flutter analyze --no-pub --no-fatal-infos` passed; dependency lock is unchanged.
+- 492 covering Flutter tests passed, including full lazy pool lists, legacy
+  settings, retired profile filtering, protocol summary/bulk arguments and updater
+  behavior, alongside existing DNS/routing/lifecycle/localization checks. Native
+  build hooks were restored before the final APK build.
+- Root and engine Go suites passed with CGO disabled, excluding only the same
+  pre-existing Windows path/error-text assertion documented under V3 below.
+  The final engine suite also passed ten consecutive runs.
+- 135 Android JVM tests passed across common, service and app modules. Formatting,
+  comment-density and `git diff --check` passed for the final source snapshot.
+- Host vet and Android ARM64 vet with `with_gvisor` passed. No mihomo submodule
+  changes: `8380d0e7462f061a964323e9bf3129a236fcc5d5`.
+- Scoped pre-commit structural review covers pool/history ownership, country
+  scheduling, handoff selection, bulk status and UI/updater boundaries. No
+  qualifying responsibility or dependency findings were identified.
+
+The APK is 131,913,390 bytes, SHA-256
+`38baa26a54cd2ba42eb97e39b3e56a1db25fccaedd3a92ae6485f1178a6f0f63`.
+V2 signature verification passed; the certificate matches V3/V4/V5 and the version
+code is higher. Every native library is ARM64 ELF; ZIP CRC checks passed, the native
+core matches the final stripped build and was rebuilt after the last Go edits.
+Free-server assets are absent; the maximum packaging gap is 4096 bytes.
+
+Final source and packaging evidence are recorded beside the APK. Physical handoff,
+long Doze, carrier behavior and battery consumption
+remain phone acceptance tasks. No host VPN was started for these checks.
+
+---
+
+# Prior V3 verification
 
 Date: 2026-10-28. Android debug ARM64, version `0.9.1+2026102801`.
 Package `com.follow.clash.smart.dev`, Android ABI version code `2026104801`.

@@ -944,12 +944,12 @@
   "smartPreferredCountry": "선호 국가",
   "smartExcludedCountries": "제외 국가",
   "smartCountryAny": "모든 국가",
-  "smartCountryStrict": "자동 선택을 이 국가로 제한합니다. 제외 설정이 우선합니다.",
+  "smartCountryStrict": "이 국가를 먼저 확인하고 필요하면 다른 허용 국가를 사용합니다. 복구되면 돌아옵니다. 제외 목록은 항상 적용됩니다.",
   "smartCountryDiscovery": "확인된 출구 국가",
   "smartCountryVerified": "{count}개 국가 확인됨",
   "smartCountryUnknown": "{count}개 서버 미확인",
   "smartCountryDiscoveryDesc": "Smart가 실행되는 동안 출구 국가를 점진적으로 확인합니다. 현재 없는 국가도 저장된 선택을 유지합니다. 유휴 상태에서 추가 검사하지 않습니다.",
-  "smartCountryConflict": "선호 국가가 제외되어 있습니다. 선호 국가 또는 제외 설정을 변경하여 자동 선택을 복원하세요.",
+  "smartCountryConflict": "선호 국가가 제외되어 다른 허용 국가를 사용합니다.",
   "smartCountryExcluded": "출구 국가가 제외되어 있습니다.",
   "smartCountryUnavailable": "선호 국가에 적합한 서버가 없습니다.",
   "smartCountryNotVerified": "저장된 선택이며 현재 확인된 출구가 없습니다.",
@@ -997,5 +997,8 @@
   "smartDiagnosticDesc": "수신한 진단 데이터만 포함하며 프로토콜 오버헤드는 제외합니다. 속도 테스트와 별도로 계산합니다.",
   "smartSpeedMeasuredAt": "속도 측정 시각",
   "smartHistory": "기록",
-  "smartPool": "사용 가능한 서버 풀"
+  "smartPool": "저장된 서버",
+  "smartPoolWifi": "Wi-Fi 풀",
+  "smartPoolMobile": "LTE / 모바일 풀",
+  "smartPoolSavedDesc": "목록은 재시작 후에도 유지됩니다. 이전 응답과 별도로 현재 연결을 다시 확인합니다."
 }

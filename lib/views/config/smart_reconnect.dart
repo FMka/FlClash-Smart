@@ -296,16 +296,81 @@ class SmartReconnectView extends ConsumerWidget {
           if (status.groups.isNotEmpty)
             generateSection(
               items: [
-                for (final group in status.groups)
+                for (final group in status.groups) ...[
                   ListItem(
                     title: Text(group.name),
                     subtitle: Text(
-                      '${l.smartLastCheck}: ${_checkedAt(group.lastChecked, l.unknown)}\n${l.smartSpeed}: ${group.lastSpeed <= 0 ? l.unknown : '${(group.lastSpeed / (1024 * 1024)).toStringAsFixed(2)} MiB/s'}\n${l.smartSpeedMeasuredAt}: ${_checkedAt('${group.speedAt}', l.unknown)}${group.speedSource == 'cached' ? ' · ${l.smartHistory}' : ''}\n${l.smartPool}: ${group.pool.length}${group.reason.isEmpty ? '' : '\n${_reasonLabel(context, group.reason)}'}',
+                      '${l.smartLastCheck}: ${_checkedAt(group.lastChecked, l.unknown)}\n${l.smartSpeed}: ${group.lastSpeed <= 0 ? l.unknown : '${(group.lastSpeed / (1024 * 1024)).toStringAsFixed(2)} MiB/s'}\n${l.smartSpeedMeasuredAt}: ${_checkedAt('${group.speedAt}', l.unknown)}${group.speedSource == 'cached' ? ' · ${l.smartHistory}' : ''}\n${l.smartPool}: ${group.poolCount}${group.reason.isEmpty ? '' : '\n${_reasonLabel(context, group.reason)}'}',
                     ),
                   ),
+                  ListItem.open(
+                    title: Text('${l.smartPoolWifi} (${group.wifiPoolCount})'),
+                    widget: SmartPoolView(groupName: group.name, mobile: false),
+                  ),
+                  ListItem.open(
+                    title: Text(
+                      '${l.smartPoolMobile} (${group.mobilePoolCount})',
+                    ),
+                    widget: SmartPoolView(groupName: group.name, mobile: true),
+                  ),
+                ],
               ],
+              footer: l.smartPoolSavedDesc,
             ),
         ],
+      ),
+    );
+  }
+}
+
+class SmartPoolView extends ConsumerWidget {
+  const SmartPoolView({
+    required this.groupName,
+    required this.mobile,
+    super.key,
+  });
+
+  final String groupName;
+  final bool mobile;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l = context.appLocalizations;
+    final snapshot = ref.watch(smartPoolSnapshotProvider);
+    final groups = snapshot.value?.groups ?? const <SmartGroupStatus>[];
+    final group = groups.where((item) => item.name == groupName).firstOrNull;
+    final nodes =
+        (mobile ? group?.mobilePool : group?.wifiPool) ??
+        const <Map<String, dynamic>>[];
+    return CommonScaffold(
+      title: mobile ? l.smartPoolMobile : l.smartPoolWifi,
+      body: NullStatusSwitcher(
+        isLoading: snapshot.isLoading,
+        child: RefreshIndicator(
+          onRefresh: () async {
+            ref.invalidate(smartPoolSnapshotProvider);
+            await ref.read(smartPoolSnapshotProvider.future);
+          },
+          child: ListView.builder(
+            physics: const AlwaysScrollableScrollPhysics(),
+            itemCount: nodes.length,
+            itemBuilder: (context, index) {
+              final node = nodes[index];
+              final country = node['country'] as String? ?? '';
+              return ListItem(
+                title: Text(node['name'] as String? ?? ''),
+                subtitle: Text(
+                  [
+                    if (country.isNotEmpty) _countryLabel(country),
+                    '${node['latency-ms'] ?? 0} ms',
+                    '${l.smartLastCheck}: ${_checkedAt('${node['checked'] ?? 0}', l.unknown)}',
+                    if (node['available'] == false) l.smartUnavailable,
+                  ].join(' · '),
+                ),
+              );
+            },
+          ),
+        ),
       ),
     );
   }

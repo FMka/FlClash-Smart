@@ -15,9 +15,11 @@ See [SMART_ROADMAP.md](SMART_ROADMAP.md) for agreed requirements and device acce
 2. Connect. Smart selection is enabled by default; no profile script is required.
    Settings contain the smart switch, preferred country (Any), excluded countries
    (Russia), DNS recovery, daily test-download budgets and the priority-service
-   chooser shared with the dashboard. A selected country is a strict restriction.
-3. On Wi-Fi/LTE changes the old search is cancelled, old connections are closed,
-   and a new search starts. If no node is available, the managed group blocks
+   chooser shared with the dashboard. A selected country has priority, with fallback
+   to other non-excluded countries and return after preferred nodes recover.
+3. On Wi-Fi/LTE changes the old search is cancelled and old connections are closed.
+   An unchanged current node saved in both transport pools stays selected while
+   health is checked in place. Otherwise a new search starts. If no node is available, the managed group blocks
    traffic rather than falling back to DIRECT. Existing direct routing rules remain.
 4. Selecting a server manually switches smart mode off and saves that choice across
    restarts. Use the visible automatic-mode control to resume. It never starts a VPN
@@ -55,14 +57,19 @@ the global disabled switch takes precedence over legacy script opt-ins.
 
 - The Go core runs the controller; keeping the Flutter screen open is unnecessary.
 - Up to eight probes run together, with a three-second latency deadline, bounded
-  country/service qualification and a 24-second search budget. A dynamic pool of
-  up to twenty nodes per network is refreshed every two minutes on Wi-Fi and five
-  minutes on mobile. Failed nodes leave the active pool but retain history, and
+  country/service qualification and a 24-second search budget. Complete saved pools
+  are kept separately for Wi-Fi and mobile, and refreshed in small batches every
+  two and five minutes respectively. There is no 20-node pool / 128-success cap
+  or automatic expiry of previously responding current-subscription nodes.
+  Latest failures are marked while their previous response evidence remains, and
   discovery rotates beyond the pool and the beginning of the subscription.
 - Candidates must have a known exit country determined through that specific
   node. Russia is excluded by default. Admission uses the
-  verified exit rather than a name heuristic: the preferred country and exclusions
-  both apply, exclusions win, and unknown country fails closed. The ingress address
+  verified exit rather than a name heuristic: exclusions remain absolute, preferred
+  country is tried first, and unknown country fails closed for selection. If the
+  preferred tier fails, a low-latency allowed fallback can be selected. A preferred
+  node passing later pool qualification takes priority over speed/hold rules.
+  Cached country evidence only schedules work; it cannot bypass qualification. The ingress address
   is not treated as the exit. Admission results expire after ten minutes on Wi-Fi
   or thirty minutes on mobile. Country inventory is filled progressively during
   running Smart work, independently of service admission, and retains bounded
@@ -113,10 +120,17 @@ the global disabled switch takes precedence over legacy script opt-ins.
   transport failure may request a native VPN restart, at most once per five minutes.
   The existing Android lifecycle owner handles that restart; Stop and newer requests
   take precedence. A partial service failure never requests a VPN restart.
-- History is bounded and stored in the app's private `smart-history.json`; network
-  and group keys are hashed. The network fingerprint uses transport, interface and
-  DNS, without reading Wi-Fi SSIDs or requesting location. Different Wi-Fi networks
-  with the same interface/DNS can share history; nodes are still probed again.
+- History is stored in private `smart-history.json`. All previously responding
+  nodes in the current subscription survive restarts; obsolete/changed definitions
+  are reconciled when candidates are enumerated. Never-working failure records stay
+  bounded and cannot evict successful response evidence. Transport/group pool keys
+  are stable; speed evidence also carries the actual hashed network context and is
+  not reused for another Wi-Fi context. Network fingerprints use interface/DNS,
+  without reading Wi-Fi SSIDs or requesting location.
+- Regular status polling returns pool counts. Complete lists are fetched only
+  when their settings page is opened or pulled to refresh, and rows render lazily.
+  This avoids repeatedly serializing entire large pools. No extra network timer or
+  mass speed test was added. A saved reply does not prove present availability.
 - Only leaf proxies are benchmarked; nested groups are excluded from candidates.
   Large subscriptions are sampled within the time budget: this is not an exhaustive
   global fastest-node guarantee. Small downloads estimate speed to one endpoint;
@@ -169,6 +183,14 @@ No additional update timer wakes the phone; existing start/recovery events check
 whether work is due. Existing groups explicitly opted out of Smart stay manual.
 
 ## Building and checking
+
+The current test iteration is V3.1 (`0.9.1+2026102901`), based on V3. V4/V5 free
+server sources/onboarding are inactive. Their old generated profile placeholder
+is hidden without deleting stored rows, and an active placeholder is replaced by
+an existing personal profile (or no selection). Personal subscriptions remain.
+Automatic application-release checks and their setting have been removed; unsolicited
+update dialogs are rejected. Manual About-page checking remains explicit.
+Subscription updates and the existing validated routing-data updates are independent.
 
 Follow `.agents/commands.md` for toolchains and full build instructions. Initialize
 the pinned public submodule before building. For an ARM64 test APK:

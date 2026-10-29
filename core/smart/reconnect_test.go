@@ -145,7 +145,7 @@ func TestUnavailableDoesNotUseStaleHistory(t *testing.T) {
 	if len(b.selected) != 0 {
 		t.Fatal("selected an unreachable node")
 	}
-	if len(h.ActivePool("wifi", 20)) != 0 || h.Snapshot("wifi")["old"].BytesPerSec != 10000 {
+	if len(h.ActivePool("wifi")) != 0 || h.Snapshot("wifi")["old"].BytesPerSec != 10000 {
 		t.Fatal("failed node remained active or its speed history was discarded")
 	}
 }
@@ -202,7 +202,7 @@ func TestOrderIsCompleteAndPrioritizesOnlyMatchingHistory(t *testing.T) {
 	}
 }
 
-func TestHistoryRoundTripIsBounded(t *testing.T) {
+func TestHistoryRoundTripKeepsAllRespondingNodes(t *testing.T) {
 	h := &History{}
 	for i := range 200 {
 		h.Put("wifi", fmt.Sprint(i), Record{Checked: time.Now()})
@@ -215,8 +215,8 @@ func TestHistoryRoundTripIsBounded(t *testing.T) {
 	if err = json.Unmarshal(data, &restored); err != nil {
 		t.Fatal(err)
 	}
-	if len(restored.Snapshot("wifi")) != 128 {
-		t.Fatal("history exceeded bound or was lost")
+	if len(restored.Snapshot("wifi")) != 200 {
+		t.Fatal("full responding history was truncated")
 	}
 }
 

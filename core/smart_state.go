@@ -24,6 +24,11 @@ type smartGroupStatus struct {
 	SpeedAt             int64           `json:"speed-at"`
 	SpeedSource         string          `json:"speed-source"`
 	Pool                []smartPoolItem `json:"pool"`
+	WiFiPool            []smartPoolItem `json:"wifi-pool"`
+	MobilePool          []smartPoolItem `json:"mobile-pool"`
+	PoolCount           int             `json:"pool-count"`
+	WiFiPoolCount       int             `json:"wifi-pool-count"`
+	MobilePoolCount     int             `json:"mobile-pool-count"`
 	DiscoveredCountries []string        `json:"discovered-countries"`
 	UnresolvedCountries int             `json:"unresolved-countries"`
 }
@@ -34,6 +39,8 @@ type smartPoolItem struct {
 	LatencyMS int64   `json:"latency-ms"`
 	Speed     float64 `json:"speed-bytes-per-second"`
 	SpeedAt   int64   `json:"speed-at"`
+	Country   string  `json:"country"`
+	Available bool    `json:"available"`
 }
 
 type smartStatus struct {
@@ -164,7 +171,7 @@ func handleGetSmartJournal() string {
 	return string(older) + string(current)
 }
 
-func handleGetSmartStatus() smartStatus {
+func handleGetSmartStatus(includePools ...bool) smartStatus {
 	r := smartReconnect
 	r.mu.Lock()
 	defer r.mu.Unlock()
@@ -203,7 +210,7 @@ func handleGetSmartStatus() smartStatus {
 			item.Current = group.Now()
 		}
 		if r.history != nil {
-			key := smartHash(r.network) + ":" + smartHash(spec.Name)
+			key := smartPoolKey(r.network, spec.Name)
 			record := r.history.Snapshot(key)[item.Current]
 			item.Speed = record.BytesPerSec
 			if !record.Checked.IsZero() {
@@ -213,13 +220,20 @@ func handleGetSmartStatus() smartStatus {
 				item.SpeedAt = record.SpeedAt.UnixMilli()
 				item.SpeedSource = "cached"
 			}
-			item.Pool = []smartPoolItem{}
-			for name, record := range r.history.ActivePool(key, 20) {
-				poolItem := smartPoolItem{Name: name, Checked: record.Checked.UnixMilli(), LatencyMS: record.Latency.Milliseconds(), Speed: record.BytesPerSec}
-				if !record.SpeedAt.IsZero() {
-					poolItem.SpeedAt = record.SpeedAt.UnixMilli()
+			item.WiFiPoolCount = r.history.SavedPoolCount("wifi:" + smartHash(spec.Name))
+			item.MobilePoolCount = r.history.SavedPoolCount("mobile:" + smartHash(spec.Name))
+			item.PoolCount = item.WiFiPoolCount
+			if smartMobileNetwork(r.network) {
+				item.PoolCount = item.MobilePoolCount
+			}
+			item.Pool, item.WiFiPool, item.MobilePool = nil, nil, nil
+			if len(includePools) > 0 && includePools[0] {
+				item.WiFiPool = smartPoolItems(r.history, "wifi:"+smartHash(spec.Name))
+				item.MobilePool = smartPoolItems(r.history, "mobile:"+smartHash(spec.Name))
+				item.Pool = item.WiFiPool
+				if smartMobileNetwork(r.network) {
+					item.Pool = item.MobilePool
 				}
-				item.Pool = append(item.Pool, poolItem)
 			}
 		}
 		if r.paused[spec.Name] {

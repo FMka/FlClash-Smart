@@ -944,12 +944,12 @@
   "smartPreferredCountry": "Preferred country",
   "smartExcludedCountries": "Excluded countries",
   "smartCountryAny": "Any",
-  "smartCountryStrict": "Automatic selection uses only this country. Exclusions take priority.",
+  "smartCountryStrict": "Try this country first, use another allowed country if needed, and return when a preferred node recovers. Exclusions always apply.",
   "smartCountryDiscovery": "Verified exit countries",
   "smartCountryVerified": "{count} countries verified",
   "smartCountryUnknown": "{count} servers unresolved",
   "smartCountryDiscoveryDesc": "Countries are discovered gradually while Smart is running. Saved choices remain when a country is absent. No extra idle scans.",
-  "smartCountryConflict": "The preferred country is excluded. Change the preference or exclusion to restore automatic selection.",
+  "smartCountryConflict": "The preferred country is excluded. Other allowed countries will be used.",
   "smartCountryExcluded": "The exit country is excluded.",
   "smartCountryUnavailable": "No suitable server in the preferred country.",
   "smartCountryNotVerified": "Saved selection; no currently verified exit.",
@@ -997,5 +997,8 @@
   "smartDiagnosticDesc": "Received diagnostic payload only; protocol overhead is not included. Separate from speed-test downloads.",
   "smartSpeedMeasuredAt": "Speed measured at",
   "smartHistory": "History",
-  "smartPool": "Available pool"
+  "smartPool": "Saved servers",
+  "smartPoolWifi": "Wi-Fi pool",
+  "smartPoolMobile": "LTE / mobile pool",
+  "smartPoolSavedDesc": "Saved replies are historical. Both lists survive restarts; current checks decide availability."
 }

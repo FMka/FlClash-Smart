@@ -7872,10 +7872,10 @@ class AppLocalizations {
     return Intl.message('Any', name: 'smartCountryAny', desc: '', args: []);
   }
 
-  /// `Automatic selection uses only this country. Exclusions take priority.`
+  /// `Try this country first, use another allowed country if needed, and return when a preferred node recovers. Exclusions always apply.`
   String get smartCountryStrict {
     return Intl.message(
-      'Automatic selection uses only this country. Exclusions take priority.',
+      'Try this country first, use another allowed country if needed, and return when a preferred node recovers. Exclusions always apply.',
       name: 'smartCountryStrict',
       desc: '',
       args: [],
@@ -7922,10 +7922,10 @@ class AppLocalizations {
     );
   }
 
-  /// `The preferred country is excluded. Change the preference or exclusion to restore automatic selection.`
+  /// `The preferred country is excluded. Other allowed countries will be used.`
   String get smartCountryConflict {
     return Intl.message(
-      'The preferred country is excluded. Change the preference or exclusion to restore automatic selection.',
+      'The preferred country is excluded. Other allowed countries will be used.',
       name: 'smartCountryConflict',
       desc: '',
       args: [],
@@ -8392,11 +8392,36 @@ class AppLocalizations {
     return Intl.message('History', name: 'smartHistory', desc: '', args: []);
   }
 
-  /// `Available pool`
+  /// `Saved servers`
   String get smartPool {
+    return Intl.message('Saved servers', name: 'smartPool', desc: '', args: []);
+  }
+
+  /// `Wi-Fi pool`
+  String get smartPoolWifi {
     return Intl.message(
-      'Available pool',
-      name: 'smartPool',
+      'Wi-Fi pool',
+      name: 'smartPoolWifi',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `LTE / mobile pool`
+  String get smartPoolMobile {
+    return Intl.message(
+      'LTE / mobile pool',
+      name: 'smartPoolMobile',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Saved replies are historical. Both lists survive restarts; current checks decide availability.`
+  String get smartPoolSavedDesc {
+    return Intl.message(
+      'Saved replies are historical. Both lists survive restarts; current checks decide availability.',
+      name: 'smartPoolSavedDesc',
       desc: '',
       args: [],
     );

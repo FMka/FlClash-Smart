@@ -17,6 +17,7 @@ import (
 	"github.com/metacubex/mihomo/constant"
 	P "github.com/metacubex/mihomo/constant/provider"
 	"github.com/metacubex/mihomo/tunnel"
+	"go.yaml.in/yaml/v3"
 	"golang.org/x/text/language"
 )
 
@@ -41,17 +42,11 @@ func validSmartCountry(country string) bool {
 }
 
 func smartCountryAdmission(settings smartSettings, country string) error {
-	if settings.PreferredCountry != "" && slices.Contains(settings.ExcludedCountries, settings.PreferredCountry) {
-		return errors.New("country-filter-conflict")
-	}
 	if !validSmartCountry(country) {
 		return errors.New("exit-country-unknown")
 	}
 	if slices.Contains(settings.ExcludedCountries, country) {
 		return fmt.Errorf("country-excluded:%s", country)
-	}
-	if settings.PreferredCountry != "" && settings.PreferredCountry != country {
-		return fmt.Errorf("preferred-country-unavailable:%s", settings.PreferredCountry)
 	}
 	return nil
 }
@@ -76,14 +71,16 @@ func (b *smartBackend) identity(proxy constant.Proxy) string {
 		cached := b.providerCache[providerName]
 		if cached.Version != provider.Version() || cached.Hash == "" {
 			hash := b.spec.ProviderIdentities[providerName]
+			var identities map[string]string
 			if source, ok := provider.(interface{ Vehicle() P.Vehicle }); ok {
 				file, err := os.Open(source.Vehicle().Path())
 				if err == nil {
-					digest := sha256.New()
-					n, readErr := io.Copy(digest, io.LimitReader(file, 64*1024*1024+1))
+					data, readErr := io.ReadAll(io.LimitReader(file, 64*1024*1024+1))
 					_ = file.Close()
-					if readErr == nil && n <= 64*1024*1024 {
-						hash += hex.EncodeToString(digest.Sum(nil))
+					if readErr == nil && len(data) <= 64*1024*1024 {
+						digest := sha256.Sum256(data)
+						identities = smartProviderNodeIdentities(data, hash)
+						hash += hex.EncodeToString(digest[:])
 					} else {
 						hash = ""
 					}
@@ -91,10 +88,13 @@ func (b *smartBackend) identity(proxy constant.Proxy) string {
 					hash = ""
 				}
 			}
-			cached = smartProviderIdentity{Version: provider.Version(), Hash: hash}
+			cached = smartProviderIdentity{Version: provider.Version(), Hash: hash, Nodes: identities}
 			b.providerCache[providerName] = cached
 		}
 		if cached.Hash != "" {
+			if node := cached.Nodes[proxy.Name()]; node != "" {
+				return smartHash(proxy.Name() + "|" + proxy.Addr() + "|" + proxy.Type().String() + "|" + node)
+			}
 			return smartHash(proxy.Name() + "|" + proxy.Addr() + "|" + proxy.Type().String() + "|" + cached.Hash)
 		}
 	}
@@ -105,6 +105,27 @@ func (b *smartBackend) identity(proxy constant.Proxy) string {
 type smartProviderIdentity struct {
 	Version uint32
 	Hash    string
+	Nodes   map[string]string
+}
+
+func smartProviderNodeIdentities(data []byte, source string) map[string]string {
+	var document struct {
+		Proxies []map[string]any `yaml:"proxies"`
+	}
+	if yaml.Unmarshal(data, &document) != nil {
+		return nil
+	}
+	identities := map[string]string{}
+	for _, node := range document.Proxies {
+		name, _ := node["name"].(string)
+		if name != "" {
+			encoded, err := yaml.Marshal(node)
+			if err == nil {
+				identities[name] = smartHash(source + "|" + string(encoded))
+			}
+		}
+	}
+	return identities
 }
 
 func parseSmartCountry(body string) (string, string) {

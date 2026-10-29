@@ -29,6 +29,26 @@ class _Status extends SmartStatusNotifier {
         'mode': 'auto',
         'current': 'Actual server',
         'country': 'DE',
+        'wifi-pool': List.generate(
+          300,
+          (index) => {
+            'name': 'Wi-Fi server $index',
+            'country': 'DE',
+            'latency-ms': index + 1,
+            'checked': 1,
+            'available': true,
+          },
+        ),
+        'mobile-pool': List.generate(
+          200,
+          (index) => {
+            'name': 'LTE server $index',
+            'country': 'FR',
+            'latency-ms': index + 2,
+            'checked': 1,
+            'available': true,
+          },
+        ),
       },
     ],
   });
@@ -55,7 +75,7 @@ void main() {
     return container;
   }
 
-  testWidgets('shows strict countries, passive DNS state and rule source', (
+  testWidgets('shows country priority, passive DNS state and rule source', (
     tester,
   ) async {
     final container = await openSmartSettings(tester);
@@ -84,6 +104,41 @@ void main() {
     expect(container.read(appSettingProvider).smartPreferredCountry, 'RU');
     expect(container.read(appSettingProvider).smartExcludedCountries, ['RU']);
   });
+
+  for (final mobile in [false, true]) {
+    testWidgets('complete ${mobile ? 'LTE' : 'Wi-Fi'} pool renders lazily', (
+      tester,
+    ) async {
+      final container = ProviderContainer(
+        overrides: [
+          smartStatusProvider.overrideWith(_Status.new),
+          smartPoolSnapshotProvider.overrideWith(
+            (ref) async => ref.read(smartStatusProvider),
+          ),
+        ],
+      );
+      addTearDown(container.dispose);
+      await tester.pumpWidget(
+        UncontrolledProviderScope(
+          container: container,
+          child: TestApp(
+            locale: const Locale('en'),
+            child: SmartPoolView(groupName: 'Any subscription', mobile: mobile),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      final group = container.read(smartStatusProvider).groups.single;
+      expect(group.wifiPool, hasLength(300));
+      expect(group.mobilePool, hasLength(200));
+      expect(find.text('${mobile ? 'LTE' : 'Wi-Fi'} server 0'), findsOneWidget);
+      expect(find.text('${mobile ? 'Wi-Fi' : 'LTE'} server 0'), findsNothing);
+      expect(
+        find.text('${mobile ? 'LTE' : 'Wi-Fi'} server ${mobile ? 199 : 299}'),
+        findsNothing,
+      );
+    });
+  }
 
   testWidgets('country exclusions remain editable when the exit is absent', (
     tester,

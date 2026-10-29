@@ -1831,7 +1831,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "smartCountryAny": MessageLookupByLibrary.simpleMessage("Cualquiera"),
     "smartCountryConflict": MessageLookupByLibrary.simpleMessage(
-      "El país preferido está excluido. Cambia la preferencia o la exclusión para restaurar la selección automática.",
+      "El país preferido está excluido. Se usarán otros países permitidos.",
     ),
     "smartCountryDiscovery": MessageLookupByLibrary.simpleMessage(
       "Países de salida verificados",
@@ -1849,7 +1849,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "Selección guardada; sin salida verificada actualmente.",
     ),
     "smartCountryStrict": MessageLookupByLibrary.simpleMessage(
-      "La selección automática usa solo este país. Las exclusiones tienen prioridad.",
+      "Probar este país primero, usar otro permitido si es necesario y volver cuando se recupere. Las exclusiones siempre se aplican.",
     ),
     "smartCountryUnavailable": MessageLookupByLibrary.simpleMessage(
       "No hay servidores adecuados en el país preferido.",
@@ -1934,7 +1934,14 @@ class MessageLookup extends MessageLookupByLibrary {
     "smartPartial": MessageLookupByLibrary.simpleMessage(
       "Algunos servicios no disponibles",
     ),
-    "smartPool": MessageLookupByLibrary.simpleMessage("Servidores disponibles"),
+    "smartPool": MessageLookupByLibrary.simpleMessage("Servidores guardados"),
+    "smartPoolMobile": MessageLookupByLibrary.simpleMessage(
+      "Grupo LTE / móvil",
+    ),
+    "smartPoolSavedDesc": MessageLookupByLibrary.simpleMessage(
+      "Las listas se conservan tras reiniciar. Las respuestas guardadas son históricas; se comprueba la disponibilidad actual.",
+    ),
+    "smartPoolWifi": MessageLookupByLibrary.simpleMessage("Grupo Wi-Fi"),
     "smartPreferredCountry": MessageLookupByLibrary.simpleMessage(
       "País preferido",
     ),

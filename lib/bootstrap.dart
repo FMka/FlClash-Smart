@@ -139,6 +139,16 @@ class Bootstrap {
         );
     final profiles = await database.profilesDao.query().get();
     container.read(profilesProvider.notifier).reorder(profiles);
+    if (profiles.any(
+      (profile) =>
+          profile.id == config.currentProfileId &&
+          profile.isRetiredBuiltinProfile,
+    )) {
+      container.read(currentProfileIdProvider.notifier).value = container
+          .read(profilesProvider)
+          .firstOrNull
+          ?.id;
+    }
     await AppLocalizations.load(
       getLocaleForString(config.appSettingProps.locale) ??
           WidgetsBinding.instance.platformDispatcher.locale,
@@ -165,7 +175,6 @@ class Bootstrap {
     unawaited(
       _container.read(profilesActionProvider.notifier).autoUpdateProfiles(),
     );
-    unawaited(_container.read(commonActionProvider.notifier).autoCheckUpdate());
     unawaited(
       autoLaunch?.updateStatus(_container.read(appSettingProvider).autoLaunch),
     );

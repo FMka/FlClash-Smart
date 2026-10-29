@@ -1704,7 +1704,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "smartCountryAny": MessageLookupByLibrary.simpleMessage("Any"),
     "smartCountryConflict": MessageLookupByLibrary.simpleMessage(
-      "The preferred country is excluded. Change the preference or exclusion to restore automatic selection.",
+      "The preferred country is excluded. Other allowed countries will be used.",
     ),
     "smartCountryDiscovery": MessageLookupByLibrary.simpleMessage(
       "Verified exit countries",
@@ -1722,7 +1722,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "Saved selection; no currently verified exit.",
     ),
     "smartCountryStrict": MessageLookupByLibrary.simpleMessage(
-      "Automatic selection uses only this country. Exclusions take priority.",
+      "Try this country first, use another allowed country if needed, and return when a preferred node recovers. Exclusions always apply.",
     ),
     "smartCountryUnavailable": MessageLookupByLibrary.simpleMessage(
       "No suitable server in the preferred country.",
@@ -1799,7 +1799,14 @@ class MessageLookup extends MessageLookupByLibrary {
     "smartPartial": MessageLookupByLibrary.simpleMessage(
       "Some services unavailable",
     ),
-    "smartPool": MessageLookupByLibrary.simpleMessage("Available pool"),
+    "smartPool": MessageLookupByLibrary.simpleMessage("Saved servers"),
+    "smartPoolMobile": MessageLookupByLibrary.simpleMessage(
+      "LTE / mobile pool",
+    ),
+    "smartPoolSavedDesc": MessageLookupByLibrary.simpleMessage(
+      "Saved replies are historical. Both lists survive restarts; current checks decide availability.",
+    ),
+    "smartPoolWifi": MessageLookupByLibrary.simpleMessage("Wi-Fi pool"),
     "smartPreferredCountry": MessageLookupByLibrary.simpleMessage(
       "Preferred country",
     ),
