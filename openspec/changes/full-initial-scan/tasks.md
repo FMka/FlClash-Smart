@@ -1,0 +1,6 @@
+- [x] Record the next-build requirements and distinguish them from released V3.2.
+- [ ] Implement complete inventory refresh and initial scan with the shared 256 MB budget.
+- [ ] Preserve progress and honest partial/cancelled results across interruptions.
+- [ ] Measure and accelerate working scans while preserving route stability and idle limits.
+- [ ] Verify budget accounting, full coverage, cancellation and network-pool separation.
+- [ ] Build and verify the next APK; retain physical-phone acceptance as a separate check.
